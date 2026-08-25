@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BeginningIllustration,
   GapIllustration,
@@ -17,8 +19,6 @@ import {
   PageHeading,
   SectionLabel,
 } from "@/components/ui";
-
-export const metadata = { title: "Foundation · Escolent" };
 
 /**
  * Direction board for the Phase 3 visual reset. Shared primitives only —
