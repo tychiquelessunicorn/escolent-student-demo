@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.010 55);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes pss-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes pss-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+  #app-rail{display:none;}
+  #app-bottomnav{display:flex;}
+  @media (min-width:760px){
+    #app-rail{display:flex;}
+    #app-bottomnav{display:none;}
+  }
+  @media (max-width:480px){
+    .pss-card{padding:26px 20px !important;}
+    .pss-ladder-row{gap:10px !important;}
+  }
+</style>
+</helmet>
+
+<div style="display:flex;">
+  <nav id="app-rail" style="flex-direction:column;width:250px;flex-shrink:0;padding:24px 16px;gap:4px;border-right:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);min-height:100vh;box-sizing:border-box;">
+    <a href="Today.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Today</a>
+    <a href="Learn.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Learn</a>
+    <a href="Practice Session.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:oklch(94% 0.03 264.4);color:oklch(48.8% 0.217 264.4);">Practice</a>
+    <a href="Progress.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Progress</a>
+  </nav>
+  <div style="flex:1;min-width:0;">
+
+<div data-screen-label="Practice — Two-step equations" style="max-width:720px;margin:0 auto;padding:28px 24px 80px;font-family:'Geist',sans-serif;color:oklch(24% 0.014 55);min-height:100vh;box-sizing:border-box;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:14px;color:oklch(64% 0.016 55);">Escolent</div>
+      <div style="width:1px;height:12px;background:oklch(93% 0.008 55);"></div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <sc-if value="{{ isConnFresh }}"><div style="width:9px;height:9px;border-radius:50%;background:oklch(64% 0.016 55);"></div></sc-if>
+        <sc-if value="{{ isConnStale }}"><div style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"></div></sc-if>
+        <sc-if value="{{ isConnSyncing }}"><div style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(93% 0.008 55);border-top-color:oklch(64% 0.016 55);animation:pss-spin 1s linear infinite;"></div></sc-if>
+        <sc-if value="{{ isConnUnavailable }}"><div style="position:relative;width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"><div style="position:absolute;top:50%;left:-1px;width:11px;height:1.5px;background:oklch(64% 0.016 55);transform:translateY(-50%) rotate(45deg);"></div></div></sc-if>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);">{{ connectivityLabel }}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <button onClick="{{ handleNeedHelp }}" style="font-family:'Geist',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(49% 0.018 55);cursor:pointer;">I need help</button>
+      <div style="font-size:12px;color:oklch(64% 0.016 55);">{{ sessionLabel }}</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ showQueueBanner }}" hint-placeholder-val="{{ false }}">
+    <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:oklch(49% 0.018 55);background:oklch(96% 0.005 264.4);border-radius:999px;padding:5px 12px;margin-bottom:20px;">{{ queueBannerText }}</div>
+  </sc-if>
+
+  <sc-if value="{{ showGlobalDistress }}" hint-placeholder-val="{{ false }}">
+    <div style="background:oklch(96% 0.02 250);border:1px solid oklch(85% 0.05 250);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.5;color:oklch(35% 0.08 250);margin-bottom:20px;">Your teacher has been notified and will follow up with you.</div>
+  </sc-if>
+
+  <sc-if value="{{ isNotificationPreview }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-size:12px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);margin-bottom:20px;">Mockup &#8212; preview of a system notification, not a live send</div>
+      <a href="{{ notificationHref }}" style="display:block;text-decoration:none;color:inherit;max-width:380px;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:18px;padding:14px 16px;box-shadow:0 2px 10px oklch(24% 0.014 55 / 0.08);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="width:18px;height:18px;border-radius:5px;background:oklch(48.8% 0.217 264.4);flex-shrink:0;"></div>
+          <div style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:oklch(24% 0.014 55);flex:1;">Escolent</div>
+          <div style="font-size:12px;color:oklch(64% 0.016 55);">now</div>
+        </div>
+        <div style="font-size:14px;color:oklch(24% 0.014 55);line-height:1.4;">{{ notificationBody }}</div>
+      </a>
+      <div style="font-size:13px;color:oklch(49% 0.018 55);margin-top:20px;">Tapping it opens Practice Session with that skill pre-selected &#8212; the same ?skill= routing Progress already uses for "Practice this now."</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isCheckingSession }}">
+    <div style="font-size:14px;color:oklch(64% 0.016 55);animation:pss-pulse 1.3s ease-in-out infinite;padding:8px 0;">Checking your session&#8230;</div>
+  </sc-if>
+
+  <sc-if value="{{ isNoValidSession }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Open Escolent from Canvas</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">We couldn't find an active session for you here. Open Escolent from Canvas to get started &#8212; that's where your practice is launched from.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isResumePrompt }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Resume where you left off?</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.55;margin-bottom:28px;">{{ resumeContextLine }}</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button onClick="{{ handleStartFreshInterruption }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:10px 20px;border-radius:14px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;">Start fresh instead</button>
+        <button onClick="{{ handleResumeInterruption }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Resume</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isGate }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;text-align:left;">
+      <svg width="64" height="48" viewBox="0 0 64 48" fill="none" style="margin-bottom:16px;" aria-hidden="true"><circle cx="8" cy="36" r="4" fill="oklch(88% 0.014 55)"></circle><circle cx="24" cy="26" r="5" fill="oklch(82% 0.020 55)"></circle><circle cx="42" cy="20" r="6" fill="oklch(75% 0.030 55)"></circle><circle cx="58" cy="14" r="8" fill="oklch(94% 0.03 264.4)"></circle><circle cx="58" cy="14" r="3.5" fill="oklch(48.8% 0.217 264.4)"></circle></svg>
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Nothing's due right now.</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.55;margin-bottom:28px;">Want to try a two-step equations problem, just for practice?</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button onClick="{{ declineGate }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:10px 20px;border-radius:14px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;">Not now</button>
+        <button onClick="{{ acceptGate }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Sure, let's try one</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isOfflineBlocked }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">You're offline</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">This is new content, so it needs a connection to load. It'll pick up on its own as soon as you're back online.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isSkillUnavailable }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Not part of the demo yet</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">{{ unavailableSkillLabel }} isn't wired up in this prototype \u2014 only two-step equations and variables on both sides have real practice content right now.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isRubricGrading }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-size:15px;color:oklch(64% 0.016 55);animation:pss-pulse 1.3s ease-in-out infinite;">Checking your reasoning&#8230;</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isRubricResult }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+        <div style="width:22px;height:22px;border-radius:50%;background:{{ rubricDotColor }};flex-shrink:0;"></div>
+        <div style="font-size:17px;font-weight:600;">{{ rubricTierLabel }}</div>
+      </div>
+      <div style="font-size:15px;color:oklch(24% 0.014 55);line-height:1.6;margin-bottom:28px;">{{ rubricFeedback }}</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <sc-if value="{{ rubricShowRetry }}">
+          <button onClick="{{ handleRubricRetry }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Try again</button>
+        </sc-if>
+        <sc-if value="{{ rubricShowFinish }}">
+          <button onClick="{{ handleStop }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Finish for today</button>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isIntro }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-size:12px;color:oklch(64% 0.016 55);text-transform:uppercase;letter-spacing:0.03em;font-weight:600;margin-bottom:12px;">New skill: {{ activeSkillName }}</div>
+      <sc-if value="{{ introLoading }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:15px;color:oklch(64% 0.016 55);animation:pss-pulse 1.3s ease-in-out infinite;">Getting this ready&#8230;</div>
+      </sc-if>
+      <sc-if value="{{ introReady }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:16px;line-height:1.65;color:oklch(24% 0.014 55);margin-bottom:28px;">{{ introText }}</div>
+        <button onClick="{{ handleContinueFromIntro }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Let's try one</button>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isClosed }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(93% 0.008 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">Okay — nothing else scheduled right now. Check back later.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isEnded }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Nice work today.</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">{{ endedMessage }}</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isMainCard }}">
+    <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
+
+      <sc-if value="{{ isCorrectPhase }}">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          <div style="width:22px;height:22px;border-radius:50%;background:oklch(60% 0.10 150);flex-shrink:0;"></div>
+          <div style="font-size:17px;font-weight:600;">{{ correctFeedbackText }}</div>
+        </div>
+        <sc-if value="{{ showMasteryMsg }}">
+          <div style="display:flex;align-items:center;gap:12px;background:oklch(95% 0.045 215);color:oklch(28% 0.10 215);font-size:14px;padding:12px 16px;border-radius:14px;margin-bottom:24px;">
+            <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style="flex-shrink:0;" aria-hidden="true"><circle cx="20" cy="20" r="7" fill="oklch(58% 0.16 215)"></circle><line x1="20" y1="20" x2="20" y2="4" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="33" y2="12" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="34" y2="28" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="22" y2="35" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="6" y2="30" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line></svg>
+            <div>{{ masteryMsgText }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showBreakthroughMsg }}">
+          <div style="display:flex;align-items:center;gap:12px;background:oklch(95% 0.045 215);color:oklch(28% 0.10 215);font-size:14px;padding:12px 16px;border-radius:14px;margin-bottom:24px;">
+            <svg width="34" height="34" viewBox="0 0 40 40" fill="none" style="flex-shrink:0;" aria-hidden="true"><circle cx="20" cy="20" r="7" fill="oklch(58% 0.16 215)"></circle><line x1="20" y1="20" x2="20" y2="4" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="33" y2="12" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="34" y2="28" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="22" y2="35" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line><line x1="20" y1="20" x2="6" y2="30" stroke="oklch(70% 0.13 215)" stroke-width="2.5" stroke-linecap="round"></line></svg>
+            <div>{{ breakthroughMsgText }}</div>
+          </div>
+        </sc-if>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+          <sc-if value="{{ showStopButton }}">
+            <button onClick="{{ handleStop }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:10px 20px;border-radius:14px;border:none;background:transparent;color:oklch(64% 0.016 55);cursor:pointer;">Stop for now</button>
+          </sc-if>
+          <button onClick="{{ handleNext }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;margin-left:auto;">{{ nextButtonLabel }}</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isActivePhase }}">
+        <div style="font-size:15px;color:oklch(49% 0.018 55);margin-bottom:18px;">{{ reasonLine }}</div>
+        <div style="font-family:'Geist',sans-serif;font-weight:700;font-size:28px;letter-spacing:0.01em;margin-bottom:24px;">{{ currentProblemText }}</div>
+
+        <sc-if value="{{ showExhausted }}">
+          <div style="background:oklch(97% 0.010 55);border:1px solid oklch(93% 0.008 55);border-radius:18px;padding:20px 22px;margin-bottom:20px;">
+            <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:18px;margin-bottom:8px;">Let's come back to this one.</div>
+            <div style="font-size:14px;color:oklch(49% 0.018 55);line-height:1.55;margin-bottom:18px;">This one hasn't clicked yet. We'll pick it up again another time — let's try something else for now.</div>
+            <button onClick="{{ handleContinueAfterExhausted }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:10px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">{{ nextButtonLabel }}</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showLadder }}">
+          <div class="pss-ladder-row" style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:20px;">
+            <sc-for list="{{ tiers }}" as="t" hint-placeholder-count="4">
+              <div style="display:flex;flex-direction:column;align-items:center;width:64px;">
+                <div style="width:14px;height:14px;border-radius:50%;background:{{ t.dotBg }};border:{{ t.dotBorder }};"></div>
+                <div style="font-size:11px;margin-top:6px;text-align:center;color:{{ t.textColor }};font-weight:{{ t.fontWeight }};">{{ t.name }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-if value="{{ showWorkedStatic }}">
+            <div style="background:oklch(97% 0.010 55);border:1px solid oklch(93% 0.008 55);border-radius:18px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.7;color:oklch(24% 0.014 55);">
+              <div style="color:oklch(64% 0.016 55);font-size:12px;margin-bottom:6px;">Here's a similar one, worked out:</div>
+              <div>{{ currentSimilarText }}</div>
+              <div>{{ currentSimilarStep1 }}</div>
+              <div style="margin-bottom:8px;">{{ currentSimilarStep2 }}</div>
+              <div style="color:oklch(49% 0.018 55);">Now try yours again.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showWorkedLens }}">
+            <div style="background:oklch(97% 0.010 55);border:1px solid oklch(93% 0.008 55);border-radius:18px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.7;color:oklch(24% 0.014 55);">
+              <sc-if value="{{ workedLensLoading }}" hint-placeholder-val="{{ false }}">
+                <div style="color:oklch(64% 0.016 55);animation:pss-pulse 1.3s ease-in-out infinite;">Thinking of another way to show this&#8230;</div>
+              </sc-if>
+              <sc-if value="{{ workedLensReady }}" hint-placeholder-val="{{ false }}">
+                <div>{{ workedLensText }}</div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showPartial }}">
+            <div style="background:oklch(97% 0.010 55);border:1px solid oklch(93% 0.008 55);border-radius:18px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.7;color:oklch(24% 0.014 55);">
+              <div>{{ currentPartialStep }}</div>
+              <div style="color:oklch(49% 0.018 55);margin-top:6px;">Now solve for x from here.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showHint }}">
+            <div style="background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.6;color:oklch(38% 0.15 264.4);">
+              <sc-if value="{{ hintLoading }}" hint-placeholder-val="{{ false }}">
+                <div style="animation:pss-pulse 1.3s ease-in-out infinite;">Thinking of a good hint…</div>
+              </sc-if>
+              <sc-if value="{{ hintReady }}" hint-placeholder-val="{{ false }}">
+                <div>{{ hintText }}</div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ showIndependent }}">
+            <div style="font-size:14px;color:oklch(49% 0.018 55);margin-bottom:20px;">Give this one your best shot — you've got the tools.</div>
+          </sc-if>
+
+          <sc-if value="{{ showAskAffordance }}">
+            <div style="margin-bottom:20px;">
+              <sc-if value="{{ askClosed }}">
+                <button onClick="{{ openAsk }}" style="background:none;border:none;padding:0;font-family:'Geist',sans-serif;font-size:13px;color:oklch(64% 0.016 55);text-decoration:underline;cursor:pointer;">Ask a specific question</button>
+              </sc-if>
+              <sc-if value="{{ askOpen }}">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                  <input type="text" placeholder="e.g. why do we subtract first" value="{{ askText }}" onChange="{{ handleAskChange }}" style="flex:1;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:14px;padding:8px 12px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);"/>
+                  <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 14px;border-radius:14px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;">Ask</button>
+                  <button onClick="{{ closeAsk }}" style="background:none;border:none;font-size:13px;color:oklch(64% 0.016 55);cursor:pointer;">Cancel</button>
+                </div>
+                <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:13px;color:oklch(64% 0.016 55);margin-top:8px;animation:pss-pulse 1.3s ease-in-out infinite;">Thinking…</div>
+                </sc-if>
+                <sc-if value="{{ askAnswered }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:10px;background:oklch(97% 0.010 55);border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.55;color:oklch(24% 0.014 55);">{{ askResponse }}</div>
+                </sc-if>
+
+              </sc-if>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ showInput }}">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="font-size:16px;font-weight:600;flex-shrink:0;">x =</div>
+            <sc-if value="{{ isTextAnswer }}">
+              <input type="text" placeholder="?" value="{{ answerInput }}" onChange="{{ handleInputChange }}" onKeyDown="{{ handleKeyDown }}" style="flex:1;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:16px;padding:10px 14px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);"/>
+            </sc-if>
+            <sc-if value="{{ isTextareaAnswer }}">
+              <textarea rows="3" placeholder="Explain your answer&#8230;" value="{{ answerInput }}" onChange="{{ handleInputChange }}" style="flex:1;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:10px 14px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);resize:vertical;"></textarea>
+            </sc-if>
+            <button onClick="{{ handleSubmit }}" disabled="{{ submitDisabled }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;flex-shrink:0;">Submit</button>
+          </div>
+        </sc-if>
+      </sc-if>
+    </div>
+  </sc-if>
+
+</div>
+
+  </div>
+</div>
+
+<nav id="app-bottomnav" style="position:fixed;left:0;right:0;bottom:0;background:oklch(99% 0.007 55);border-top:1px solid oklch(88% 0.014 55);z-index:10;">
+  <a href="Today.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Today</a>
+  <a href="Learn.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Learn</a>
+  <a href="Practice Session.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:700;color:oklch(48.8% 0.217 264.4);">Practice</a>
+  <a href="Progress.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Progress</a>
+</nav>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:640,&quot;height&quot;:820}}">
+class Component extends DCLogic {
+  // Production demo path: first-exposure intro, then a linear standard problem. No sandbox controls.
+  entryVariant = 'first_exposure';
+  connectivityDemo = 'auto';
+  interruptionDemo = 'none';
+  directOpenDemo = 'not_applicable';
+  problemDemo = 'standard';
+  notificationPreviewDemo = 'not_applicable';
+  aiHintsEnabled = true;
+
+  state = {
+    phase: 'intro',
+    problemIndex: 0,
+    wrongAnswers: [],
+    answerInput: '',
+    sessionCompleted: 0,
+    streak: 0,
+    showMasteryMsg: false,
+    breakthrough: false,
+    ladderExhausted: false,
+    connectivity: 'fresh',
+    askOpen: false,
+    askText: '',
+    askLoading: false,
+    askResponse: '',
+    distressDetected: false,
+    distressSource: null,
+    distressLog: [],
+    hintText: '',
+    hintLoading: false,
+    endReason: null,
+    exhaustedCount: 0,
+    introText: '',
+    introLoading: false,
+    workedLensText: '',
+    workedLensLoading: false,
+    pendingSyncQueue: [],
+    isSyncingQueue: false,
+    justSynced: false,
+    offlineBlockedVariant: null,
+    interruptionHandled: false,
+    rubricTier: null,
+    rubricFeedback: '',
+  };
+
+  // Demo fixture for the "genuinely interrupted" scenario: partway into two-step equations, 2 wrong tries in.
+  // interruptionDemo is the test harness for the 24h expiry rule (Requirement 30.4): 'recent' simulates a save
+  // from within the last 24h (offer resume), 'expired' simulates one older than 24h (behave as if it doesn't
+  // exist \u2014 proceed straight to normal Entry), 'none' simulates no saved interruption at all.
+  savedInterruption = { problemIndex: 1, wrongAnswers: [3, 2] };
+
+  // Fixed platform-level Lenses \u2014 explanation strategies selected by skill/moment, never by student preference.
+  lenses = {
+    concrete_analogy: { name: 'Concrete / analogy', styleInstruction: 'Explain using a concrete, everyday analogy that makes the idea tangible. Do not present it as a numbered procedure.' },
+    procedural_steps: { name: 'Procedural steps', styleInstruction: 'Explain as an explicit, ordered step-by-step procedure (first do this, then this, then this). Do not use an analogy framing \u2014 this must read as genuinely different in kind from an analogy.' },
+  };
+
+  variablesBothSidesProblems = [
+    { text: "5x + 3 = 2x + 18", answer: 5, partialStep: "Subtract 2x from both sides: 3x + 3 = 18" },
+  ];
+
+  // Rubric-graded demo problem: this equation has no solution \u2014 the x-terms cancel, leaving 3 = 7, a false
+  // statement. Correctly solving it means recognizing and explaining that, not stating a single numeric answer.
+  noSolutionProblem = { text: "2x + 3 = 2x + 7" };
+
+  isRubricDemo = () => this.problemDemo === 'no_solution_rubric';
+
+  // evaluation_strategy determines the answer control: exact_match / symbolic_equivalence -> text input,
+  // rubric_llm -> textarea, graded by AI against a rubric rather than compared to one exact value.
+  getEvaluationStrategy = () => (this.isRubricDemo() ? 'rubric_llm' : 'exact_match');
+
+  problems = [
+    { text: "3x + 5 = 20", answer: 5, similarText: "2x + 4 = 10", similarStep1: "Subtract 4 from both sides: 2x = 6", similarStep2: "Divide both sides by 2: x = 3", partialStep: "Subtract 5 from both sides: 3x = 15" },
+    { text: "4x \u2212 7 = 9", answer: 4, similarText: "3x \u2212 5 = 7", similarStep1: "Add 5 to both sides: 3x = 12", similarStep2: "Divide both sides by 3: x = 4", partialStep: "Add 7 to both sides: 4x = 16" },
+    { text: "2x + 9 = 21", answer: 6, similarText: "3x + 2 = 11", similarStep1: "Subtract 2 from both sides: 3x = 9", similarStep2: "Divide both sides by 3: x = 3", partialStep: "Subtract 9 from both sides: 2x = 12" },
+    { text: "5x \u2212 6 = 19", answer: 5, similarText: "2x \u2212 3 = 7", similarStep1: "Add 3 to both sides: 2x = 10", similarStep2: "Divide both sides by 2: x = 5", partialStep: "Add 6 to both sides: 5x = 25" },
+  ];
+
+  feedbackLines = ["Nice \u2014 that's it.", "That's right.", "Got it \u2014 nice work.", "Yes \u2014 exactly."];
+  fallbackHint = "What's the first thing you'd need to undo before x is by itself?";
+
+  // Real navigation entry point from Progress: ?skill=<slug> on the URL. Only two skills have real content;
+  // everything else gets an honest "not part of the demo" state instead of silently showing mislabeled content.
+  skillParam = (() => { try { return new URLSearchParams(window.location.search).get('skill'); } catch (e) { return null; } })();
+  unsupportedSkillLabels = {
+    equation_basics: 'Equation basics & balancing', integer_operations: 'Integer operations',
+    one_step: 'One-step equations', multi_step: 'Multi-step equations', inequalities: 'Inequalities',
+  };
+  isVariablesSkill = () => this.entryVariant === 'first_exposure' || this.skillParam === 'variables_both_sides';
+  isUnsupportedSkill = () => !!this.unsupportedSkillLabels[this.skillParam];
+
+  getProblems = () => {
+    if (this.isRubricDemo()) return [this.noSolutionProblem];
+    return this.isVariablesSkill() ? this.variablesBothSidesProblems : this.problems;
+  };
+  isFirstExposure = () => this.isVariablesSkill();
+
+  // Single source of truth for effective connectivity: a live sync-in-progress always shows 'syncing',
+  // otherwise the demo prop overrides (when not 'auto'), otherwise the real internal state.
+  getConn = () => {
+    if (this.state.isSyncingQueue) return 'syncing';
+    return (this.connectivityDemo && this.connectivityDemo !== 'auto') ? this.connectivityDemo : this.state.connectivity;
+  };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/^(hint|answer|response)\s*:\s*/i, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  freshState = (entryVariant) => ({
+    phase: entryVariant === 'nothing_due' ? 'gate' : (this.isVariablesSkill() ? 'intro' : 'active'),
+    problemIndex: 0, wrongAnswers: [], answerInput: '', sessionCompleted: 0, streak: 0,
+    showMasteryMsg: false, breakthrough: false, ladderExhausted: false, connectivity: 'fresh', askOpen: false,
+    askText: '', askLoading: false, askResponse: '', hintText: '', hintLoading: false,
+    endReason: null, exhaustedCount: 0, introText: '', introLoading: false, workedLensText: '', workedLensLoading: false,
+    pendingSyncQueue: [], isSyncingQueue: false, justSynced: false, offlineBlockedVariant: null,
+  });
+
+  hasPendingInterruption = () => this.interruptionDemo === 'recent' && this.entryVariant !== 'first_exposure' && !this.state.interruptionHandled;
+
+  // Requirement 1.7-1.8 test harness: simulates arriving at Escolent directly (PWA icon, bookmark, URL) rather
+  // than clicking through from Canvas. 'not_applicable' is a normal LMS launch \u2014 no change from prior behavior.
+  // 'valid_session' shows a brief session check, then proceeds into Entry exactly as any launch would.
+  // 'no_valid_session' stops before Entry entirely: there's no standalone login for Students, so the only honest
+  // path back in is the LMS.
+  componentDidMount() {
+    this.proceedToEntry();
+  }
+
+  proceedToEntry = () => {
+    // Self-contained rubric demo: takes priority and bypasses the ladder, first-exposure flow, and every
+    // other Entry state entirely \u2014 it's testing rubric grading, not those flows.
+    if (this.isRubricDemo()) { this.setState({ phase: 'active', problemIndex: 0, wrongAnswers: [], answerInput: '', rubricTier: null, rubricFeedback: '' }); return; }
+    // A skill this demo doesn't have real content for takes priority over everything else \u2014 an honest
+    // dead end rather than silently loading the wrong skill's problems under the right label.
+    if (this.isUnsupportedSkill()) { this.setState({ phase: 'skillUnavailable' }); return; }
+    // 'expired' behaves identically to 'none' here \u2014 the saved state is simply never surfaced.
+    if (this.hasPendingInterruption()) { this.setState({ phase: 'resumePrompt' }); return; }
+    if (this.entryVariant === 'nothing_due') { this.setState({ phase: 'gate' }); return; }
+    if (this.isVariablesSkill()) {
+      if (this.getConn() === 'unavailable') { this.setState({ phase: 'offlineBlocked', offlineBlockedVariant: 'first_exposure' }); return; }
+      this.setState({ phase: 'intro' }); this.generateIntro(); return;
+    }
+    this.setState({ phase: 'active' });
+  };
+
+  // Resume restores the exact problem and prior wrong-answer history (same ladder tier, not reset).
+  handleResumeInterruption = () => {
+    this.setState({
+      interruptionHandled: true, phase: 'active',
+      problemIndex: this.savedInterruption.problemIndex,
+      wrongAnswers: [...this.savedInterruption.wrongAnswers],
+      answerInput: '', ladderExhausted: false,
+    });
+  };
+
+  // Declining discards the saved interruption and proceeds as a normal Entry for the underlying variant.
+  handleStartFreshInterruption = () => {
+    this.setState({ interruptionHandled: true, phase: this.entryVariant === 'nothing_due' ? 'gate' : 'active' });
+  };
+
+  // Continuing an already-loaded session works offline; starting a genuinely new one (a new entryVariant here)
+  // needs connectivity. Blocked loads resume on their own the moment connectivity returns \u2014 no retry action needed.
+  componentDidUpdate(_prevProps, prevState) {
+    const prevConn = prevState && prevState.connectivity;
+    const curConn = this.getConn();
+    const reconnected = prevConn === 'unavailable' && curConn !== 'unavailable';
+
+    if (reconnected) {
+      if (this.state.phase === 'offlineBlocked' && this.state.offlineBlockedVariant) {
+        const variant = this.state.offlineBlockedVariant;
+        this.setState({ ...this.freshState(variant), offlineBlockedVariant: null });
+        if (variant === 'first_exposure') this.generateIntro();
+        return;
+      }
+      if (this.state.pendingSyncQueue.length > 0 && !this.state.isSyncingQueue) this.syncQueue();
+    }
+  }
+
+  // Queued offline responses sync quietly on reconnect: a brief syncing state, then a short confirmation.
+  syncQueue = () => {
+    this.setState({ isSyncingQueue: true });
+    setTimeout(() => {
+      this.setState({ pendingSyncQueue: [], isSyncingQueue: false, justSynced: true });
+      setTimeout(() => this.setState({ justSynced: false }), 1600);
+    }, 1300);
+  };
+
+  // Initial first-exposure instruction: fixed concrete/analogy Lens, bridged to the struggling prerequisite (Two-step equations).
+  generateIntro = async () => {
+    const problem = this.getProblems()[0];
+    const lens = this.lenses.concrete_analogy;
+    const fallback = "Think of an equation like a balance scale: whatever you do to one side, you have to do to the other to keep it level. Right now you've got x-terms sitting on both sides, so the first move is to get them onto one side \u2014 the same subtract-to-balance move you've been using in two-step equations, just applied one extra time before you're back to a problem you already know how to finish.";
+    this.setState({ introLoading: false, introText: fallback });
+    try {
+      const prompt = `You are the platform's instruction engine, about to teach a grade 8 student "variables on both sides of an equation" for the very first time \u2014 she has never attempted this skill before. Her direct prerequisite, two-step equations, is currently rated "struggling" (not yet solid).
+
+Explanation style for this introduction (a fixed platform Lens \u2014 follow it exactly): ${lens.styleInstruction}
+
+Write a brief first-exposure instruction (3-5 sentences) that: (1) introduces the new idea \u2014 variables appearing on both sides of the equation \u2014 using that style, and (2) weaves in a short bridge reconnecting to two-step equations specifically, since that prerequisite isn't solid yet. Integrate the bridge naturally into the same explanation \u2014 do not write a separate review section. Ground it in the actual upcoming problem: "${problem.text}". Grade-appropriate, warm, plain. Respond with ONLY the plain instruction text \u2014 no markdown, no headers, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      const next = this.sanitizeAiText(text);
+      if (next) this.setState({ introText: next });
+    } catch (e) {}
+  };
+
+  // First-wrong-attempt re-explanation, first exposure only: switches to the procedural-steps Lens, and appears
+  // in the ladder's existing worked-example tier \u2014 one mechanism, not a second re-explanation screen.
+  generateWorkedLens = async () => {
+    const problem = this.getProblems()[this.state.problemIndex];
+    const lens = this.lenses.procedural_steps;
+    const fallback = `Let's walk through ${problem.text} one step at a time: first get all the x-terms onto one side by subtracting the smaller one from both sides, then handle the leftover constant the same way you would in a two-step equation, then divide to get x alone. Try it again from the start with that order.`;
+    this.setState({ workedLensLoading: true, workedLensText: '' });
+    try {
+      const prompt = `A grade 8 student just got her first attempt wrong on "${problem.text}" (correct answer x = ${problem.answer}) \u2014 the first time she's ever practiced "variables on both sides of an equation." She was introduced to this skill moments ago using a concrete/analogy explanation.
+
+Re-explain how to solve THIS specific problem using a genuinely different style (a fixed platform Lens): ${lens.styleInstruction}
+
+Ground it in the real steps for solving "${problem.text}". 3-5 sentences or short step lines, grade-appropriate and plain. End by inviting her to try again. Respond with ONLY the plain text \u2014 no markdown, no headers, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ workedLensLoading: false, workedLensText: this.sanitizeAiText(text) || fallback });
+    } catch (e) {
+      this.setState({ workedLensLoading: false, workedLensText: fallback });
+    }
+  };
+
+  handleContinueFromIntro = () => {
+    this.problemDemo = 'standard';
+    this.setState({
+      phase: 'active',
+      problemIndex: 0,
+      wrongAnswers: [],
+      answerInput: '',
+      askOpen: false,
+      askText: '',
+      askResponse: '',
+      hintText: '',
+      ladderExhausted: false,
+    });
+  };
+
+  handleInputChange = (e) => this.setState({ answerInput: e.target.value });
+  handleKeyDown = (e) => { if (e.key === 'Enter') this.handleSubmit(); };
+
+  handleSubmit = () => {
+    if (this.isRubricDemo()) { this.handleRubricSubmit(); return; }
+    if (this.state.answerInput.trim() === '') return;
+    const val = parseFloat(this.state.answerInput);
+    const offline = this.getConn() === 'unavailable';
+    const followUps = () => {
+      if (this.isFirstExposure() && this.state.wrongAnswers.length === 1 && !this.state.workedLensText && !this.state.workedLensLoading) this.generateWorkedLens();
+      if (this.state.wrongAnswers.length === 3 && !this.state.hintText && !this.state.hintLoading) this.generateHint();
+    };
+    const evaluate = (s) => {
+      const problem = this.getProblems()[s.problemIndex];
+      const correct = !Number.isNaN(val) && Math.abs(val - problem.answer) < 1e-9;
+      const queue = offline ? [...s.pendingSyncQueue, { problemText: problem.text, value: val, correct }] : s.pendingSyncQueue;
+      if (correct) {
+        const firstTry = s.wrongAnswers.length === 0;
+        let newStreak = firstTry ? s.streak + 1 : 0;
+        const crossedMastery = newStreak >= 3;
+        if (crossedMastery) newStreak = 0;
+        const breakthrough = this.isFirstExposure() && !firstTry;
+        return {
+          connectivity: offline ? s.connectivity : 'fresh', phase: 'correct', streak: newStreak,
+          showMasteryMsg: crossedMastery, breakthrough, sessionCompleted: s.sessionCompleted + 1, answerInput: '',
+          pendingSyncQueue: queue,
+        };
+      }
+      const newWrong = [...s.wrongAnswers, val];
+      return {
+        connectivity: offline ? s.connectivity : 'fresh', wrongAnswers: newWrong, answerInput: '',
+        ladderExhausted: newWrong.length >= 5, pendingSyncQueue: queue,
+      };
+    };
+
+    // Offline: evaluate and progress the ladder immediately (client-side, no round trip needed) and queue for sync.
+    if (offline) { this.setState(evaluate, followUps); return; }
+
+    this.setState({ connectivity: 'syncing' });
+    setTimeout(() => { this.setState(evaluate, followUps); }, 550);
+  };
+
+  // Genuine rubric_llm grading: the AI evaluates the response against what correct reasoning actually looks
+  // like, not a magic phrase, and returns one of three tiers so feedback reflects what actually happened.
+  handleRubricSubmit = async () => {
+    if (this.state.answerInput.trim() === '') return;
+    const text = this.state.answerInput;
+    this.setState({ phase: 'rubricGrading' });
+    const lower = text.toLowerCase();
+    const mentionsNoSolution = /no solution|cannot be solved|can.t be solved|no value of x|never true|not possible/.test(lower);
+    const mentionsReasoning = /cancel|same coefficient|both sides|contradiction|false|3\s*=\s*7|not equal|never true/.test(lower);
+    const fallbackTier = mentionsNoSolution ? (mentionsReasoning ? 'strong' : 'weak') : 'incorrect';
+    const fallbackFeedback = {
+      strong: "That's right \u2014 the x-terms cancel out, leaving 3 = 7, which is never true. Nice work explaining why.",
+      weak: "You've got the right idea that this equation has no solution \u2014 but try explaining what happens to the x-terms and why that leads there.",
+      incorrect: "Take another look \u2014 try subtracting 2x from both sides first, then see what's left.",
+    }[fallbackTier];
+    try {
+      const prompt = `A grade 8 student was asked to solve this equation and explain her reasoning: "${this.noSolutionProblem.text}". This equation has NO SOLUTION: subtracting 2x from both sides leaves 3 = 7, a false statement, so no value of x works.
+
+Grade her response against this rubric only:
+- "strong": she correctly concludes there is no solution AND her explanation shows real reasoning (e.g. the x-terms cancel, leaving a false/contradictory statement like 3 = 7).
+- "weak": she reaches the correct conclusion (no solution / can't be solved / etc.) but her explanation is missing, incorrect, or too vague to show she understands why.
+- "incorrect": she does not reach the correct conclusion (e.g. states a numeric value for x, or says it has one solution).
+
+Student's response: "${text}"
+
+Respond with ONLY strict JSON, no markdown: {"tier": "strong"|"weak"|"incorrect", "feedback": "2-3 sentence warm, grade-appropriate feedback addressed directly to the student, referencing what she got right or should reconsider."}`;
+      const raw = await window.claude.complete(prompt);
+      const cleaned = (raw || '').trim().replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+      const parsed = JSON.parse(cleaned);
+      const tier = ['strong', 'weak', 'incorrect'].includes(parsed.tier) ? parsed.tier : fallbackTier;
+      const feedback = (parsed.feedback || '').trim() || fallbackFeedback;
+      this.setState({ phase: 'rubricResult', rubricTier: tier, rubricFeedback: feedback });
+    } catch (e) {
+      this.setState({ phase: 'rubricResult', rubricTier: fallbackTier, rubricFeedback: fallbackFeedback });
+    }
+  };
+
+  handleRubricRetry = () => this.setState({ phase: 'active', answerInput: '', rubricTier: null, rubricFeedback: '' });
+
+  generateHint = async () => {
+    const problem = this.getProblems()[this.state.problemIndex];
+    if (this.aiHintsEnabled === false) { this.setState({ hintText: this.fallbackHint }); return; }
+    this.setState({ hintLoading: true, hintText: '' });
+    try {
+      const prompt = `A grade 8 student is solving this two-step equation for x: "${problem.text}" (correct answer x = ${problem.answer}). Her wrong attempts so far: ${this.state.wrongAnswers.join(', ')}. Write ONE short Socratic-style hint (a guiding question, not the answer) responding to her likely mistake. 1-2 sentences, warm, plain, grade-appropriate. Respond with ONLY the plain sentence(s) of the hint itself \u2014 no markdown, no headers, no "#", no labels like "Hint:", no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ hintLoading: false, hintText: this.sanitizeAiText(text) || this.fallbackHint });
+    } catch (e) {
+      this.setState({ hintLoading: false, hintText: this.fallbackHint });
+    }
+  };
+
+  openAsk = () => this.setState({ askOpen: true });
+  closeAsk = () => this.setState({ askOpen: false, askText: '', askResponse: '' });
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+
+  checkDistress = async (text) => {
+    try {
+      const prompt = `You are a safety classifier watching a free-text field a grade 8 student types into while doing math practice. Decide whether the text suggests the student may be in genuine emotional distress \u2014 hopelessness, isolation, "what's the point" thinking, not wanting to talk about something, or similar \u2014 as opposed to ordinary academic frustration with the schoolwork itself (e.g. "I hate this", "this is so hard", "I'll never get this", "ugh"), which should NOT count.
+
+If you are genuinely uncertain whether it's distress or just frustration, lean toward flagging it as distress.
+
+Text: "${text}"
+
+Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false}`;
+      const raw = await window.claude.complete(prompt);
+      const cleaned = (raw || '').trim().replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+      const parsed = JSON.parse(cleaned);
+      return parsed && parsed.distress === true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const problem = this.getProblems()[this.state.problemIndex];
+    const askedText = this.state.askText;
+    this.setState({ askLoading: true, askResponse: '', distressDetected: false });
+
+    const answerPromise = (async () => {
+      try {
+        const prompt = `A grade 8 student is working on this two-step equation: "${problem.text}" (correct answer x = ${problem.answer}). She asked: "${askedText}". Answer her question directly and briefly (2-3 sentences max), grade-appropriate and warm. Only state the final answer if she explicitly asked for it. Respond with ONLY the plain sentence(s) of your answer \u2014 no markdown, no headers, no "#", no labels, no emojis.`;
+        const text = await window.claude.complete(prompt);
+        return this.sanitizeAiText(text) || "Couldn't reach the hint helper right now \u2014 try tapping through to the next step instead.";
+      } catch (e) {
+        return "Couldn't reach the hint helper right now \u2014 try tapping through to the next step instead.";
+      }
+    })();
+
+    const [answer, isDistress] = await Promise.all([answerPromise, this.checkDistress(askedText)]);
+    this.setState((s) => ({
+      askLoading: false, askResponse: answer,
+      distressDetected: s.distressDetected || isDistress,
+      distressSource: isDistress ? 'passive' : s.distressSource,
+      distressLog: isDistress ? [...s.distressLog, { method: 'passive_pattern', field: 'ask_a_question', text: askedText }] : s.distressLog,
+    }));
+  };
+
+  // Student-initiated: no confirmation step, fires the identical escalation message, logged with a distinct method
+  // so a teacher reviewing it later can tell direct outreach from passive detection.
+  handleNeedHelp = () => {
+    this.setState((s) => ({
+      distressDetected: true,
+      distressSource: 'initiated',
+      distressLog: [...s.distressLog, { method: 'student_initiated', field: 'need_help_button' }],
+    }));
+  };
+
+  advanceOrEnd = (extra) => {
+    const hasMore = this.state.problemIndex + 1 < this.getProblems().length;
+    if (hasMore) {
+      this.setState({
+        phase: 'active', problemIndex: this.state.problemIndex + 1, wrongAnswers: [], ladderExhausted: false,
+        showMasteryMsg: false, breakthrough: false, askOpen: false, askText: '', askResponse: '', hintText: '', hintLoading: false,
+        answerInput: '', ...extra,
+      });
+    } else {
+      this.setState({ phase: 'ended', endReason: 'finished' });
+    }
+  };
+
+  handleNext = () => this.advanceOrEnd({});
+  handleContinueAfterExhausted = () => this.advanceOrEnd({ streak: 0, exhaustedCount: this.state.exhaustedCount + 1 });
+  handleStop = () => this.setState({ phase: 'ended', endReason: 'stopped' });
+  acceptGate = () => this.setState({ phase: 'active' });
+  declineGate = () => this.setState({ phase: 'closed' });
+
+  renderVals() {
+    const s = this.state;
+    const problem = this.getProblems()[s.problemIndex];
+    const wrongCount = s.wrongAnswers.length;
+    const entryVariant = this.entryVariant || 'returning';
+    const skillDisplayName = this.isVariablesSkill() ? 'variables on both sides' : 'two-step equations';
+    const conn = this.getConn();
+    const connLabels = { fresh: 'Synced', stale: 'Last synced a while ago', syncing: 'Syncing\u2026', unavailable: 'Offline \u2014 saved on this device' };
+    const queueCount = s.pendingSyncQueue.length;
+    const showQueueBanner = queueCount > 0 || s.isSyncingQueue || s.justSynced;
+    const queueBannerText = s.isSyncingQueue ? 'Syncing\u2026' : (s.justSynced ? 'Synced' : (queueCount === 1 ? '1 response saved \u2014 will sync when back online' : queueCount + ' responses saved \u2014 will sync when back online'));
+
+    let reasonLine = "Let's continue with two-step equations \u2014 you were close last time.";
+    if (entryVariant === 'first_time') reasonLine = "Let's start with two-step equations.";
+    if (entryVariant === 'nothing_due') reasonLine = "Since you're here \u2014 a two-step equations problem, just for practice.";
+    if (this.isVariablesSkill()) reasonLine = "Give this one a try.";
+    if (this.isRubricDemo()) reasonLine = "This one asks you to explain your thinking \u2014 not just give a number.";
+
+    const tierStates = ['done', 'done', 'done', 'done'].map((_, i) => {
+      const idx = wrongCount - 1;
+      if (idx > i) return 'done';
+      if (idx === i) return 'current';
+      return 'upcoming';
+    });
+    const tierNames = ['Worked example', 'Guided steps', 'Hint', 'On your own'];
+    const tiers = tierNames.map((name, i) => {
+      const st = tierStates[i];
+      return {
+        name,
+        dotBg: st === 'upcoming' ? 'oklch(88% 0.014 55)' : 'oklch(48.8% 0.217 264.4)',
+        dotBorder: st === 'upcoming' ? '1px solid oklch(88% 0.014 55)' : 'none',
+        textColor: st === 'current' ? 'oklch(24% 0.014 55)' : 'oklch(64% 0.016 55)',
+        fontWeight: st === 'current' ? 700 : 500,
+      };
+    });
+
+    const hasMore = s.problemIndex + 1 < this.getProblems().length;
+    const sessionLabel = s.sessionCompleted === 0 ? 'Just getting started' : (s.sessionCompleted === 1 ? '1 problem this session' : `${s.sessionCompleted} problems this session`);
+
+    let endedMessage = '';
+    if (s.endReason === 'stopped') endedMessage = `${sessionLabel === 'Just getting started' ? 'A little practice on' : s.sessionCompleted + ' problem' + (s.sessionCompleted === 1 ? '' : 's') + ' on'} ${skillDisplayName} today.`;
+    else if (s.endReason === 'finished') endedMessage = `That's everything queued for ${skillDisplayName} today \u2014 ${s.sessionCompleted} problem${s.sessionCompleted === 1 ? '' : 's'} done.`;
+    if (s.exhaustedCount > 0) endedMessage += " We'll come back to the one that didn't click yet.";
+
+    return {
+      isConnFresh: conn === 'fresh', isConnStale: conn === 'stale', isConnSyncing: conn === 'syncing', isConnUnavailable: conn === 'unavailable',
+      connectivityLabel: connLabels[conn] || 'Synced',
+      sessionLabel,
+      isNotificationPreview: s.phase === 'notificationPreview',
+      notificationHref: 'Practice Session.dc.html?skill=variables_both_sides',
+      notificationBody: 'Variables on both sides is ready for review.',
+      isCheckingSession: s.phase === 'checkingSession', isNoValidSession: s.phase === 'noValidSession',
+      isRubricGrading: s.phase === 'rubricGrading', isRubricResult: s.phase === 'rubricResult',
+      rubricTierLabel: { strong: 'Correct \u2014 solid reasoning', weak: 'Right idea, reasoning needs work', incorrect: 'Not quite' }[s.rubricTier] || '',
+      rubricDotColor: { strong: 'oklch(60% 0.10 150)', weak: 'oklch(70% 0.13 80)', incorrect: 'oklch(58% 0.16 25)' }[s.rubricTier] || 'oklch(64% 0.016 55)',
+      rubricFeedback: s.rubricFeedback,
+      rubricShowRetry: s.rubricTier === 'weak' || s.rubricTier === 'incorrect', rubricShowFinish: s.rubricTier === 'strong',
+      handleRubricRetry: this.handleRubricRetry,
+      isGate: s.phase === 'gate', isClosed: s.phase === 'closed', isEnded: s.phase === 'ended',
+      isOfflineBlocked: s.phase === 'offlineBlocked', showQueueBanner, queueBannerText,
+      isSkillUnavailable: s.phase === 'skillUnavailable', unavailableSkillLabel: this.unsupportedSkillLabels[this.skillParam] || 'This skill',
+      isResumePrompt: s.phase === 'resumePrompt',
+      resumeContextLine: `Two-step equations \u2014 problem ${this.savedInterruption.problemIndex + 1} of ${this.problems.length}, ${this.savedInterruption.wrongAnswers.length} tries in.`,
+      handleResumeInterruption: this.handleResumeInterruption, handleStartFreshInterruption: this.handleStartFreshInterruption,
+      isIntro: s.phase === 'intro', activeSkillName: 'Variables on both sides',
+      introLoading: s.introLoading, introReady: !s.introLoading && !!s.introText, introText: s.introText,
+      handleContinueFromIntro: this.handleContinueFromIntro,
+      isMainCard: s.phase === 'active' || s.phase === 'correct',
+      isCorrectPhase: s.phase === 'correct', isActivePhase: s.phase === 'active',
+      declineGate: this.declineGate, acceptGate: this.acceptGate,
+      endedMessage,
+      correctFeedbackText: this.feedbackLines[s.sessionCompleted % this.feedbackLines.length],
+      showMasteryMsg: s.showMasteryMsg, masteryMsgText: "That's three in a row with good gaps \u2014 this one's sticking.",
+      showBreakthroughMsg: s.breakthrough, breakthroughMsgText: "Variables on both sides just clicked \u2014 that's a new skill landing.",
+      showStopButton: s.sessionCompleted >= 2 && hasMore,
+      nextButtonLabel: hasMore ? 'Next problem' : 'Finish for today',
+      handleStop: this.handleStop, handleNext: this.handleNext,
+      reasonLine, currentProblemText: problem.text,
+      showExhausted: s.ladderExhausted,
+      showLadder: wrongCount >= 1 && !s.ladderExhausted,
+      showInput: !s.ladderExhausted,
+      tiers,
+      showWorkedStatic: wrongCount === 1 && !this.isFirstExposure(), showWorkedLens: wrongCount === 1 && this.isFirstExposure(),
+      showPartial: wrongCount === 2, showHint: wrongCount === 3, showIndependent: wrongCount === 4,
+      currentSimilarText: problem.similarText, currentSimilarStep1: problem.similarStep1, currentSimilarStep2: problem.similarStep2,
+      currentPartialStep: problem.partialStep,
+      workedLensLoading: s.workedLensLoading, workedLensReady: !s.workedLensLoading && !!s.workedLensText, workedLensText: s.workedLensText,
+      hintLoading: s.hintLoading, hintReady: !s.hintLoading && !!s.hintText, hintText: s.hintText,
+      handleContinueAfterExhausted: this.handleContinueAfterExhausted,
+      showAskAffordance: wrongCount >= 1 && wrongCount <= 4 && !s.ladderExhausted,
+      askOpen: s.askOpen, askClosed: !s.askOpen, openAsk: this.openAsk, closeAsk: this.closeAsk,
+      askText: s.askText, handleAskChange: this.handleAskChange, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askAnswered: !s.askLoading && !!s.askResponse, askResponse: s.askResponse,
+      handleNeedHelp: this.handleNeedHelp, showGlobalDistress: s.distressDetected,
+      isTextAnswer: this.getEvaluationStrategy() !== 'rubric_llm', isTextareaAnswer: this.getEvaluationStrategy() === 'rubric_llm',
+      answerInput: s.answerInput, handleInputChange: this.handleInputChange, handleKeyDown: this.handleKeyDown,
+      handleSubmit: this.handleSubmit, submitDisabled: s.answerInput.trim() === '',
+    };
+  }
+}
+
+</script>
+</body>
+</html>

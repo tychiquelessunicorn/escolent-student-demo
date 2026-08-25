@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.010 55);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes tdy-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes tdy-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+  @keyframes tdy-fade{0%{opacity:0;}15%{opacity:1;}80%{opacity:1;}100%{opacity:0;}}
+  #app-rail{display:none;}
+  #app-bottomnav{display:flex;}
+  @media (min-width:760px){
+    #app-rail{display:flex;}
+    #app-bottomnav{display:none;}
+  }
+</style>
+</helmet>
+
+<div style="display:flex;align-items:center;padding:14px 24px;background:oklch(99% 0.007 55);border-bottom:1px solid oklch(88% 0.014 55);">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:17px;color:oklch(24% 0.014 55);">Escolent</div>
+    <div style="width:1px;height:14px;background:oklch(88% 0.014 55);"></div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:oklch(64% 0.016 55);"></div>
+      <div style="font-size:12px;color:oklch(64% 0.016 55);">Synced</div>
+    </div>
+  </div>
+</div>
+<div style="display:flex;">
+  <nav id="app-rail" style="flex-direction:column;width:250px;flex-shrink:0;padding:24px 16px;gap:4px;border-right:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);min-height:100vh;box-sizing:border-box;">
+    <a href="Today.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:oklch(94% 0.03 264.4);color:oklch(48.8% 0.217 264.4);">Today</a>
+    <a href="Learn.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Learn</a>
+    <a href="Practice Session.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Practice</a>
+    <a href="Progress.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Progress</a>
+  </nav>
+  <div style="flex:1;min-width:0;">
+
+<div data-screen-label="Today / Week" style="max-width:720px;margin:0 auto;padding:20px 24px 90px;font-family:'Geist',sans-serif;color:oklch(24% 0.014 55);min-height:100vh;box-sizing:border-box;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+    <div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:26px;">Hi Mia</div>
+      <div style="font-size:13px;color:oklch(64% 0.016 55);margin-top:2px;">{{ todayDateLabel }}</div>
+    </div>
+    <div style="display:flex;gap:4px;background:oklch(93% 0.010 55);padding:4px;border-radius:18px;">
+      <button onClick="{{ showToday }}" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;border-radius:14px;border:none;cursor:pointer;background:{{ todayTabBg }};color:{{ todayTabColor }};">Today</button>
+      <button onClick="{{ showWeek }}" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;border-radius:14px;border:none;cursor:pointer;background:{{ weekTabBg }};color:{{ weekTabColor }};">Week</button>
+    </div>
+  </div>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(88% 0.014 55);border-radius:18px;background:oklch(99% 0.007 55);">
+      <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.016 55);border-radius:4px;flex-shrink:0;"></div>
+      <input type="text" placeholder="Ask what's due&#8230; e.g. &quot;what do I have due Thursday&quot;" value="{{ askText }}" onChange="{{ handleAskChange }}" onKeyDown="{{ handleAskKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(24% 0.014 55);"/>
+      <sc-if value="{{ askHasText }}">
+        <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Ask</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:oklch(64% 0.016 55);margin-top:10px;animation:tdy-pulse 1.3s ease-in-out infinite;">Checking what's due&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ askReady }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);">{{ askAnswer }}</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ isTodayView }}">
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);margin-bottom:14px;">From Escolent</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:36px;">
+      <sc-for list="{{ nativeToday }}" as="item" hint-placeholder-count="2">
+        <a href="Practice Session.dc.html" style="display:flex;align-items:center;gap:16px;text-decoration:none;color:inherit;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-left:4px solid oklch(48.8% 0.217 264.4);border-radius:6px 20px 20px 6px;padding:18px 20px;cursor:pointer;">
+          <div style="flex:1;">
+            <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:18px;margin-bottom:4px;">{{ item.title }}</div>
+            <div style="font-size:13px;color:oklch(49% 0.018 55);">{{ item.subjectLine }}</div>
+          </div>
+          <div style="font-size:20px;color:oklch(64% 0.016 55);">&#8250;</div>
+        </a>
+      </sc-for>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);margin-bottom:14px;">Also due &#8212; from Canvas</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <sc-for list="{{ canvasToday }}" as="item" hint-placeholder-count="1">
+        <div style="background:oklch(97% 0.010 55);border:1px dashed oklch(88% 0.014 55);border-radius:18px;padding:16px 20px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div>
+              <div style="font-size:15px;font-weight:600;margin-bottom:3px;">{{ item.title }}</div>
+              <div style="font-size:13px;color:oklch(64% 0.016 55);">{{ item.subjectLine }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              <sc-if value="{{ item.isFresh }}"><div style="width:8px;height:8px;border-radius:50%;background:oklch(64% 0.016 55);"></div></sc-if>
+              <sc-if value="{{ item.isStale }}"><div style="width:8px;height:8px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"></div></sc-if>
+              <sc-if value="{{ item.isSyncing }}"><div style="width:8px;height:8px;border-radius:50%;border:1.5px solid oklch(93% 0.010 55);border-top-color:oklch(64% 0.016 55);animation:tdy-spin 1s linear infinite;"></div></sc-if>
+              <div style="font-size:11px;color:oklch(64% 0.016 55);">{{ item.freshnessLabel }}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+            <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);">Reference only</div>
+            <button onClick="{{ item.openInCanvas }}" style="background:none;border:none;padding:0;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:oklch(48.8% 0.217 264.4);text-decoration:underline;cursor:pointer;">View in Canvas &#8599;</button>
+          </div>
+          <sc-if value="{{ item.showToast }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;animation:tdy-fade 1.6s ease-out forwards;">Opening in Canvas&#8230;</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isWeekView }}">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <sc-for list="{{ weekDays }}" as="day" hint-placeholder-count="5">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">
+            <div style="font-size:14px;font-weight:700;color:{{ day.labelColor }};">{{ day.label }}</div>
+            <div style="font-size:12px;color:oklch(64% 0.016 55);">{{ day.dateLabel }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ day.items }}" as="item" hint-placeholder-count="1">
+              <sc-if value="{{ item.isEscolent }}">
+                <a href="Practice Session.dc.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-left:3px solid oklch(48.8% 0.217 264.4);border-radius:4px 14px 14px 4px;padding:10px 14px;cursor:pointer;">
+                  <div style="flex:1;font-size:14px;font-weight:600;">{{ item.title }}</div>
+                  <div style="font-size:12px;color:oklch(64% 0.016 55);">{{ item.dueMeta }}</div>
+                </a>
+              </sc-if>
+              <sc-if value="{{ item.isCanvas }}">
+                <div style="display:flex;align-items:center;gap:10px;background:oklch(97% 0.010 55);border:1px dashed oklch(88% 0.014 55);border-radius:14px;padding:10px 14px;">
+                  <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:500;color:oklch(49% 0.018 55);">{{ item.title }}</div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:4px;">
+                    <sc-if value="{{ item.isFresh }}"><div style="width:7px;height:7px;border-radius:50%;background:oklch(64% 0.016 55);"></div></sc-if>
+                    <sc-if value="{{ item.isStale }}"><div style="width:7px;height:7px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"></div></sc-if>
+                    <sc-if value="{{ item.isSyncing }}"><div style="width:7px;height:7px;border-radius:50%;border:1.5px solid oklch(93% 0.010 55);border-top-color:oklch(64% 0.016 55);animation:tdy-spin 1s linear infinite;"></div></sc-if>
+                  </div>
+                  <div style="font-size:12px;color:oklch(64% 0.016 55);">{{ item.dueMeta }}</div>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+</div>
+
+  </div>
+</div>
+
+<nav id="app-bottomnav" style="position:fixed;left:0;right:0;bottom:0;background:oklch(99% 0.007 55);border-top:1px solid oklch(88% 0.014 55);z-index:10;">
+  <a href="Today.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:700;color:oklch(48.8% 0.217 264.4);">Today</a>
+  <a href="Learn.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Learn</a>
+  <a href="Practice Session.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Practice</a>
+  <a href="Progress.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Progress</a>
+</nav>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { view: 'today', askText: '', askLoading: false, askAnswer: '', toastId: null };
+
+  days = [
+    { key: 'wed', label: 'Today', dateLabel: 'Wed, Aug 19', isToday: true },
+    { key: 'thu', label: 'Thu', dateLabel: 'Aug 20', isToday: false },
+    { key: 'fri', label: 'Fri', dateLabel: 'Aug 21', isToday: false },
+    { key: 'mon', label: 'Mon', dateLabel: 'Aug 24', isToday: false },
+    { key: 'tue', label: 'Tue', dateLabel: 'Aug 25', isToday: false },
+  ];
+
+  items = [
+    { id: 'e1', day: 'wed', source: 'escolent', title: 'Two-step equations', subjectLine: 'Math \u00b7 Spaced review, due today', dueMeta: 'Due today', href: 'Practice Session.dc.html' },
+    { id: 'e2', day: 'wed', source: 'escolent', title: 'Integer operations refresher', subjectLine: 'Math \u00b7 Assigned by Ms. Mokoena', dueMeta: 'Due today', href: 'Practice Session.dc.html' },
+    { id: 'c1', day: 'wed', source: 'canvas', title: 'Ecosystems Unit Quiz', subjectLine: 'Science \u00b7 Canvas', dueMeta: 'Due 3:00pm', freshness: 'fresh' },
+    { id: 'c2', day: 'thu', source: 'canvas', title: 'Essay draft: "A Place That Changed Me"', subjectLine: 'Language Arts \u00b7 Canvas', dueMeta: 'Due 11:59pm', freshness: 'stale' },
+    { id: 'e3', day: 'fri', source: 'escolent', title: 'One-step equations', subjectLine: 'Math \u00b7 Spaced review', dueMeta: 'Due Fri', href: 'Practice Session.dc.html' },
+    { id: 'c3', day: 'fri', source: 'canvas', title: 'Reading response: Ch. 4', subjectLine: 'Social Studies \u00b7 Canvas', dueMeta: 'Due 11:59pm', freshness: 'syncing' },
+    { id: 'c4', day: 'mon', source: 'canvas', title: 'Vocabulary quiz, Unit 3', subjectLine: 'Language Arts \u00b7 Canvas', dueMeta: 'Due 9:00am', freshness: 'fresh' },
+    { id: 'e4', day: 'tue', source: 'escolent', title: 'Two-step equations', subjectLine: 'Math \u00b7 Spaced review', dueMeta: 'Due Tue', href: 'Practice Session.dc.html' },
+  ];
+
+  freshLabels = { fresh: 'Synced', stale: 'Synced 2h ago', syncing: 'Syncing\u2026' };
+
+  showToday = () => this.setState({ view: 'today' });
+  showWeek = () => this.setState({ view: 'week' });
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+  handleAskKeyDown = (e) => { if (e.key === 'Enter') this.handleAskSubmit(); };
+
+  openInCanvas = (id) => {
+    this.setState({ toastId: id });
+    setTimeout(() => this.setState((s) => (s.toastId === id ? { toastId: null } : {})), 1600);
+  };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const dataLines = this.items.map((it) => {
+      const dayInfo = this.days.find((d) => d.key === it.day);
+      const src = it.source === 'escolent' ? 'Escolent (adaptive practice)' : 'Canvas (LMS, reference only)';
+      return `- ${it.title} | subject: ${it.subjectLine} | day: ${dayInfo.label} (${dayInfo.dateLabel}) | ${it.dueMeta} | source: ${src}`;
+    }).join('\n');
+    this.setState({ askLoading: true, askAnswer: '' });
+    try {
+      const prompt = `You are answering a grade 8 student's question about her own schedule, using ONLY this real due-items data (today is Wed, Aug 19):\n${dataLines}\n\nHer question: "${this.state.askText}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) \u2014 no markdown, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ askLoading: false, askAnswer: this.sanitizeAiText(text) || "I couldn't check that right now \u2014 try again in a moment." });
+    } catch (e) {
+      this.setState({ askLoading: false, askAnswer: "I couldn't check that right now \u2014 try again in a moment." });
+    }
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const accent = 'oklch(48.8% 0.217 264.4)';
+    const white = 'oklch(99% 0.007 55)';
+    const muted = 'oklch(49% 0.018 55)';
+
+    const buildCanvasVm = (it) => ({
+      ...it, isEscolent: false, isCanvas: true,
+      isFresh: it.freshness === 'fresh', isStale: it.freshness === 'stale', isSyncing: it.freshness === 'syncing',
+      freshnessLabel: this.freshLabels[it.freshness],
+      showToast: s.toastId === it.id,
+      openInCanvas: () => this.openInCanvas(it.id),
+    });
+    const buildEscolentVm = (it) => ({ ...it, isEscolent: true, isCanvas: false });
+
+    const todayItems = this.items.filter((i) => i.day === 'wed');
+    const nativeToday = todayItems.filter((i) => i.source === 'escolent').map(buildEscolentVm);
+    const canvasToday = todayItems.filter((i) => i.source === 'canvas').map(buildCanvasVm);
+
+    const weekDays = this.days.map((d) => ({
+      label: d.label, dateLabel: d.dateLabel,
+      labelColor: d.isToday ? accent : 'oklch(24% 0.014 55)',
+      items: this.items.filter((i) => i.day === d.key).map((i) => (i.source === 'escolent' ? buildEscolentVm(i) : buildCanvasVm(i))),
+    }));
+
+    return {
+      todayDateLabel: "Wednesday, August 19",
+      isTodayView: s.view === 'today', isWeekView: s.view === 'week',
+      showToday: this.showToday, showWeek: this.showWeek,
+      todayTabBg: s.view === 'today' ? white : 'transparent', todayTabColor: s.view === 'today' ? accent : muted,
+      weekTabBg: s.view === 'week' ? white : 'transparent', weekTabColor: s.view === 'week' ? accent : muted,
+      nativeToday, canvasToday, weekDays,
+      askText: s.askText, askHasText: s.askText.trim() !== '',
+      handleAskChange: this.handleAskChange, handleAskKeyDown: this.handleAskKeyDown, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askReady: !s.askLoading && !!s.askAnswer, askAnswer: s.askAnswer,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes adbrf-fade{0%{opacity:0;}15%{opacity:1;}80%{opacity:1;}100%{opacity:0;}}
+</style>
+</helmet>
+
+<div data-screen-label="Admin Briefing" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+    <div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Good morning, Mr. Chen</div>
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">Wednesday, August 19</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;margin-top:4px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:oklch(64% 0.012 264.4);"></div>
+      <div style="font-size:12px;color:oklch(64% 0.012 264.4);">Synced</div>
+    </div>
+  </div>
+  <div style="font-size:13px;color:oklch(48% 0.012 264.4);margin-bottom:32px;">Teneo &middot; week 6 of the pilot, school-wide</div>
+
+  <sc-if value="{{ isNoRollout }}">
+    <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:14px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;margin-bottom:10px;">No Spaces yet.</div>
+      <div style="font-size:15px;color:oklch(48% 0.012 264.4);line-height:1.6;">Once your teachers create their first Spaces, your Briefing will start showing up here.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isInsufficientData }}">
+    <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:14px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;margin-bottom:10px;">Still learning about your school.</div>
+      <div style="font-size:15px;color:oklch(48% 0.012 264.4);line-height:1.6;">It's early in the pilot &mdash; not enough signal yet to brief you on anything meaningful. Check back in a few days.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isAllClear }}">
+    <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:14px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;margin-bottom:10px;">Everything looks steady.</div>
+      <div style="font-size:15px;color:oklch(48% 0.012 264.4);line-height:1.6;">No pending requests, no rollout gaps, and nothing urgent across the school right now.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isAggregate }}">
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+      <div onClick="{{ escalation.onClick }}" style="cursor:pointer;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:4px solid oklch(54% 0.22 27);border-radius:4px 12px 12px 4px;padding:20px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:oklch(99% 0.01 27);background:oklch(54% 0.22 27);padding:3px 10px;border-radius:5px;">Escalation</span>
+          <span style="font-size:12px;color:oklch(64% 0.012 264.4);">School-wide</span>
+        </div>
+        <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;line-height:1.35;margin-bottom:6px;">1 Escalation has been open longer than 3 hours.</div>
+        <div style="font-size:14px;color:oklch(48% 0.012 264.4);">Raised in Ms. Mokoena's Grade 8A Remediation Space &mdash; full detail lives on her Briefing.</div>
+        <sc-if value="{{ escalation.showToast }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:adbrf-fade 1.8s ease-out forwards;">Would open the admin escalations view &mdash; not built yet.</div>
+        </sc-if>
+      </div>
+
+      <div onClick="{{ dataRequest.onClick }}" style="cursor:pointer;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:4px solid oklch(56% 0.15 45);border-radius:4px 12px 12px 4px;padding:20px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:oklch(45% 0.13 45);background:oklch(95% 0.035 45);padding:3px 9px;border-radius:5px;">Urgent</span>
+          <span style="font-size:12px;color:oklch(64% 0.012 264.4);">Data request</span>
+        </div>
+        <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;line-height:1.35;margin-bottom:6px;">A data-subject request is due in 2 days.</div>
+        <div style="font-size:14px;color:oklch(48% 0.012 264.4);">A parent requested their child's data export &mdash; respond before the deadline to stay compliant.</div>
+        <sc-if value="{{ dataRequest.showToast }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:adbrf-fade 1.8s ease-out forwards;">Would open the data request detail &mdash; not built yet.</div>
+        </sc-if>
+      </div>
+
+      <div onClick="{{ noSpace.onClick }}" style="cursor:pointer;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:4px solid oklch(53% 0.09 230);border-radius:4px 12px 12px 4px;padding:20px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:oklch(40% 0.08 230);background:oklch(95% 0.02 230);padding:3px 9px;border-radius:5px;">Informational</span>
+          <span style="font-size:12px;color:oklch(64% 0.012 264.4);">Rollout</span>
+        </div>
+        <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;line-height:1.35;margin-bottom:6px;">3 teachers haven't created a Space yet.</div>
+        <div style="font-size:14px;color:oklch(48% 0.012 264.4);">Ms. Alvarez, Mr. Chibale, and Ms. Osborne &mdash; six weeks into the pilot, still no Space set up.</div>
+        <sc-if value="{{ noSpace.showToast }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:adbrf-fade 1.8s ease-out forwards;">Would open the teacher rollout list &mdash; not built yet.</div>
+        </sc-if>
+      </div>
+
+      <div onClick="{{ billing.onClick }}" style="cursor:pointer;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:4px solid oklch(53% 0.09 230);border-radius:4px 12px 12px 4px;padding:20px 24px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:oklch(40% 0.08 230);background:oklch(95% 0.02 230);padding:3px 9px;border-radius:5px;">Informational</span>
+          <span style="font-size:12px;color:oklch(64% 0.012 264.4);">Billing</span>
+        </div>
+        <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;line-height:1.35;margin-bottom:6px;">Teneo's pilot renewal decision is due in 3 weeks.</div>
+        <div style="font-size:14px;color:oklch(48% 0.012 264.4);">12 of 20 licensed seats activated so far &mdash; worth having ready for the renewal conversation.</div>
+        <sc-if value="{{ billing.showToast }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:adbrf-fade 1.8s ease-out forwards;">Would open Billing &mdash; not built yet.</div>
+        </sc-if>
+      </div>
+
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:700,&quot;height&quot;:900},&quot;briefingState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;aggregate&quot;,&quot;options&quot;:[&quot;aggregate&quot;,&quot;no_rollout&quot;,&quot;insufficient_data&quot;,&quot;all_clear&quot;],&quot;tsType&quot;:&quot;'aggregate'|'no_rollout'|'insufficient_data'|'all_clear'&quot;,&quot;section&quot;:&quot;Briefing state&quot;}}">
+class Component extends DCLogic {
+  state = { toast: null };
+
+  showStubToast = (id) => {
+    this.setState({ toast: id });
+    setTimeout(() => this.setState((s) => (s.toast === id ? { toast: null } : {})), 1800);
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const variant = this.props.briefingState || 'aggregate';
+    const mk = (id) => ({ onClick: () => this.showStubToast(id), showToast: s.toast === id });
+    return {
+      isAggregate: variant === 'aggregate',
+      isNoRollout: variant === 'no_rollout',
+      isInsufficientData: variant === 'insufficient_data',
+      isAllClear: variant === 'all_clear',
+      escalation: mk('escalation'),
+      dataRequest: mk('dataRequest'),
+      noSpace: mk('noSpace'),
+      billing: mk('billing'),
+    };
+  };
+}
+
+</script>
+</body>
+</html>

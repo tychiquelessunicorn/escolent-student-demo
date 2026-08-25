@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes adtt-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+  @keyframes adtt-fade{0%{opacity:0;}15%{opacity:1;}80%{opacity:1;}100%{opacity:0;}}
+</style>
+</helmet>
+
+<div data-screen-label="Admin Today / Week" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Today</div>
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">{{ todayDateLabel }}</div>
+    </div>
+    <div style="display:flex;gap:4px;background:oklch(93% 0.005 264.4);padding:4px;border-radius:10px;">
+      <button onClick="{{ showToday }}" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;background:{{ todayTabBg }};color:{{ todayTabColor }};">Today</button>
+      <button onClick="{{ showWeek }}" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;background:{{ weekTabBg }};color:{{ weekTabColor }};">Week</button>
+    </div>
+  </div>
+  <div style="font-size:13px;color:oklch(48% 0.012 264.4);margin-bottom:28px;">Teneo, school-wide</div>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(89% 0.006 264.4);border-radius:10px;background:oklch(99% 0.003 264.4);">
+      <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.012 264.4);border-radius:4px;flex-shrink:0;"></div>
+      <input type="text" placeholder="Ask what's due&#8230; e.g. &quot;what needs attention this week&quot;" value="{{ askText }}" onChange="{{ handleAskChange }}" onKeyDown="{{ handleAskKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(23% 0.008 264.4);"/>
+      <sc-if value="{{ askHasText }}">
+        <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Ask</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:adtt-pulse 1.3s ease-in-out infinite;">Checking what's due&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ askReady }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);">{{ askAnswer }}</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ isTodayView }}">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <sc-for list="{{ todayItems }}" as="item" hint-placeholder-count="3">
+        <div onClick="{{ item.onClick }}" style="cursor:pointer;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:4px solid {{ item.accentColor }};border-radius:4px 12px 12px 4px;padding:18px 20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:{{ item.badgeFg }};background:{{ item.badgeBg }};padding:3px 10px;border-radius:5px;">{{ item.badgeLabel }}</span>
+            <span style="font-size:12px;color:oklch(64% 0.012 264.4);">{{ item.scope }}</span>
+          </div>
+          <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:18px;line-height:1.35;margin-bottom:6px;">{{ item.title }}</div>
+          <div style="font-size:13px;color:oklch(48% 0.012 264.4);">{{ item.subtitle }}</div>
+          <sc-if value="{{ item.showToast }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:adtt-fade 1.8s ease-out forwards;">{{ item.toastText }}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isWeekView }}">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <sc-for list="{{ weekDays }}" as="day" hint-placeholder-count="5">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">
+            <div style="font-size:14px;font-weight:700;color:{{ day.labelColor }};">{{ day.label }}</div>
+            <div style="font-size:12px;color:oklch(64% 0.012 264.4);">{{ day.dateLabel }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ day.items }}" as="item" hint-placeholder-count="1">
+              <div onClick="{{ item.onClick }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:3px solid {{ item.accentColor }};border-radius:3px 8px 8px 3px;padding:10px 14px;">
+                <span style="font-size:10px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:{{ item.badgeFg }};background:{{ item.badgeBg }};padding:2px 7px;border-radius:4px;flex-shrink:0;">{{ item.badgeLabel }}</span>
+                <div style="flex:1;">
+                  <div style="font-size:14px;font-weight:600;">{{ item.title }}</div>
+                  <sc-if value="{{ item.showToast }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11px;color:oklch(64% 0.012 264.4);margin-top:4px;animation:adtt-fade 1.8s ease-out forwards;">{{ item.toastText }}</div>
+                  </sc-if>
+                </div>
+                <div style="font-size:11px;color:oklch(64% 0.012 264.4);flex-shrink:0;">{{ item.scope }}</div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ day.isEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;color:oklch(64% 0.012 264.4);padding:10px 14px;">Nothing due.</div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 700, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = { view: 'today', askText: '', askLoading: false, askAnswer: '', toastId: null };
+
+  days = [
+    { key: 'wed', label: 'Today', dateLabel: 'Wed, Aug 19', isToday: true },
+    { key: 'thu', label: 'Thu', dateLabel: 'Aug 20', isToday: false },
+    { key: 'fri', label: 'Fri', dateLabel: 'Aug 21', isToday: false },
+    { key: 'mon', label: 'Mon', dateLabel: 'Aug 24', isToday: false },
+    { key: 'tue', label: 'Tue', dateLabel: 'Aug 25', isToday: false },
+  ];
+
+  items = [
+    { id: 'esc', day: 'wed', kind: 'escalation', title: '1 Escalation has been open longer than 3 hours.', subtitle: "Raised in Ms. Mokoena's Grade 8A Remediation Space \u2014 full detail lives on her Briefing.", scope: 'School-wide', toastText: 'Would open the admin escalations view \u2014 not built yet.' },
+    { id: 'dsr', day: 'fri', kind: 'urgent', title: 'A data-subject request is due in 2 days.', subtitle: "A parent requested their child's data export \u2014 respond before the deadline to stay compliant.", scope: 'Data request', toastText: 'Would open the data request detail \u2014 not built yet.' },
+    { id: 'bill', day: 'wed', kind: 'info', title: "Teneo's pilot renewal decision is due in 3 weeks.", subtitle: '12 of 20 licensed seats activated so far \u2014 worth having ready for the renewal conversation.', scope: 'Billing', toastText: 'Would open Billing \u2014 not built yet.' },
+  ];
+
+  badgeStyles = {
+    escalation: { label: 'Escalation', fg: 'oklch(99% 0.01 27)', bg: 'oklch(54% 0.22 27)', accent: 'oklch(54% 0.22 27)' },
+    urgent: { label: 'Urgent', fg: 'oklch(45% 0.13 45)', bg: 'oklch(95% 0.035 45)', accent: 'oklch(56% 0.15 45)' },
+    info: { label: 'Informational', fg: 'oklch(40% 0.08 230)', bg: 'oklch(95% 0.02 230)', accent: 'oklch(53% 0.09 230)' },
+  };
+
+  showToday = () => this.setState({ view: 'today' });
+  showWeek = () => this.setState({ view: 'week' });
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+  handleAskKeyDown = (e) => { if (e.key === 'Enter') this.handleAskSubmit(); };
+
+  showStubToast = (id) => {
+    this.setState({ toastId: id });
+    setTimeout(() => this.setState((s) => (s.toastId === id ? { toastId: null } : {})), 1800);
+  };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const dataLines = this.items.map((it) => {
+      const dayInfo = this.days.find((d) => d.key === it.day);
+      return `- ${it.title} | scope: ${it.scope} | day: ${dayInfo.label} (${dayInfo.dateLabel})`;
+    }).join('\n');
+    this.setState({ askLoading: true, askAnswer: '' });
+    try {
+      const prompt = `You are answering a school administrator's question about what needs attention across the school (Teneo), using ONLY this real due-items data (today is Wed, Aug 19):\n${dataLines}\n\nHis question: "${this.state.askText}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) \u2014 no markdown, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ askLoading: false, askAnswer: this.sanitizeAiText(text) || "I couldn't check that right now \u2014 try again in a moment." });
+    } catch (e) {
+      this.setState({ askLoading: false, askAnswer: "I couldn't check that right now \u2014 try again in a moment." });
+    }
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const accent = 'oklch(48.8% 0.217 264.4)';
+    const white = 'oklch(99% 0.003 264.4)';
+    const muted = 'oklch(48% 0.012 264.4)';
+
+    const buildVm = (it) => {
+      const b = this.badgeStyles[it.kind];
+      return {
+        ...it,
+        accentColor: b.accent, badgeFg: b.fg, badgeBg: b.bg, badgeLabel: b.label,
+        showToast: s.toastId === it.id,
+        onClick: () => this.showStubToast(it.id),
+      };
+    };
+
+    const todayItems = this.items.filter((i) => i.day === 'wed').map(buildVm);
+    const weekDays = this.days.map((d) => ({
+      label: d.label, dateLabel: d.dateLabel,
+      labelColor: d.isToday ? accent : 'oklch(23% 0.008 264.4)',
+      items: this.items.filter((i) => i.day === d.key).map(buildVm),
+      isEmpty: this.items.filter((i) => i.day === d.key).length === 0,
+    }));
+
+    return {
+      todayDateLabel: 'Wednesday, August 19',
+      isTodayView: s.view === 'today', isWeekView: s.view === 'week',
+      showToday: this.showToday, showWeek: this.showWeek,
+      todayTabBg: s.view === 'today' ? white : 'transparent', todayTabColor: s.view === 'today' ? accent : muted,
+      weekTabBg: s.view === 'week' ? white : 'transparent', weekTabColor: s.view === 'week' ? accent : muted,
+      todayItems, weekDays,
+      askText: s.askText, askHasText: s.askText.trim() !== '',
+      handleAskChange: this.handleAskChange, handleAskKeyDown: this.handleAskKeyDown, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askReady: !s.askLoading && !!s.askAnswer, askAnswer: s.askAnswer,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

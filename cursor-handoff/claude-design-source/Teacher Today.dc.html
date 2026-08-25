@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes tt-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  @keyframes tt-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+  @keyframes tt-fade{0%{opacity:0;}15%{opacity:1;}80%{opacity:1;}100%{opacity:0;}}
+</style>
+</helmet>
+
+<div data-screen-label="Teacher Today / Week" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Today</div>
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">{{ todayDateLabel }}</div>
+    </div>
+    <div style="display:flex;gap:4px;background:oklch(93% 0.005 264.4);padding:4px;border-radius:10px;">
+      <button onClick="{{ showToday }}" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;background:{{ todayTabBg }};color:{{ todayTabColor }};">Today</button>
+      <button onClick="{{ showWeek }}" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;background:{{ weekTabBg }};color:{{ weekTabColor }};">Week</button>
+    </div>
+  </div>
+  <div style="font-size:13px;color:oklch(48% 0.012 264.4);margin-bottom:28px;">Across Grade 8A Algebra and Grade 8A Remediation</div>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(89% 0.006 264.4);border-radius:10px;background:oklch(99% 0.003 264.4);">
+      <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.012 264.4);border-radius:4px;flex-shrink:0;"></div>
+      <input type="text" placeholder="Ask what's due&#8230; e.g. &quot;what's due for Grade 8A Remediation this week&quot;" value="{{ askText }}" onChange="{{ handleAskChange }}" onKeyDown="{{ handleAskKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(23% 0.008 264.4);"/>
+      <sc-if value="{{ askHasText }}">
+        <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Ask</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:tt-pulse 1.3s ease-in-out infinite;">Checking what's due&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ askReady }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);">{{ askAnswer }}</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ isTodayView }}">
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:14px;">From Escolent</div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:36px;">
+      <sc-for list="{{ nativeToday }}" as="item" hint-placeholder-count="2">
+        <div onClick="{{ item.onClick }}" style="cursor:pointer;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:4px solid {{ item.accentColor }};border-radius:4px 12px 12px 4px;padding:18px 20px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <sc-if value="{{ item.isEscalation }}">
+              <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:oklch(99% 0.01 27);background:oklch(54% 0.22 27);padding:3px 10px;border-radius:5px;">Escalation</span>
+            </sc-if>
+            <span style="font-size:12px;color:oklch(64% 0.012 264.4);">{{ item.space }}</span>
+          </div>
+          <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:18px;margin-bottom:4px;">{{ item.title }}</div>
+          <div style="font-size:13px;color:oklch(48% 0.012 264.4);">{{ item.subtitle }}</div>
+          <sc-if value="{{ item.showToast }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:tt-fade 1.8s ease-out forwards;">{{ item.toastText }}</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:14px;">Also due &#8212; from Canvas</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <sc-for list="{{ canvasToday }}" as="item" hint-placeholder-count="2">
+        <div style="background:oklch(97% 0.003 264.4);border:1px dashed oklch(89% 0.006 264.4);border-radius:10px;padding:16px 20px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div>
+              <div style="font-size:15px;font-weight:600;margin-bottom:3px;">{{ item.title }}</div>
+              <div style="font-size:13px;color:oklch(64% 0.012 264.4);">{{ item.subjectLine }}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+              <sc-if value="{{ item.isFresh }}"><div style="width:8px;height:8px;border-radius:50%;background:oklch(64% 0.012 264.4);"></div></sc-if>
+              <sc-if value="{{ item.isStale }}"><div style="width:8px;height:8px;border-radius:50%;border:1.5px solid oklch(64% 0.012 264.4);"></div></sc-if>
+              <sc-if value="{{ item.isSyncing }}"><div style="width:8px;height:8px;border-radius:50%;border:1.5px solid oklch(93% 0.005 264.4);border-top-color:oklch(64% 0.012 264.4);animation:tt-spin 1s linear infinite;"></div></sc-if>
+              <div style="font-size:11px;color:oklch(64% 0.012 264.4);">{{ item.freshnessLabel }}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+            <div style="font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);">Reference only</div>
+            <button onClick="{{ item.openInCanvas }}" style="background:none;border:none;padding:0;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:oklch(48.8% 0.217 264.4);text-decoration:underline;cursor:pointer;">View in Canvas &#8599;</button>
+          </div>
+          <sc-if value="{{ item.showToast }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:8px;animation:tt-fade 1.6s ease-out forwards;">Opening in Canvas&#8230;</div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isWeekView }}">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <sc-for list="{{ weekDays }}" as="day" hint-placeholder-count="5">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px;">
+            <div style="font-size:14px;font-weight:700;color:{{ day.labelColor }};">{{ day.label }}</div>
+            <div style="font-size:12px;color:oklch(64% 0.012 264.4);">{{ day.dateLabel }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <sc-for list="{{ day.items }}" as="item" hint-placeholder-count="1">
+              <sc-if value="{{ item.isEscolent }}">
+                <div onClick="{{ item.onClick }}" style="cursor:pointer;display:flex;align-items:center;gap:10px;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-left:3px solid {{ item.accentColor }};border-radius:3px 8px 8px 3px;padding:10px 14px;">
+                  <sc-if value="{{ item.isEscalation }}">
+                    <span style="font-size:10px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:oklch(99% 0.01 27);background:oklch(54% 0.22 27);padding:2px 7px;border-radius:4px;flex-shrink:0;">Esc.</span>
+                  </sc-if>
+                  <div style="flex:1;font-size:14px;font-weight:600;">{{ item.title }}</div>
+                  <div style="font-size:11px;color:oklch(64% 0.012 264.4);">{{ item.space }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ item.isCanvas }}">
+                <div style="background:oklch(97% 0.003 264.4);border:1px dashed oklch(89% 0.006 264.4);border-radius:8px;padding:10px 14px;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="flex:1;">
+                      <div style="font-size:14px;font-weight:500;color:oklch(48% 0.012 264.4);">{{ item.title }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                      <sc-if value="{{ item.isFresh }}"><div style="width:7px;height:7px;border-radius:50%;background:oklch(64% 0.012 264.4);"></div></sc-if>
+                      <sc-if value="{{ item.isStale }}"><div style="width:7px;height:7px;border-radius:50%;border:1.5px solid oklch(64% 0.012 264.4);"></div></sc-if>
+                      <sc-if value="{{ item.isSyncing }}"><div style="width:7px;height:7px;border-radius:50%;border:1.5px solid oklch(93% 0.005 264.4);border-top-color:oklch(64% 0.012 264.4);animation:tt-spin 1s linear infinite;"></div></sc-if>
+                    </div>
+                    <div style="font-size:11px;color:oklch(64% 0.012 264.4);">{{ item.space }}</div>
+                    <button onClick="{{ item.openInCanvas }}" style="background:none;border:none;padding:0;font-family:'Geist',sans-serif;font-size:11px;font-weight:600;color:oklch(48.8% 0.217 264.4);text-decoration:underline;cursor:pointer;flex-shrink:0;">Canvas &#8599;</button>
+                  </div>
+                  <sc-if value="{{ item.showToast }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11px;color:oklch(64% 0.012 264.4);margin-top:6px;animation:tt-fade 1.6s ease-out forwards;">Opening in Canvas&#8230;</div>
+                  </sc-if>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 700, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = { view: 'today', askText: '', askLoading: false, askAnswer: '', toastId: null };
+
+  days = [
+    { key: 'wed', label: 'Today', dateLabel: 'Wed, Aug 19', isToday: true },
+    { key: 'thu', label: 'Thu', dateLabel: 'Aug 20', isToday: false },
+    { key: 'fri', label: 'Fri', dateLabel: 'Aug 21', isToday: false },
+    { key: 'mon', label: 'Mon', dateLabel: 'Aug 24', isToday: false },
+    { key: 'tue', label: 'Tue', dateLabel: 'Aug 25', isToday: false },
+  ];
+
+  items = [
+    { id: 'e1', day: 'wed', source: 'escolent', kind: 'escalation', title: 'Noah Whitfield may need support', subtitle: "Flagged in Tuesday's check-in response \u2014 open 3 hours, still unresolved.", space: 'Grade 8A Remediation', toastText: 'Would open the Escalation detail screen \u2014 not built yet.' },
+    { id: 'e2', day: 'wed', source: 'escolent', kind: 'override', title: "Elena Cruz's override is due for a check", subtitle: 'Integer operations \u2014 overridden 30 days ago, confirm or reassess.', space: 'Grade 8A Algebra', toastText: 'Would open the mastery override review \u2014 not built yet.' },
+    { id: 'c1', day: 'wed', source: 'canvas', title: 'Two-step equations quiz \u2014 grades due', subjectLine: 'Grade 8A Algebra \u00b7 Canvas', space: 'Algebra', freshness: 'fresh' },
+    { id: 'c2', day: 'thu', source: 'canvas', title: 'Homework Set 5 \u2014 assignment due', subjectLine: 'Grade 8A Algebra \u00b7 Canvas', space: 'Algebra', freshness: 'syncing' },
+    { id: 'c3', day: 'fri', source: 'canvas', title: 'Unit 2 test \u2014 grading deadline', subjectLine: 'Grade 8A Remediation \u00b7 Canvas', space: 'Remediation', freshness: 'stale' },
+    { id: 'c4', day: 'mon', source: 'canvas', title: 'Quiz 3 \u2014 grades due', subjectLine: 'Grade 8A Remediation \u00b7 Canvas', space: 'Remediation', freshness: 'fresh' },
+    { id: 'c5', day: 'tue', source: 'canvas', title: 'Vocabulary check-in \u2014 grades due', subjectLine: 'Grade 8A Algebra \u00b7 Canvas', space: 'Algebra', freshness: 'fresh' },
+  ];
+
+  freshLabels = { fresh: 'Synced', stale: 'Synced 2h ago', syncing: 'Syncing\u2026' };
+
+  showToday = () => this.setState({ view: 'today' });
+  showWeek = () => this.setState({ view: 'week' });
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+  handleAskKeyDown = (e) => { if (e.key === 'Enter') this.handleAskSubmit(); };
+
+  showStubToast = (id) => {
+    this.setState({ toastId: id });
+    setTimeout(() => this.setState((s) => (s.toastId === id ? { toastId: null } : {})), 1800);
+  };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const dataLines = this.items.map((it) => {
+      const dayInfo = this.days.find((d) => d.key === it.day);
+      const src = it.source === 'escolent' ? 'Escolent (internal, actionable)' : 'Canvas (LMS, reference only)';
+      const space = it.space && it.space.startsWith('Grade') ? it.space : `Grade 8A ${it.space}`;
+      return `- ${it.title} | space: ${space} | day: ${dayInfo.label} (${dayInfo.dateLabel}) | source: ${src}`;
+    }).join('\n');
+    this.setState({ askLoading: true, askAnswer: '' });
+    try {
+      const prompt = `You are answering a teacher's question about what's due across her two Spaces (Grade 8A Algebra, Grade 8A Remediation), using ONLY this real due-items data (today is Wed, Aug 19):\n${dataLines}\n\nHer question: "${this.state.askText}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) \u2014 no markdown, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ askLoading: false, askAnswer: this.sanitizeAiText(text) || "I couldn't check that right now \u2014 try again in a moment." });
+    } catch (e) {
+      this.setState({ askLoading: false, askAnswer: "I couldn't check that right now \u2014 try again in a moment." });
+    }
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const accent = 'oklch(48.8% 0.217 264.4)';
+    const escColor = 'oklch(54% 0.22 27)';
+    const white = 'oklch(99% 0.003 264.4)';
+    const muted = 'oklch(48% 0.012 264.4)';
+
+    const buildCanvasVm = (it) => ({
+      ...it, isEscolent: false, isCanvas: true,
+      isFresh: it.freshness === 'fresh', isStale: it.freshness === 'stale', isSyncing: it.freshness === 'syncing',
+      freshnessLabel: this.freshLabels[it.freshness],
+      showToast: s.toastId === it.id,
+      openInCanvas: () => this.showStubToast(it.id),
+    });
+    const buildEscolentVm = (it) => ({
+      ...it, isEscolent: true, isCanvas: false,
+      isEscalation: it.kind === 'escalation',
+      accentColor: it.kind === 'escalation' ? escColor : accent,
+      showToast: s.toastId === it.id,
+      onClick: it.kind === 'escalation' ? () => { window.location.href = 'Escalation Detail.dc.html'; } : () => this.showStubToast(it.id),
+    });
+
+    const todayItems = this.items.filter((i) => i.day === 'wed');
+    const nativeToday = todayItems.filter((i) => i.source === 'escolent').map(buildEscolentVm);
+    const canvasToday = todayItems.filter((i) => i.source === 'canvas').map(buildCanvasVm);
+
+    const weekDays = this.days.map((d) => ({
+      label: d.label, dateLabel: d.dateLabel,
+      labelColor: d.isToday ? accent : 'oklch(23% 0.008 264.4)',
+      items: this.items.filter((i) => i.day === d.key).map((i) => (i.source === 'escolent' ? buildEscolentVm(i) : buildCanvasVm(i))),
+    }));
+
+    return {
+      todayDateLabel: 'Wednesday, August 19',
+      isTodayView: s.view === 'today', isWeekView: s.view === 'week',
+      showToday: this.showToday, showWeek: this.showWeek,
+      todayTabBg: s.view === 'today' ? white : 'transparent', todayTabColor: s.view === 'today' ? accent : muted,
+      weekTabBg: s.view === 'week' ? white : 'transparent', weekTabColor: s.view === 'week' ? accent : muted,
+      nativeToday, canvasToday, weekDays,
+      askText: s.askText, askHasText: s.askText.trim() !== '',
+      handleAskChange: this.handleAskChange, handleAskKeyDown: this.handleAskKeyDown, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askReady: !s.askLoading && !!s.askAnswer, askAnswer: s.askAnswer,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

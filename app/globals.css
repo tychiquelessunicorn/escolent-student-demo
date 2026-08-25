@@ -1,0 +1,185 @@
+@import "tailwindcss";
+
+/*
+  Design tokens extracted verbatim from claude-design-source/Foundation.dc.html
+  (Phase 2 visual refresh). Values are not re-derived or re-tuned here.
+
+  Deliberately absent, and it should stay that way:
+  - content-status colors (draft / pending_approval / validated). Requirement 32.6
+    forbids showing Content_Status to Students, and the UI blueprint is explicit
+    that the badge should not exist in any Student-facing variant rather than be
+    hidden behind a flag. There is no token to reach for.
+  - coverage colors, and the reserved escalation red oklch(54% 0.22 27). Both are
+    staff-facing only. The Student distress notice is deliberately the calm blue
+    below, never the alarm red.
+*/
+
+@theme {
+  /* Surfaces and text — warm neutral base, hue 55 */
+  --color-surface: oklch(97% 0.01 55);
+  --color-surface-raised: oklch(99% 0.007 55);
+  --color-surface-sunken: oklch(93% 0.008 55);
+  --color-content-primary: oklch(24% 0.014 55);
+  --color-content-secondary: oklch(49% 0.018 55);
+  --color-content-muted: oklch(64% 0.016 55);
+  --color-border: oklch(88% 0.014 55);
+  --color-border-subtle: oklch(93% 0.008 55);
+  --color-disabled-surface: oklch(92% 0.01 55);
+
+  /* Brand accent — the one interactive color */
+  --color-accent: oklch(48.8% 0.217 264.4);
+  --color-accent-hover: oklch(42% 0.217 264.4);
+  --color-accent-subtle: oklch(94% 0.03 264.4);
+  --color-accent-subtle-border: oklch(78% 0.09 264.4);
+  --color-accent-strong: oklch(38% 0.15 264.4);
+
+  /*
+    Achievement accent. Scoped to exactly two moments, product-wide:
+    crossing a mastery tier, and a first-exposure skill resolving correctly.
+    Not a general highlight color. If you are reaching for this token for a
+    third reason, that is the bug.
+  */
+  --color-achievement: oklch(58% 0.16 215);
+  --color-achievement-subtle: oklch(95% 0.045 215);
+  --color-achievement-border: oklch(80% 0.1 215);
+  --color-achievement-heading: oklch(28% 0.1 215);
+  --color-achievement-body: oklch(36% 0.11 215);
+
+  /* Mastery — one ordered progression, five steps */
+  --color-mastery-not-attempted: oklch(88% 0.014 55);
+  --color-mastery-struggling: oklch(58% 0.11 25);
+  --color-mastery-emerging: oklch(63% 0.1 60);
+  --color-mastery-tentative: oklch(68% 0.09 100);
+  --color-mastery-durable: oklch(60% 0.1 150);
+
+  --color-mastery-not-attempted-bg: oklch(92% 0.01 55);
+  --color-mastery-not-attempted-fg: oklch(49% 0.018 55);
+  --color-mastery-struggling-bg: oklch(95% 0.03 25);
+  --color-mastery-struggling-fg: oklch(45% 0.11 25);
+  --color-mastery-emerging-bg: oklch(95% 0.03 60);
+  --color-mastery-emerging-fg: oklch(45% 0.1 60);
+  --color-mastery-tentative-bg: oklch(95% 0.025 100);
+  --color-mastery-tentative-fg: oklch(42% 0.09 100);
+  --color-mastery-durable-bg: oklch(93% 0.03 150);
+  --color-mastery-durable-fg: oklch(38% 0.1 150);
+  --color-mastery-achievement-fg: oklch(36% 0.13 215);
+
+  /* Item tiers — different in kind, not intensity */
+  --color-urgent: oklch(56% 0.15 45);
+  --color-urgent-bg: oklch(95% 0.035 45);
+  --color-urgent-fg: oklch(45% 0.13 45);
+  --color-informational: oklch(53% 0.09 230);
+  --color-informational-bg: oklch(95% 0.02 230);
+  --color-informational-fg: oklch(40% 0.08 230);
+
+  /*
+    Student-facing distress notice. Deliberately calm — this tells a student
+    their teacher is coming, it is not an alarm aimed at them.
+  */
+  --color-notice-bg: oklch(96% 0.02 250);
+  --color-notice-border: oklch(85% 0.05 250);
+  --color-notice-fg: oklch(35% 0.08 250);
+
+  /* Ordinary form-validation red — never the reserved escalation color */
+  --color-error: oklch(52% 0.14 18);
+
+  /* Radius — 8 / 14 / 18 / 22 / 26 */
+  --radius-xs: 8px;
+  --radius-control: 14px;
+  --radius-shell: 18px;
+  --radius-card: 22px;
+  --radius-modal: 26px;
+
+  /* Type scale */
+  --text-xs: 13px;
+  --text-sm: 15px;
+  --text-base: 16px;
+  --text-lg: 22px;
+  --text-xl: 32px;
+
+  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-crimson), ui-serif, Georgia, serif;
+
+  /* Focused, narrow screens run at 720px */
+  --container-focused: 720px;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-surface);
+    color: var(--color-content-primary);
+    font-family: var(--font-body);
+  }
+
+  a {
+    color: var(--color-accent);
+  }
+
+  a:hover {
+    color: var(--color-accent-hover);
+  }
+}
+
+/*
+  Rail on desktop, bottom tabs on mobile. 760px breakpoint, 56px touch targets,
+  250px rail with 12px/16px item padding — the values fixed during the Student
+  Shell pass after an earlier build shipped the rail at 104px and Practice
+  Session's narrower still at 88px.
+*/
+#app-rail {
+  display: none;
+}
+
+#app-bottomnav {
+  display: flex;
+}
+
+@media (min-width: 760px) {
+  #app-rail {
+    display: flex;
+  }
+
+  #app-bottomnav {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .esc-card {
+    padding: 26px 20px !important;
+  }
+
+  .esc-ladder-row {
+    gap: 10px !important;
+  }
+}
+
+@keyframes esc-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes esc-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

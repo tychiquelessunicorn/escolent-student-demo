@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.010 55);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes escspin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+</style>
+</helmet>
+
+<div style="max-width:1360px;margin:0 auto;padding:80px 64px 120px;font-family:'Geist',sans-serif;color:oklch(24% 0.014 55);">
+
+  <div style="margin-bottom:40px;">
+    <div style="font-size:12px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.016 55);margin-bottom:10px;">Escolent · Visual Foundation · Phase 2 refresh</div>
+    <h1 style="font-family:'Crimson Pro',serif;font-weight:700;font-size:34px;margin:0 0 12px;">Warmer, rounder, still calm</h1>
+    <p style="font-size:16px;line-height:1.6;color:oklch(49% 0.018 55);max-width:680px;margin:0;">The original pass read trustworthy but closer to an adult SaaS dashboard than something made for a 13&ndash;14 year old. Three changes here, nothing else touched: a warmer neutral base, a second accent reserved for genuine achievement moments, rounder shapes throughout, and a lighter touch on type weight and scale. No streaks, points, or badge mechanics &mdash; and no illustration yet, that's a separate decision.</p>
+  </div>
+
+  <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:80px;padding:20px 24px;background:oklch(99% 0.007 55);border:1px solid oklch(93% 0.010 55);border-radius:18px;">
+    <div style="flex:1;min-width:220px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">1. Color</div><div style="font-size:13px;color:oklch(49% 0.018 55);line-height:1.5;">Warmer neutral base. New achievement accent, used sparingly. Blue stays the one interactive color.</div></div>
+    <div style="flex:1;min-width:220px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">2. Shape</div><div style="font-size:13px;color:oklch(49% 0.018 55);line-height:1.5;">Radius scale pushed up across the board &mdash; 22px on cards, 26px on modals, 14px on buttons and inputs.</div></div>
+    <div style="flex:1;min-width:220px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">3. Type</div><div style="font-size:13px;color:oklch(49% 0.018 55);line-height:1.5;">Same pairing. Crimson Pro moved up to 700 and a larger scale for headlines; uppercase labels lost their corporate edge.</div></div>
+  </div>
+
+  <!-- COLOR -->
+  <section style="margin-bottom:80px;">
+    <h2 style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin:0 0 28px;">Color</h2>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Surfaces &amp; text &mdash; warmed</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px;">
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(97% 0.010 55);border:1px solid oklch(88% 0.014 55);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Surface · base</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(97% .010 55)</div>
+      </div>
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);box-shadow:0 1px 3px oklch(24% 0.014 55 / 0.06);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Surface · raised</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(99% .007 55)</div>
+      </div>
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(24% 0.014 55);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Text · primary</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(24% .014 55)</div>
+      </div>
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(49% 0.018 55);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Text · secondary</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(49% .018 55)</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:oklch(64% 0.016 55);margin-bottom:44px;max-width:640px;">Same near-neutral structure as before, hue moved from a cool blue-gray (264.4) to a warm gold-cream direction (55) with a touch more chroma. Reads like paper, not like a phone screen.</div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Brand accent &mdash; unchanged, still the one interactive color</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:44px;">
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(48.8% 0.217 264.4);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Accent · blue</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(48.8% .217 264.4)</div>
+      </div>
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Accent · blue subtle</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(94% .03 264.4)</div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Accent · achievement &mdash; new, reserved for real moments</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;">
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(58% 0.16 215);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Achievement</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(58% .16 215)</div>
+      </div>
+      <div style="width:152px;">
+        <div style="width:152px;height:88px;border-radius:14px;background:oklch(95% 0.045 215);border:1px solid oklch(80% 0.10 215);"></div>
+        <div style="font-size:13px;font-weight:600;margin-top:10px;">Achievement · subtle</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);font-family:monospace;">oklch(95% .045 215)</div>
+      </div>
+      <div style="width:280px;background:oklch(95% 0.045 215);border:1px solid oklch(80% 0.10 215);border-radius:22px;padding:20px 22px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:17px;line-height:1.35;color:oklch(28% 0.10 215);margin-bottom:4px;">You just moved fractions into Durable.</div>
+        <div style="font-size:13px;color:oklch(36% 0.11 215);line-height:1.45;">Shown once, at the moment it happens &mdash; not a badge that sits around after.</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:oklch(64% 0.016 55);margin-bottom:44px;max-width:700px;">A cyan-teal distinct from both the blue brand color and the muted coverage teal below. Used only for two things: crossing into a new mastery tier, and a first-exposure skill clicking into place. Never a decorative fill, never a persistent element &mdash; it appears for the moment, then goes away.</div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Briefing tiers &mdash; different in kind, not intensity</div>
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:44px;">
+      <div style="width:360px;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-left:4px solid oklch(56% 0.15 45);border-radius:6px 20px 20px 6px;padding:20px 24px;">
+        <div style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(45% 0.13 45);background:oklch(95% 0.035 45);padding:3px 10px;border-radius:8px;margin-bottom:12px;">Urgent</div>
+        <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:20px;line-height:1.4;margin-bottom:6px;">Needs a decision from you today.</div>
+        <div style="font-size:14px;color:oklch(49% 0.018 55);">Warm, attention-getting &mdash; not an alarm.</div>
+      </div>
+      <div style="width:360px;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-left:4px solid oklch(53% 0.09 230);border-radius:6px 20px 20px 6px;padding:20px 24px;">
+        <div style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(40% 0.08 230);background:oklch(95% 0.02 230);padding:3px 10px;border-radius:8px;margin-bottom:12px;">Informational</div>
+        <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:20px;line-height:1.4;margin-bottom:6px;">Worth knowing, nothing to act on.</div>
+        <div style="font-size:14px;color:oklch(49% 0.018 55);">Cool, quiet &mdash; a different family entirely.</div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Mastery progression &mdash; one sequence, five steps (hues unchanged)</div>
+    <div style="display:flex;align-items:center;gap:0;margin-bottom:8px;">
+      <div style="display:flex;flex-direction:column;align-items:center;width:120px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:oklch(88% 0.014 55);border:1px solid oklch(88% 0.014 55);"></div>
+        <div style="font-size:12px;margin-top:10px;text-align:center;">Not attempted</div>
+      </div>
+      <div style="height:2px;flex:1;background:linear-gradient(90deg,oklch(88% 0.014 55),oklch(58% 0.11 25));margin-bottom:26px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;width:120px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:oklch(58% 0.11 25);"></div>
+        <div style="font-size:12px;margin-top:10px;text-align:center;">Struggling</div>
+      </div>
+      <div style="height:2px;flex:1;background:linear-gradient(90deg,oklch(58% 0.11 25),oklch(63% 0.10 60));margin-bottom:26px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;width:120px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:oklch(63% 0.10 60);"></div>
+        <div style="font-size:12px;margin-top:10px;text-align:center;">Emerging</div>
+      </div>
+      <div style="height:2px;flex:1;background:linear-gradient(90deg,oklch(63% 0.10 60),oklch(68% 0.09 100));margin-bottom:26px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;width:120px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:oklch(68% 0.09 100);"></div>
+        <div style="font-size:12px;margin-top:10px;text-align:center;">Tentative</div>
+      </div>
+      <div style="height:2px;flex:1;background:linear-gradient(90deg,oklch(68% 0.09 100),oklch(60% 0.10 150));margin-bottom:26px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;width:120px;">
+        <div style="width:56px;height:56px;border-radius:50%;background:oklch(60% 0.10 150);"></div>
+        <div style="font-size:12px;margin-top:10px;text-align:center;">Durable</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:oklch(64% 0.016 55);margin-bottom:44px;">Untouched in this pass &mdash; already reviewed, still one continuum, not five separate labels. The achievement accent above is what fires <em>at the instant</em> a student crosses one of these boundaries; the sweep itself stays the resting-state read.</div>
+
+    <div style="display:flex;gap:64px;flex-wrap:wrap;margin-bottom:44px;">
+      <div style="flex:1;min-width:320px;">
+        <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Content status &mdash; three discrete states, no order implied</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;background:oklch(95% 0.025 300);color:oklch(40% 0.09 300);"><span style="width:7px;height:7px;border-radius:50%;background:oklch(52% 0.08 300);"></span>Draft</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;background:oklch(95% 0.025 325);color:oklch(40% 0.09 325);"><span style="width:7px;height:7px;border-radius:50%;background:oklch(52% 0.08 325);"></span>Pending approval</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:6px 14px;border-radius:999px;background:oklch(95% 0.025 350);color:oklch(38% 0.10 350);"><span style="width:7px;height:7px;border-radius:50%;background:oklch(52% 0.08 350);"></span>Validated</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:320px;">
+        <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Coverage &mdash; how much ground is covered</div>
+        <div style="display:flex;gap:18px;">
+          <div style="width:80px;">
+            <div style="height:6px;border-radius:3px;background:oklch(93% 0.008 55);overflow:hidden;"><div style="width:100%;height:100%;background:oklch(45% 0.09 175);"></div></div>
+            <div style="font-size:12px;margin-top:8px;">Rich</div>
+          </div>
+          <div style="width:80px;">
+            <div style="height:6px;border-radius:3px;background:oklch(93% 0.008 55);overflow:hidden;"><div style="width:40%;height:100%;background:oklch(70% 0.06 175);"></div></div>
+            <div style="font-size:12px;margin-top:8px;">Thin</div>
+          </div>
+          <div style="width:80px;">
+            <div style="height:6px;border-radius:3px;background:oklch(93% 0.008 55);overflow:hidden;"><div style="width:12%;height:100%;background:oklch(88% 0.03 175);"></div></div>
+            <div style="font-size:12px;margin-top:8px;">Gap</div>
+          </div>
+          <div style="width:80px;">
+            <div style="height:6px;border-radius:3px;background:oklch(85% 0.014 55);"></div>
+            <div style="font-size:12px;margin-top:8px;">Not assessed</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:12px;max-width:340px;">Deliberately more muted than the achievement teal above &mdash; coverage is a routine measurement, not a moment.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:64px;flex-wrap:wrap;align-items:flex-start;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Escalation severity &mdash; the one loud color</div>
+        <div style="width:220px;height:110px;border-radius:18px;background:oklch(54% 0.22 27);"></div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:10px;max-width:220px;">oklch(54% .22 27) &mdash; the only fully-saturated color in the system. Reserved exclusively for a student possibly in distress. Never reused.</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;">
+          <div style="width:28px;height:28px;border-radius:9px;background:oklch(52% 0.14 18);"></div>
+          <div style="font-size:12px;color:oklch(64% 0.016 55);max-width:220px;">Form validation uses this ordinary red instead &mdash; separate hue, lower chroma, never the escalation color above.</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Sync state &mdash; glyph, not a color family</div>
+        <div style="display:flex;gap:28px;">
+          <div style="text-align:center;">
+            <div style="width:14px;height:14px;border-radius:50%;background:oklch(49% 0.018 55);margin:0 auto;"></div>
+            <div style="font-size:12px;margin-top:10px;">Fresh</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="width:14px;height:14px;border-radius:50%;border:2px solid oklch(64% 0.016 55);margin:0 auto;"></div>
+            <div style="font-size:12px;margin-top:10px;">Stale</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="width:14px;height:14px;border-radius:50%;border:2px solid oklch(93% 0.008 55);border-top-color:oklch(49% 0.018 55);margin:0 auto;animation:escspin 1.1s linear infinite;"></div>
+            <div style="font-size:12px;margin-top:10px;">Syncing</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="position:relative;width:14px;height:14px;border-radius:50%;border:2px solid oklch(64% 0.016 55);margin:0 auto;">
+              <div style="position:absolute;top:50%;left:-1px;width:16px;height:2px;background:oklch(64% 0.016 55);transform:translateY(-50%) rotate(45deg);"></div>
+            </div>
+            <div style="font-size:12px;margin-top:10px;">Unavailable</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TYPE -->
+  <section style="margin-bottom:80px;">
+    <h2 style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin:0 0 16px;">Type scale</h2>
+    <p style="font-size:14px;line-height:1.6;color:oklch(49% 0.018 55);max-width:720px;margin:0 0 28px;">Kept Crimson Pro + Geist &mdash; the pairing itself isn't the problem. What read adult was Crimson Pro sitting at a light-ish 600 weight and a modest scale, next to Geist uppercase labels at 700 weight with wide letter-spacing (a very admin-dashboard habit). Crimson Pro now sits at 700 and a size step up wherever it carries a headline, and the uppercase labels dropped to 600 weight with tighter spacing. If this still doesn't land, the honest next lever isn't weight &mdash; it's swapping Crimson Pro for a rounder, less editorial serif (or one warm rounded sans doing everything). Flagging it rather than making that call here.</p>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:24px;padding:16px 0;border-bottom:1px solid oklch(93% 0.008 55);">
+        <div style="width:50px;font-family:monospace;font-size:12px;color:oklch(64% 0.016 55);">xs</div>
+        <div style="flex:1;font-family:'Geist',sans-serif;font-size:13px;">Metadata, timestamps, table cells</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);">13px / Geist</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:24px;padding:16px 0;border-bottom:1px solid oklch(93% 0.008 55);">
+        <div style="width:50px;font-family:monospace;font-size:12px;color:oklch(64% 0.016 55);">sm</div>
+        <div style="flex:1;font-family:'Geist',sans-serif;font-size:15px;">Secondary body copy, input text</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);">15px / Geist</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:24px;padding:16px 0;border-bottom:1px solid oklch(93% 0.008 55);">
+        <div style="width:50px;font-family:monospace;font-size:12px;color:oklch(64% 0.016 55);">base</div>
+        <div style="flex:1;font-family:'Geist',sans-serif;font-size:16px;line-height:1.6;">Primary body copy, now set with more air &mdash; 1.6 line-height instead of the browser default.</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);">16px / Geist / 1.6</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:24px;padding:16px 0;border-bottom:1px solid oklch(93% 0.008 55);">
+        <div style="width:50px;font-family:monospace;font-size:12px;color:oklch(64% 0.016 55);">lg</div>
+        <div style="flex:1;font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;">Card and section titles</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);">22px / Crimson Pro 700 &mdash; was 20px / 600</div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:24px;padding:20px 20px;border-radius:14px;background:oklch(94% 0.03 264.4);">
+        <div style="width:50px;font-family:monospace;font-size:12px;color:oklch(49% 0.018 55);">xl</div>
+        <div style="flex:1;">
+          <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:32px;line-height:1.35;">A briefing headline, sized to read in seconds.</div>
+          <div style="font-size:12px;color:oklch(49% 0.018 55);margin-top:6px;">Never squeezed down to fit more items on screen.</div>
+        </div>
+        <div style="font-size:12px;color:oklch(49% 0.018 55);align-self:flex-start;">32px / Crimson Pro 700 &mdash; was 28px / 600</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPACING -->
+  <section style="margin-bottom:80px;">
+    <h2 style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin:0 0 28px;">Spacing scale</h2>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">4</div><div style="height:10px;width:12px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">8</div><div style="height:10px;width:24px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">12</div><div style="height:10px;width:36px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">16</div><div style="height:10px;width:48px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">24</div><div style="height:10px;width:72px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">32</div><div style="height:10px;width:96px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">48</div><div style="height:10px;width:144px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">64</div><div style="height:10px;width:192px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+      <div style="display:flex;align-items:center;gap:16px;"><div style="width:32px;font-size:12px;font-family:monospace;color:oklch(64% 0.016 55);">96</div><div style="height:10px;width:288px;background:oklch(48.8% 0.217 264.4);border-radius:3px;"></div></div>
+    </div>
+    <div style="font-size:13px;color:oklch(49% 0.018 55);max-width:640px;">Unchanged in this pass. One scale, two jobs: 24&ndash;64px between elements on landing and briefing screens for a calm, unhurried feel; 4&ndash;16px inside table rows and dense lists where more has to fit.</div>
+
+    <div style="margin-top:28px;font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:10px;">Border radius &mdash; pushed rounder throughout</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;">
+      <div style="text-align:center;"><div style="width:64px;height:64px;background:oklch(94% 0.03 264.4);border:1.5px solid oklch(78% 0.09 264.4);border-radius:8px;"></div><div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;">8 &middot; xs</div></div>
+      <div style="text-align:center;"><div style="width:64px;height:64px;background:oklch(94% 0.03 264.4);border:1.5px solid oklch(78% 0.09 264.4);border-radius:14px;"></div><div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;">14 &middot; buttons, inputs</div></div>
+      <div style="text-align:center;"><div style="width:64px;height:64px;background:oklch(94% 0.03 264.4);border:1.5px solid oklch(78% 0.09 264.4);border-radius:18px;"></div><div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;">18 &middot; table shells</div></div>
+      <div style="text-align:center;"><div style="width:64px;height:64px;background:oklch(94% 0.03 264.4);border:1.5px solid oklch(78% 0.09 264.4);border-radius:22px;"></div><div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;">22 &middot; cards</div></div>
+      <div style="text-align:center;"><div style="width:64px;height:64px;background:oklch(94% 0.03 264.4);border:1.5px solid oklch(78% 0.09 264.4);border-radius:26px;"></div><div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;">26 &middot; modals</div></div>
+    </div>
+    <div style="font-size:13px;color:oklch(49% 0.018 55);max-width:640px;">Was 10&ndash;14px on cards. Now 22px on cards, 26px on modals, 14px on buttons and inputs, scaling down to 8px only for small square glyphs. Pills stay pills.</div>
+
+    <div style="margin-top:28px;font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:10px;">Container width</div>
+    <div style="font-size:13px;color:oklch(49% 0.018 55);max-width:640px;line-height:1.6;">Unchanged. Focused, narrow screens (briefings, practice, progress, escalations, forms) use a <strong>720px</strong> max-width container. Dense data-table screens run wider &mdash; judged per screen.</div>
+  </section>
+
+  <!-- COMPONENTS -->
+  <section>
+    <h2 style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin:0 0 28px;">Core components</h2>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Button</div>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:44px;">
+      <button style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;" style-hover="background:oklch(42% 0.217 264.4);">Primary action</button>
+      <button style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 24px;border-radius:14px;border:1.5px solid oklch(48.8% 0.217 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;" style-hover="background:oklch(94% 0.03 264.4);">Secondary</button>
+      <button style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 20px;border-radius:14px;border:none;background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;" style-hover="background:oklch(94% 0.03 264.4);">Ghost</button>
+      <button style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:14px;border:none;background:oklch(92% 0.010 55);color:oklch(64% 0.016 55);cursor:not-allowed;" disabled="">Disabled</button>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Text input</div>
+    <div style="display:flex;gap:24px;margin-bottom:44px;flex-wrap:wrap;">
+      <div style="width:260px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Student name</div>
+        <input type="text" placeholder="Jordan Ellis" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:11px 16px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);"/>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:6px;">Default</div>
+      </div>
+      <div style="width:260px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Student name</div>
+        <input type="text" value="Jordan Ellis" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:10.5px 15.5px;border-radius:14px;border:1.5px solid oklch(48.8% 0.217 264.4);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);box-shadow:0 0 0 3px oklch(94% 0.03 264.4);outline:none;"/>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:6px;">Focused</div>
+      </div>
+      <div style="width:260px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Student name</div>
+        <input type="text" value="" placeholder="Required" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:10.5px 15.5px;border-radius:14px;border:1.5px solid oklch(52% 0.14 18);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);"/>
+        <div style="font-size:12px;color:oklch(52% 0.14 18);margin-top:6px;">This field is required</div>
+      </div>
+    </div>
+    <div style="font-size:12px;color:oklch(64% 0.016 55);margin-bottom:44px;">Error state uses a separate, ordinary-intensity red (oklch(52% .14 18)) &mdash; distinct from the escalation color reserved for student distress.</div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Badge</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:44px;">
+      <span style="font-size:12px;font-weight:600;letter-spacing:0.02em;padding:5px 13px;border-radius:999px;background:oklch(95% 0.035 45);color:oklch(45% 0.13 45);">Urgent</span>
+      <span style="font-size:12px;font-weight:600;letter-spacing:0.02em;padding:5px 13px;border-radius:999px;background:oklch(95% 0.02 230);color:oklch(40% 0.08 230);">Informational</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(92% 0.010 55);color:oklch(49% 0.018 55);">Not attempted</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.03 25);color:oklch(45% 0.11 25);">Struggling</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.03 60);color:oklch(45% 0.10 60);">Emerging</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.025 100);color:oklch(42% 0.09 100);">Tentative</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(93% 0.03 150);color:oklch(38% 0.10 150);">Durable</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.045 215);color:oklch(36% 0.13 215);">Just reached Durable</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.025 300);color:oklch(40% 0.09 300);">Draft</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.025 325);color:oklch(40% 0.09 325);">Pending approval</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.025 350);color:oklch(38% 0.10 350);">Validated</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(93% 0.03 175);color:oklch(32% 0.08 175);">Rich coverage</span>
+      <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(92% 0.010 55);color:oklch(49% 0.018 55);">Not assessed</span>
+      <span style="font-size:12px;font-weight:600;letter-spacing:0.02em;padding:5px 13px;border-radius:999px;background:oklch(54% 0.22 27);color:oklch(99% 0.01 27);">Escalated</span>
+    </div>
+    <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:-30px;margin-bottom:44px;max-width:640px;">One new badge &mdash; "Just reached Durable" in the achievement teal, for the moment a tier is crossed. It doesn't replace the resting "Durable" badge; it appears alongside it briefly, then disappears back to the plain one.</div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Card shell &mdash; comfortable vs. dense</div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;">
+      <div style="width:420px;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:32px;box-shadow:0 1px 3px oklch(24% 0.014 55 / 0.05);">
+        <span style="display:inline-block;font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(45% 0.13 45);background:oklch(95% 0.035 45);padding:3px 10px;border-radius:8px;margin-bottom:16px;">Urgent</span>
+        <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;line-height:1.35;margin-bottom:10px;">Maya hasn't opened the fractions unit in 6 days.</div>
+        <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.5;margin-bottom:20px;">Last activity Aug 10 &mdash; a check-in might help before the unit test.</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(95% 0.03 25);color:oklch(45% 0.11 25);">Struggling</span>
+          <span style="font-size:12px;font-weight:600;padding:5px 13px;border-radius:999px;background:oklch(93% 0.03 175);color:oklch(32% 0.08 175);">Rich coverage</span>
+          <span style="font-size:12px;color:oklch(64% 0.016 55);margin-left:auto;">2 hours ago</span>
+        </div>
+      </div>
+
+      <div style="width:420px;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;overflow:hidden;">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid oklch(93% 0.008 55);">
+          <div style="flex:1;font-size:14px;font-weight:600;">Priya Nair</div>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:oklch(93% 0.03 150);color:oklch(38% 0.10 150);">Durable</span>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:oklch(95% 0.025 350);color:oklch(38% 0.10 350);">Validated</span>
+          <div style="width:10px;height:10px;border-radius:50%;background:oklch(49% 0.018 55);"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid oklch(93% 0.008 55);">
+          <div style="flex:1;font-size:14px;font-weight:600;">Diego Alvarez</div>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:oklch(95% 0.025 100);color:oklch(42% 0.09 100);">Tentative</span>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:oklch(95% 0.025 325);color:oklch(40% 0.09 325);">Pending</span>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid oklch(64% 0.016 55);"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;">
+          <div style="flex:1;font-size:14px;font-weight:600;">Amara Okafor</div>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:oklch(95% 0.03 60);color:oklch(45% 0.10 60);">Emerging</span>
+          <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:oklch(95% 0.025 300);color:oklch(40% 0.09 300);">Draft</span>
+          <div style="width:10px;height:10px;border-radius:50%;border:2px solid oklch(93% 0.008 55);border-top-color:oklch(49% 0.018 55);animation:escspin 1.1s linear infinite;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-top:80px;">
+    <h2 style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin:0 0 28px;">More primitives</h2>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Modal / dialog &mdash; confirmation variant</div>
+    <div style="position:relative;width:100%;max-width:720px;height:320px;border-radius:22px;overflow:hidden;background:oklch(93% 0.008 55);margin-bottom:44px;">
+      <div style="position:absolute;inset:0;background:oklch(24% 0.014 55 / 0.45);display:flex;align-items:center;justify-content:center;">
+        <div style="width:400px;background:oklch(99% 0.007 55);border-radius:26px;padding:32px;box-shadow:0 8px 24px oklch(24% 0.014 55 / 0.18);">
+          <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:12px;">Send this briefing to parents now?</div>
+          <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.55;margin-bottom:28px;">They'll receive it by email within a few minutes. You can still edit it after sending.</div>
+          <div style="display:flex;justify-content:flex-end;gap:12px;">
+            <button style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:14px;border:1.5px solid oklch(48.8% 0.217 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;">Cancel</button>
+            <button style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 22px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Send briefing</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Avatar / presence</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:44px;">
+      <div style="position:relative;width:36px;height:36px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:oklch(94% 0.03 264.4);color:oklch(38% 0.15 264.4);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:'Geist',sans-serif;">MA</div>
+        <div style="position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;background:oklch(48.8% 0.217 264.4);border:2px solid oklch(99% 0.007 55);"></div>
+      </div>
+      <div style="font-size:14px;color:oklch(49% 0.018 55);">Ms. Alvarez is viewing this</div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Data table / grid row</div>
+    <div style="border:1px solid oklch(88% 0.014 55);border-radius:18px;overflow:hidden;margin-bottom:44px;">
+      <div style="display:flex;padding:11px 18px;background:oklch(97% 0.010 55);border-bottom:1px solid oklch(88% 0.014 55);">
+        <div style="flex:2;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);">Student</div>
+        <div style="flex:1;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);">Mastery</div>
+        <div style="flex:1;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);">Coverage</div>
+        <div style="flex:1;font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);">Updated</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:11px 18px;border-bottom:1px solid oklch(93% 0.008 55);">
+        <div style="flex:2;font-size:14px;">Jonah Kim</div>
+        <div style="flex:1;"><span style="font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:oklch(95% 0.03 60);color:oklch(45% 0.10 60);">Emerging</span></div>
+        <div style="flex:1;"><div style="width:60px;height:6px;border-radius:3px;background:oklch(93% 0.008 55);overflow:hidden;"><div style="width:40%;height:100%;background:oklch(70% 0.06 175);"></div></div></div>
+        <div style="flex:1;font-size:13px;color:oklch(64% 0.016 55);">3h ago</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:11px 18px;border-bottom:1px solid oklch(93% 0.008 55);">
+        <div style="flex:2;font-size:14px;">Priya Nair</div>
+        <div style="flex:1;"><span style="font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:oklch(93% 0.03 150);color:oklch(38% 0.10 150);">Durable</span></div>
+        <div style="flex:1;"><div style="width:60px;height:6px;border-radius:3px;background:oklch(93% 0.008 55);overflow:hidden;"><div style="width:100%;height:100%;background:oklch(45% 0.09 175);"></div></div></div>
+        <div style="flex:1;font-size:13px;color:oklch(64% 0.016 55);">1d ago</div>
+      </div>
+      <div style="display:flex;align-items:center;padding:11px 18px;">
+        <div style="flex:2;font-size:14px;">Diego Alvarez</div>
+        <div style="flex:1;"><span style="font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:oklch(95% 0.03 25);color:oklch(45% 0.11 25);">Struggling</span></div>
+        <div style="flex:1;"><div style="width:60px;height:6px;border-radius:3px;background:oklch(88% 0.03 175);"></div></div>
+        <div style="flex:1;font-size:13px;color:oklch(64% 0.016 55);">2h ago</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:64px;flex-wrap:wrap;margin-bottom:44px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Toggle / switch</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:24px;border-radius:999px;background:oklch(88% 0.014 55);position:relative;"><div style="position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:oklch(99% 0.007 55);box-shadow:0 1px 2px oklch(24% 0.014 55 / 0.15);"></div></div>
+            <div style="font-size:14px;">Off</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:40px;height:24px;border-radius:999px;background:oklch(48.8% 0.217 264.4);position:relative;"><div style="position:absolute;top:2px;left:18px;width:20px;height:20px;border-radius:50%;background:oklch(99% 0.007 55);box-shadow:0 1px 2px oklch(24% 0.014 55 / 0.15);"></div></div>
+            <div style="font-size:14px;">On</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Textarea</div>
+        <div style="width:340px;">
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Note to parent</div>
+          <textarea rows="4" placeholder="Add context before sending…" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:13px 16px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);resize:vertical;"></textarea>
+          <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:6px;">0/280</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:oklch(49% 0.018 55);margin-bottom:14px;">Conversational surface</div>
+    <div style="display:flex;flex-direction:column;gap:28px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid oklch(88% 0.014 55);border-radius:18px;background:oklch(99% 0.007 55);max-width:480px;">
+          <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.016 55);border-radius:5px;flex-shrink:0;"></div>
+          <div style="font-size:14px;color:oklch(64% 0.016 55);">Ask anything, or tell me what you need…</div>
+        </div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;max-width:480px;">Persistent entry point &mdash; quiet by design, an option rather than an invitation competing for attention.</div>
+      </div>
+
+      <div>
+        <div style="max-width:420px;background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:20px;">
+          <div style="font-size:14px;color:oklch(49% 0.018 55);margin-bottom:12px;">Which Priya did you mean?</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button style="text-align:left;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:11px 16px;border-radius:14px;border:1px solid oklch(78% 0.09 264.4);background:oklch(94% 0.03 264.4);color:oklch(38% 0.15 264.4);cursor:pointer;">Priya Nair — Period 2, Algebra I</button>
+            <button style="text-align:left;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:11px 16px;border-radius:14px;border:1px solid oklch(78% 0.09 264.4);background:oklch(94% 0.03 264.4);color:oklch(38% 0.15 264.4);cursor:pointer;">Priya Nair — Period 5, Algebra I</button>
+          </div>
+        </div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;max-width:420px;">Ambiguous match &mdash; real candidates, tappable, never a re-prompt asking the user to type more.</div>
+      </div>
+
+      <div>
+        <div style="max-width:420px;background:oklch(97% 0.010 55);border:1px solid oklch(93% 0.008 55);border-radius:22px;padding:18px 20px;">
+          <div style="font-size:14px;color:oklch(49% 0.018 55);line-height:1.5;">I don't have enough information to answer that yet — try asking about a specific student or class.</div>
+        </div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;max-width:420px;">Honest limits &mdash; calm and neutral, not styled as an error, because nothing went wrong.</div>
+      </div>
+
+      <div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <div style="padding:11px 18px;border-radius:16px;background:oklch(94% 0.03 264.4);color:oklch(38% 0.15 264.4);font-size:14px;font-weight:600;">"Send Friday's briefing to parents"</div>
+          <div style="font-size:18px;color:oklch(64% 0.016 55);">→</div>
+          <div style="font-size:13px;color:oklch(49% 0.018 55);">Opens the confirmation modal above &mdash; a resolved command has no screen of its own.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  table{border-collapse:collapse;}
+  @keyframes mo-pulse{0%,100%{opacity:0.35;}50%{opacity:1;}}
+</style>
+</helmet>
+
+<div data-screen-label="Mastery Overview" style="max-width:1280px;margin:0 auto;padding:28px 32px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px;">
+    <div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Mastery Overview</div>
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">{{ scopeLabel }}</div>
+    </div>
+    <div style="display:flex;gap:4px;background:oklch(93% 0.005 264.4);padding:4px;border-radius:10px;flex-shrink:0;">
+      <sc-for list="{{ spaceOptions }}" as="opt" hint-placeholder-count="3">
+        <button onClick="{{ opt.onClick }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;border:none;cursor:pointer;background:{{ opt.bg }};color:{{ opt.color }};white-space:nowrap;">{{ opt.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="margin:24px 0 20px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(89% 0.006 264.4);border-radius:10px;background:oklch(99% 0.003 264.4);max-width:600px;">
+      <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.012 264.4);border-radius:4px;flex-shrink:0;"></div>
+      <input type="text" placeholder="Ask the grid&#8230; e.g. &quot;who's below 60% on two-step equations&quot;" value="{{ askText }}" onChange="{{ handleAskChange }}" onKeyDown="{{ handleAskKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(23% 0.008 264.4);"/>
+      <sc-if value="{{ askHasText }}">
+        <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Ask</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:mo-pulse 1.3s ease-in-out infinite;max-width:600px;">Scanning the grid&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ askReady }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);max-width:600px;">{{ askAnswer }}</div>
+    </sc-if>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+    <input type="text" placeholder="Filter by student&#8230;" value="{{ studentQuery }}" onChange="{{ handleStudentQueryChange }}" style="width:220px;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+    <select onChange="{{ handleSkillFilterChange }}" style="font-family:'Geist',sans-serif;font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+      <option value="all">All skills</option>
+      <sc-for list="{{ skillFilterOptions }}" as="opt" hint-placeholder-count="7">
+        <option value="{{ opt.id }}">{{ opt.name }}</option>
+      </sc-for>
+    </select>
+    <div style="display:flex;align-items:center;gap:14px;margin-left:auto;flex-wrap:wrap;">
+      <sc-for list="{{ legend }}" as="l" hint-placeholder-count="5">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:14px;height:14px;border-radius:3px;background:{{ l.bg }};position:relative;overflow:hidden;flex-shrink:0;">
+            <div style="position:absolute;bottom:0;left:0;right:0;height:{{ l.pct }}%;background:{{ l.dot }};"></div>
+          </div>
+          <div style="font-size:11px;color:oklch(64% 0.012 264.4);">{{ l.label }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="border:1px solid oklch(89% 0.006 264.4);border-radius:10px;overflow-x:auto;background:oklch(99% 0.003 264.4);margin-bottom:32px;">
+    <table style="width:100%;font-size:13px;">
+      <thead>
+        <tr>
+          <th style="position:sticky;left:0;background:oklch(97% 0.003 264.4);text-align:left;padding:10px 14px;border-bottom:1px solid oklch(89% 0.006 264.4);font-size:11px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);min-width:200px;">Student</th>
+          <sc-for list="{{ visibleSkills }}" as="sk" hint-placeholder-count="7">
+            <th title="{{ sk.name }}" style="text-align:center;padding:10px 8px;border-bottom:1px solid oklch(89% 0.006 264.4);font-size:11px;font-weight:700;color:oklch(64% 0.012 264.4);min-width:76px;">{{ sk.short }}</th>
+          </sc-for>
+        </tr>
+      </thead>
+      <tbody>
+        <sc-for list="{{ rows }}" as="stu" hint-placeholder-count="10">
+          <tr>
+            <td style="position:sticky;left:0;background:oklch(99% 0.003 264.4);padding:9px 14px;border-bottom:1px solid oklch(93% 0.005 264.4);white-space:nowrap;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <sc-if value="{{ stu.isLive }}">
+                  <div style="width:7px;height:7px;border-radius:50%;background:oklch(48.8% 0.217 264.4);animation:mo-pulse 1.3s ease-in-out infinite;flex-shrink:0;"></div>
+                </sc-if>
+                <div>
+                  <div style="font-weight:600;">{{ stu.name }}</div>
+                  <div style="font-size:11px;color:oklch(64% 0.012 264.4);">{{ stu.spaceShort }} &middot; {{ stu.activityLabel }}</div>
+                </div>
+              </div>
+            </td>
+            <sc-for list="{{ stu.cells }}" as="cell" hint-placeholder-count="7">
+              <td style="text-align:center;padding:6px;border-bottom:1px solid oklch(93% 0.005 264.4);">
+                <div style="width:100%;height:30px;border-radius:6px;background:{{ cell.bg }};position:relative;overflow:hidden;box-shadow:{{ cell.ring }};">
+                  <div style="position:absolute;bottom:0;left:0;right:0;height:{{ cell.pct }}%;background:{{ cell.dot }};"></div>
+                </div>
+              </td>
+            </sc-for>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="display:flex;gap:24px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:320px;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:22px 24px;">
+      <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:14px;">Prerequisite gap alerts</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <sc-for list="{{ gapAlerts }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="font-size:14px;font-weight:600;">{{ g.name }}</div>
+            <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:oklch(94% 0.03 264.4);color:oklch(38% 0.15 264.4);">{{ g.skillName }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="flex:1;min-width:320px;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:22px 24px;">
+      <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:14px;">Misconceptions this week</div>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <sc-for list="{{ misconceptions }}" as="m" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <div style="font-size:14px;">{{ m.name }}</div>
+            <div style="font-size:12px;color:oklch(64% 0.012 264.4);white-space:nowrap;">{{ m.countLabel }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 960}}">
+class Component extends DCLogic {
+  state = { space: 'all', studentQuery: '', skillFilter: 'all', askText: '', askLoading: false, askAnswer: '' };
+
+  skillDefs = [
+    { id: 's0', name: 'Equation basics & balancing', short: 'Basics' },
+    { id: 's1', name: 'Integer operations', short: 'Integers' },
+    { id: 's2', name: 'One-step equations', short: 'One-step' },
+    { id: 's3', name: 'Two-step equations', short: 'Two-step' },
+    { id: 's4', name: 'Multi-step equations', short: 'Multi-step' },
+    { id: 's5', name: 'Variables on both sides', short: 'Both sides' },
+    { id: 's6', name: 'Inequalities', short: 'Inequalities' },
+  ];
+
+  tierStyle = {
+    not_attempted: { label: 'Not attempted', pct: 0, dot: 'oklch(88% 0.008 264.4)', bg: 'oklch(93% 0.005 264.4)' },
+    struggling: { label: 'Struggling', pct: 25, dot: 'oklch(58% 0.11 25)', bg: 'oklch(95% 0.03 25)' },
+    emerging: { label: 'Emerging', pct: 48, dot: 'oklch(63% 0.10 60)', bg: 'oklch(95% 0.03 60)' },
+    tentative: { label: 'Tentative', pct: 72, dot: 'oklch(68% 0.09 100)', bg: 'oklch(95% 0.025 100)' },
+    durable: { label: 'Durable', pct: 92, dot: 'oklch(60% 0.10 150)', bg: 'oklch(93% 0.03 150)' },
+  };
+
+  students = [
+    { name: 'Mia Ndlovu', space: 'Algebra', tiers: ['durable','struggling','tentative','struggling','emerging','not_attempted','not_attempted'], activity: '12m ago' },
+    { name: 'Thabo Mahlangu', space: 'Algebra', tiers: ['durable','durable','durable','durable','tentative','emerging','not_attempted'], activity: 'Practicing now', isLive: true },
+    { name: 'Zainab Osei', space: 'Algebra', tiers: ['durable','tentative','tentative','emerging','not_attempted','not_attempted','not_attempted'], activity: '2h ago' },
+    { name: 'Marcus Diaz', space: 'Algebra', tiers: ['durable','tentative','tentative','struggling','not_attempted','not_attempted','not_attempted'], activity: 'Practicing now', isLive: true },
+    { name: 'Elena Cruz', space: 'Algebra', tiers: ['durable','durable','tentative','emerging','not_attempted','not_attempted','not_attempted'], activity: 'Yesterday', overrideSkill: 's1' },
+    { name: 'Noah Whitfield', space: 'Remediation', tiers: ['tentative','struggling','not_attempted','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '3h ago' },
+    { name: 'Priya Chen', space: 'Algebra', tiers: ['durable','durable','tentative','tentative','emerging','not_attempted','not_attempted'], activity: '38m ago' },
+    { name: 'Jamal Reed', space: 'Algebra', tiers: ['durable','tentative','tentative','tentative','not_attempted','not_attempted','not_attempted'], activity: 'Yesterday' },
+    { name: 'Sofia Torres', space: 'Algebra', tiers: ['durable','durable','durable','tentative','tentative','emerging','not_attempted'], activity: 'Practicing now', isLive: true },
+    { name: 'Ken Watanabe', space: 'Algebra', tiers: ['durable','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '2 days ago' },
+    { name: 'Aaliyah Brooks', space: 'Algebra', tiers: ['durable','durable','tentative','emerging','not_attempted','not_attempted','not_attempted'], activity: '45m ago' },
+    { name: 'Ravi Patel', space: 'Algebra', tiers: ['durable','tentative','tentative','tentative','emerging','not_attempted','not_attempted'], activity: '1h ago' },
+    { name: 'Grace Kim', space: 'Algebra', tiers: ['durable','durable','tentative','tentative','tentative','emerging','not_attempted'], activity: '20m ago' },
+    { name: 'Ibrahim Nasser', space: 'Algebra', tiers: ['durable','struggling','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '3 days ago' },
+    { name: 'Chloe Dubois', space: 'Algebra', tiers: ['durable','durable','durable','tentative','emerging','not_attempted','not_attempted'], activity: '5h ago' },
+    { name: 'Omar Farouk', space: 'Algebra', tiers: ['tentative','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '2h ago' },
+    { name: 'Lily Zhang', space: 'Algebra', tiers: ['durable','durable','tentative','tentative','emerging','not_attempted','not_attempted'], activity: 'Yesterday' },
+    { name: 'Destiny Moore', space: 'Remediation', tiers: ['tentative','tentative','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '1h ago' },
+    { name: 'Carlos Mendez', space: 'Remediation', tiers: ['durable','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '25m ago' },
+    { name: 'Fatima Ali', space: 'Remediation', tiers: ['tentative','struggling','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '4h ago' },
+    { name: 'Tyler Brooks', space: 'Remediation', tiers: ['durable','tentative','tentative','not_attempted','not_attempted','not_attempted','not_attempted'], activity: 'Yesterday' },
+    { name: 'Amina Yusuf', space: 'Remediation', tiers: ['tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '2 days ago' },
+    { name: 'Jordan Lee', space: 'Remediation', tiers: ['durable','tentative','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '50m ago' },
+    { name: 'Nadia Hassan', space: 'Remediation', tiers: ['tentative','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '3h ago' },
+  ];
+
+  misconceptions = [
+    { name: 'Negative coefficients when solving two-step equations', count: 5 },
+    { name: 'Reversing the order of inverse operations', count: 3 },
+    { name: 'Sign errors when distributing', count: 2 },
+  ];
+
+  setSpace = (sp) => this.setState({ space: sp });
+  handleStudentQueryChange = (e) => this.setState({ studentQuery: e.target.value });
+  handleSkillFilterChange = (e) => this.setState({ skillFilter: e.target.value });
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+  handleAskKeyDown = (e) => { if (e.key === 'Enter') this.handleAskSubmit(); };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const lines = this.students.map((stu) => {
+      const parts = stu.tiers.map((t, i) => `${this.skillDefs[i].short}=${this.tierStyle[t].label}(${this.tierStyle[t].pct}%)`).join(', ');
+      return `- ${stu.name} (Grade 8A ${stu.space}): ${parts}`;
+    }).join('\n');
+    this.setState({ askLoading: true, askAnswer: '' });
+    try {
+      const prompt = `You are answering a teacher's question about her Mastery Overview grid, using ONLY this real per-student, per-skill data (percentages are an approximate mastery-tier mapping: Durable=92%, Tentative=72%, Emerging=48%, Struggling=25%, Not attempted=0%):\n${lines}\n\nHer question: "${this.state.askText}"\n\nAnswer directly using real student names from the data above. If she asks about a threshold like "below 60%", use the percentages given. If nothing matches, say so plainly rather than inventing anything. Keep it to a few sentences or a short plain list of names. Respond with ONLY the plain answer \u2014 no markdown, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ askLoading: false, askAnswer: this.sanitizeAiText(text) || "I couldn't check that right now \u2014 try again in a moment." });
+    } catch (e) {
+      this.setState({ askLoading: false, askAnswer: "I couldn't check that right now \u2014 try again in a moment." });
+    }
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const accent = 'oklch(48.8% 0.217 264.4)';
+    const white = 'oklch(99% 0.003 264.4)';
+    const muted = 'oklch(48% 0.012 264.4)';
+
+    const spaceOptions = [
+      { key: 'all', label: 'Both Spaces' },
+      { key: 'Algebra', label: 'Grade 8A Algebra' },
+      { key: 'Remediation', label: 'Grade 8A Remediation' },
+    ].map((o) => ({
+      label: o.label, onClick: () => this.setSpace(o.key),
+      bg: s.space === o.key ? white : 'transparent', color: s.space === o.key ? accent : muted,
+    }));
+
+    const visibleSkills = s.skillFilter === 'all' ? this.skillDefs : this.skillDefs.filter((sk) => sk.id === s.skillFilter);
+    const skillIdxSet = visibleSkills.map((sk) => this.skillDefs.findIndex((x) => x.id === sk.id));
+
+    let filtered = this.students.filter((stu) => (s.space === 'all' || stu.space === s.space));
+    if (s.studentQuery.trim() !== '') {
+      const q = s.studentQuery.trim().toLowerCase();
+      filtered = filtered.filter((stu) => stu.name.toLowerCase().includes(q));
+    }
+
+    const rows = filtered.map((stu) => {
+      const cells = skillIdxSet.map((idx) => {
+        const tier = stu.tiers[idx];
+        const ts = this.tierStyle[tier];
+        const isGap = idx === 1 && tier === 'struggling';
+        const isOverride = stu.overrideSkill === this.skillDefs[idx].id;
+        let ring = 'none';
+        if (isGap) ring = 'inset 0 0 0 2px oklch(48.8% 0.217 264.4)';
+        if (isOverride) ring = 'inset 0 0 0 2px oklch(78% 0.09 264.4)';
+        return { bg: ts.bg, dot: ts.dot, pct: ts.pct, ring };
+      });
+      return {
+        name: stu.name, spaceShort: stu.space, activityLabel: stu.activity, isLive: !!stu.isLive, cells,
+      };
+    });
+
+    const gapAlerts = this.students.filter((stu) => stu.tiers[1] === 'struggling').map((stu) => ({ name: stu.name, skillName: 'Integer operations' }));
+    const misconceptions = this.misconceptions.map((m) => ({ name: m.name, countLabel: `${m.count} student${m.count === 1 ? '' : 's'}` }));
+
+    const legend = Object.values(this.tierStyle).map((ts) => ({ dot: ts.dot, bg: ts.bg, pct: ts.pct, label: ts.label }));
+
+    const scopeLabelMap = { all: 'Aggregated across Grade 8A Algebra and Grade 8A Remediation', Algebra: 'Grade 8A Algebra only', Remediation: 'Grade 8A Remediation only' };
+
+    return {
+      scopeLabel: scopeLabelMap[s.space], spaceOptions,
+      visibleSkills, skillFilterOptions: this.skillDefs,
+      studentQuery: s.studentQuery, handleStudentQueryChange: this.handleStudentQueryChange,
+      handleSkillFilterChange: this.handleSkillFilterChange,
+      legend, rows, gapAlerts, misconceptions,
+      askText: s.askText, askHasText: s.askText.trim() !== '',
+      handleAskChange: this.handleAskChange, handleAskKeyDown: this.handleAskKeyDown, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askReady: !s.askLoading && !!s.askAnswer, askAnswer: s.askAnswer,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

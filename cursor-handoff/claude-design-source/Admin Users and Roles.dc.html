@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes ur-pulse{0%,100%{opacity:0.35;}50%{opacity:1;}}
+  @keyframes ur-fade{0%{opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{opacity:0;}}
+</style>
+</helmet>
+
+<div data-screen-label="Admin Users and Roles" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="margin-bottom:6px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Users &amp; roles</div>
+    <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">Teneo, school-wide</div>
+  </div>
+  <div style="font-size:14px;color:oklch(48% 0.012 264.4);line-height:1.55;margin-bottom:28px;">Who has access, and what they can do with it.</div>
+
+  <div style="margin-bottom:32px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(89% 0.006 264.4);border-radius:10px;background:oklch(99% 0.003 264.4);">
+      <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.012 264.4);border-radius:4px;flex-shrink:0;"></div>
+      <input type="text" placeholder="Tell it what you need&#8230; e.g. &quot;invite Jane Smith as a teacher, jane@teneo.edu&quot;" value="{{ cmdText }}" onChange="{{ handleCmdChange }}" onKeyDown="{{ handleCmdKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(23% 0.008 264.4);"/>
+      <sc-if value="{{ cmdHasText }}">
+        <button onClick="{{ handleCmdSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Run</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ cmdLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:ur-pulse 1.3s ease-in-out infinite;">Reading that&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ cmdResultReady }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px;border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.55;background:{{ cmdResultBg }};border:1px solid {{ cmdResultBorder }};color:{{ cmdResultColor }};">{{ cmdResultText }}</div>
+    </sc-if>
+  </div>
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);">People</div>
+    <button onClick="{{ toggleForm }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">{{ formToggleLabel }}</button>
+  </div>
+
+  <sc-if value="{{ formOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:20px 24px;margin-bottom:16px;display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:180px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Name</div>
+          <input type="text" placeholder="Jane Smith" value="{{ formName }}" onChange="{{ handleFormNameChange }}" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+        </div>
+        <div style="flex:1;min-width:180px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Email</div>
+          <input type="text" placeholder="jane@teneo.edu" value="{{ formEmail }}" onChange="{{ handleFormEmailChange }}" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+        </div>
+        <div style="min-width:140px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Role</div>
+          <select onChange="{{ handleFormRoleChange }}" value="{{ formRole }}" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+            <option value="Teacher">Teacher</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onClick="{{ handleSendInvite }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Send invite</button>
+        <button onClick="{{ toggleForm }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(48% 0.012 264.4);cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <sc-for list="{{ people }}" as="p" hint-placeholder-count="5">
+      <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="font-weight:600;font-size:14px;">{{ p.name }}</div>
+            <sc-if value="{{ p.isSelf }}">
+              <span style="font-size:10px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);background:oklch(93% 0.005 264.4);padding:2px 7px;border-radius:4px;">You</span>
+            </sc-if>
+          </div>
+          <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:2px;">{{ p.email }}</div>
+        </div>
+        <span style="font-size:11px;font-weight:700;letter-spacing:0.03em;text-transform:uppercase;padding:3px 9px;border-radius:5px;color:{{ p.statusFg }};background:{{ p.statusBg }};flex-shrink:0;">{{ p.statusLabel }}</span>
+        <sc-if value="{{ p.canChangeRole }}">
+          <select onChange="{{ p.onRoleChange }}" value="{{ p.role }}" style="font-family:'Geist',sans-serif;font-size:13px;padding:6px 10px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);flex-shrink:0;">
+            <option value="Teacher">Teacher</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </sc-if>
+        <sc-if value="{{ p.roleFixed }}">
+          <div style="font-size:13px;color:oklch(48% 0.012 264.4);flex-shrink:0;width:90px;">{{ p.role }}</div>
+        </sc-if>
+        <sc-if value="{{ p.isInvited }}">
+          <button onClick="{{ p.onResend }}" style="font-family:'Geist',sans-serif;font-size:12px;font-weight:600;padding:6px 10px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(48% 0.012 264.4);cursor:pointer;flex-shrink:0;">Resend</button>
+        </sc-if>
+      </div>
+      <sc-if value="{{ p.toastText }}" hint-placeholder-val="{{ false }}">
+        <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin:-4px 2px 0;animation:ur-fade 1.8s ease-out forwards;">{{ p.toastText }}</div>
+      </sc-if>
+    </sc-for>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 700, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = {
+    cmdText: '', cmdLoading: false, cmdResult: null,
+    formOpen: false, formName: '', formEmail: '', formRole: 'Teacher',
+    roster: [
+      { id: 'sarah', name: 'Sarah Mokoena', email: 's.mokoena@teneo.edu', role: 'Teacher', status: 'active' },
+      { id: 'alvarez', name: 'Ms. Alvarez', email: 'r.alvarez@teneo.edu', role: 'Teacher', status: 'invited' },
+      { id: 'chibale', name: 'Mr. Chibale', email: 'k.chibale@teneo.edu', role: 'Teacher', status: 'invited' },
+      { id: 'osborne', name: 'Ms. Osborne', email: 'l.osborne@teneo.edu', role: 'Teacher', status: 'invited' },
+      { id: 'david', name: 'David Chen', email: 'd.chen@teneo.edu', role: 'Admin', status: 'active', isSelf: true },
+    ],
+    toastId: null, toastText: '',
+  };
+
+  sanitizeJson = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^```(json)?/i, '').replace(/```$/, '').trim();
+    return t;
+  };
+
+  handleCmdChange = (e) => this.setState({ cmdText: e.target.value });
+  handleCmdKeyDown = (e) => { if (e.key === 'Enter') this.handleCmdSubmit(); };
+
+  handleCmdSubmit = async () => {
+    const text = this.state.cmdText.trim();
+    if (text === '') return;
+    this.setState({ cmdLoading: true, cmdResult: null });
+    try {
+      const prompt = `You are a classifier sitting behind a school admin's plain-language command box on a Users & Roles screen. Classify the request into exactly one of these actions:
+- "invite": inviting or adding a new person with a role (teacher/admin).
+- "role_change": changing an EXISTING person's role or permissions.
+- "data_deletion": deleting, removing, or erasing a person's ACCOUNT or DATA/RECORDS \u2014 e.g. "remove this student's account", "delete their data", "erase this graduated student". This is about destroying data, not managing access, even when phrased casually or as "remove".
+- "unclear": anything else, including read-only questions.
+
+Rule: if the request is about removing/deleting a PERSON'S ACCOUNT or DATA (especially a student), classify it "data_deletion", never "invite" or "role_change".
+
+Return ONLY strict JSON, no markdown, no prose, in this exact shape:
+{"action": "invite" | "role_change" | "data_deletion" | "unclear", "name": string or null, "email": string or null, "role": "Teacher" or "Admin" or null}
+
+Request: "${text}"`;
+      const raw = await window.claude.complete(prompt);
+      let parsed;
+      try { parsed = JSON.parse(this.sanitizeJson(raw)); } catch (e2) { parsed = null; }
+      this.applyClassification(parsed, text);
+    } catch (e) {
+      this.setState({ cmdLoading: false, cmdResult: { kind: 'error', text: "Couldn't process that right now \u2014 try again in a moment." } });
+    }
+  };
+
+  applyClassification = (parsed, originalText) => {
+    if (!parsed || !parsed.action) {
+      this.setState({ cmdLoading: false, cmdResult: { kind: 'error', text: "Couldn't tell what that was asking for \u2014 try phrasing it as an invite, or use the form below." } });
+      return;
+    }
+    if (parsed.action === 'data_deletion') {
+      this.setState({
+        cmdLoading: false,
+        cmdResult: { kind: 'refusal', text: "That reads like a request to delete a person's data, not manage their role or access \u2014 this needs to go through the data deletion flow, which isn't built yet. I won't run it as a role-management action." },
+      });
+      return;
+    }
+    if (parsed.action === 'invite') {
+      this.setState({
+        cmdLoading: false,
+        cmdResult: { kind: 'invite', text: `Recognized this as an invite request \u2014 I've pre-filled the form below with what you gave me. Review it and send.` },
+        formOpen: true,
+        formName: parsed.name || '',
+        formEmail: parsed.email || '',
+        formRole: parsed.role === 'Admin' ? 'Admin' : 'Teacher',
+      });
+      return;
+    }
+    if (parsed.action === 'role_change') {
+      this.setState({
+        cmdLoading: false,
+        cmdResult: { kind: 'route', text: `That looks like a role change${parsed.name ? ` for ${parsed.name}` : ''} \u2014 find them in the list below and update their role directly.` },
+      });
+      return;
+    }
+    this.setState({ cmdLoading: false, cmdResult: { kind: 'error', text: "Couldn't tell what that was asking for \u2014 try phrasing it as an invite, or use the form below." } });
+  };
+
+  toggleForm = () => this.setState((s) => ({ formOpen: !s.formOpen, formName: '', formEmail: '', formRole: 'Teacher' }));
+  handleFormNameChange = (e) => this.setState({ formName: e.target.value });
+  handleFormEmailChange = (e) => this.setState({ formEmail: e.target.value });
+  handleFormRoleChange = (e) => this.setState({ formRole: e.target.value });
+
+  handleSendInvite = () => {
+    const s = this.state;
+    if (s.formName.trim() === '' || s.formEmail.trim() === '') return;
+    const id = 'inv-' + Date.now();
+    this.setState((st) => ({
+      roster: [...st.roster, { id, name: st.formName.trim(), email: st.formEmail.trim(), role: st.formRole, status: 'invited' }],
+      formOpen: false, formName: '', formEmail: '', formRole: 'Teacher',
+      toastId: id, toastText: `Invite sent to ${st.formEmail.trim()}.`,
+    }));
+    setTimeout(() => this.setState((st) => (st.toastId === id ? { toastId: null, toastText: '' } : {})), 2200);
+  };
+
+  handleRoleChange = (id) => (e) => {
+    const newRole = e.target.value;
+    this.setState((s) => ({
+      roster: s.roster.map((p) => (p.id === id ? { ...p, role: newRole } : p)),
+      toastId: id, toastText: `Role updated to ${newRole}.`,
+    }));
+    setTimeout(() => this.setState((s) => (s.toastId === id ? { toastId: null, toastText: '' } : {})), 2200);
+  };
+
+  handleResend = (id, name) => () => {
+    this.setState({ toastId: id, toastText: `Invite resent to ${name}.` });
+    setTimeout(() => this.setState((s) => (s.toastId === id ? { toastId: null, toastText: '' } : {})), 2200);
+  };
+
+  renderVals = () => {
+    const s = this.state;
+
+    const resultStyles = {
+      invite: { bg: 'oklch(94% 0.03 150)', border: 'oklch(78% 0.08 150)', color: 'oklch(35% 0.1 150)' },
+      refusal: { bg: 'oklch(95% 0.035 45)', border: 'oklch(80% 0.08 45)', color: 'oklch(40% 0.13 45)' },
+      route: { bg: 'oklch(94% 0.03 264.4)', border: 'oklch(78% 0.09 264.4)', color: 'oklch(38% 0.15 264.4)' },
+      error: { bg: 'oklch(93% 0.005 264.4)', border: 'oklch(89% 0.006 264.4)', color: 'oklch(48% 0.012 264.4)' },
+    };
+    const rs = s.cmdResult ? resultStyles[s.cmdResult.kind] : resultStyles.error;
+
+    const people = s.roster.map((p) => ({
+      ...p,
+      statusLabel: p.status === 'active' ? 'Active' : 'Invited',
+      statusFg: p.status === 'active' ? 'oklch(40% 0.1 150)' : 'oklch(48% 0.15 60)',
+      statusBg: p.status === 'active' ? 'oklch(93% 0.03 150)' : 'oklch(95% 0.035 60)',
+      canChangeRole: p.status === 'active' && !p.isSelf,
+      roleFixed: p.isSelf || p.status === 'invited',
+      isInvited: p.status === 'invited',
+      onRoleChange: this.handleRoleChange(p.id),
+      onResend: this.handleResend(p.id, p.name),
+      toastText: s.toastId === p.id ? s.toastText : '',
+    }));
+
+    return {
+      cmdText: s.cmdText, cmdHasText: s.cmdText.trim() !== '',
+      handleCmdChange: this.handleCmdChange, handleCmdKeyDown: this.handleCmdKeyDown, handleCmdSubmit: this.handleCmdSubmit,
+      cmdLoading: s.cmdLoading,
+      cmdResultReady: !s.cmdLoading && !!s.cmdResult,
+      cmdResultText: s.cmdResult ? s.cmdResult.text : '',
+      cmdResultBg: rs.bg, cmdResultBorder: rs.border, cmdResultColor: rs.color,
+      formOpen: s.formOpen, formToggleLabel: s.formOpen ? 'Close' : '+ Invite someone',
+      formName: s.formName, formEmail: s.formEmail, formRole: s.formRole,
+      handleFormNameChange: this.handleFormNameChange, handleFormEmailChange: this.handleFormEmailChange, handleFormRoleChange: this.handleFormRoleChange,
+      handleSendInvite: this.handleSendInvite, toggleForm: this.toggleForm,
+      people,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

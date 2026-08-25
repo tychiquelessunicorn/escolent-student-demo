@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes an-pulse{0%,100%{opacity:0.35;}50%{opacity:1;}}
+</style>
+</helmet>
+
+<div data-screen-label="Admin Analytics" style="max-width:1280px;margin:0 auto;padding:28px 32px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="margin-bottom:6px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Analytics</div>
+    <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">{{ scopeLabel }}</div>
+  </div>
+  <sc-if value="{{ showRolloutNote }}" hint-placeholder-val="{{ false }}">
+    <div style="font-size:13px;color:oklch(48% 0.012 264.4);margin-bottom:20px;">Reflects Ms. Mokoena's Grade 8A Space &mdash; the only one live so far. 3 other teachers haven't created a Space yet.</div>
+  </sc-if>
+
+  <div style="margin:{{ askMarginTop }} 0 20px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(89% 0.006 264.4);border-radius:10px;background:oklch(99% 0.003 264.4);max-width:640px;">
+      <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.012 264.4);border-radius:4px;flex-shrink:0;"></div>
+      <input type="text" placeholder="Ask across the school&#8230; e.g. &quot;how many students are below tentative on two-step equations&quot;" value="{{ askText }}" onChange="{{ handleAskChange }}" onKeyDown="{{ handleAskKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(23% 0.008 264.4);"/>
+      <sc-if value="{{ askHasText }}">
+        <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Ask</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:10px;animation:an-pulse 1.3s ease-in-out infinite;max-width:640px;">Scanning the school&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ askReady }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);max-width:640px;">{{ askAnswer }}</div>
+    </sc-if>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px;">
+    <div style="font-size:12px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);">Narrow by</div>
+    <select onChange="{{ handleTeacherChange }}" value="{{ teacherId }}" style="font-family:'Geist',sans-serif;font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+      <sc-for list="{{ teacherOptions }}" as="opt" hint-placeholder-count="5">
+        <option value="{{ opt.id }}">{{ opt.label }}</option>
+      </sc-for>
+    </select>
+    <select onChange="{{ handleClassChange }}" value="{{ classFilter }}" style="font-family:'Geist',sans-serif;font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+      <option value="all">All classes</option>
+      <option value="Algebra">Grade 8A Algebra</option>
+      <option value="Remediation">Grade 8A Remediation</option>
+    </select>
+    <select onChange="{{ handleDateChange }}" value="{{ dateFilter }}" style="font-family:'Geist',sans-serif;font-size:13px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+      <option value="all">All time</option>
+      <option value="last24h">Last 24 hours</option>
+      <option value="last7d">Last 7 days</option>
+    </select>
+  </div>
+
+  <sc-if value="{{ hasChips }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:28px;">
+      <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="1">
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:5px 8px 5px 12px;border-radius:999px;background:oklch(94% 0.03 264.4);color:oklch(38% 0.15 264.4);">
+          {{ chip.label }}
+          <button onClick="{{ chip.onClear }}" style="border:none;background:none;cursor:pointer;color:oklch(38% 0.15 264.4);font-size:14px;line-height:1;padding:0 2px;">&times;</button>
+        </div>
+      </sc-for>
+      <button onClick="{{ resetAll }}" style="border:none;background:none;cursor:pointer;font-size:12px;color:oklch(64% 0.012 264.4);text-decoration:underline;padding:0;">Reset to school-wide</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isEmptyScope }}" hint-placeholder-val="{{ false }}">
+    <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:14px;padding:36px 32px;">
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;margin-bottom:10px;">{{ emptyTitle }}</div>
+      <div style="font-size:15px;color:oklch(48% 0.012 264.4);line-height:1.6;">{{ emptySubtitle }}</div>
+    </div>
+  </sc-if>
+
+  <div style="{{ contentDisplay }}">
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px;">
+      <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="3">
+        <div style="flex:1;min-width:220px;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:20px 22px;">
+          <div style="font-size:12px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:10px;">{{ m.label }}</div>
+          <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:30px;line-height:1;margin-bottom:8px;">{{ m.value }}</div>
+          <div style="font-size:13px;color:oklch(48% 0.012 264.4);">{{ m.subtitle }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:24px 28px;">
+      <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Mastery distribution</div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:22px;margin-bottom:20px;">{{ durableHeadline }}</div>
+      <div style="display:flex;flex-direction:column;gap:14px;max-width:720px;">
+        <sc-for list="{{ tierBars }}" as="t" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:110px;flex-shrink:0;font-size:13px;font-weight:600;">{{ t.label }}</div>
+            <div style="flex:1;height:14px;border-radius:7px;background:oklch(93% 0.005 264.4);overflow:hidden;">
+              <div style="height:100%;width:{{ t.pct }}%;background:{{ t.dot }};border-radius:7px;"></div>
+            </div>
+            <div style="width:100px;flex-shrink:0;text-align:right;font-size:12px;color:oklch(64% 0.012 264.4);">{{ t.countLabel }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1280, &quot;height&quot;: 980}}">
+class Component extends DCLogic {
+  state = { teacherId: 'all', classFilter: 'all', dateFilter: 'all', askText: '', askLoading: false, askAnswer: '' };
+
+  skillDefs = [
+    { id: 's0', name: 'Equation basics & balancing', short: 'Basics' },
+    { id: 's1', name: 'Integer operations', short: 'Integers' },
+    { id: 's2', name: 'One-step equations', short: 'One-step' },
+    { id: 's3', name: 'Two-step equations', short: 'Two-step' },
+    { id: 's4', name: 'Multi-step equations', short: 'Multi-step' },
+    { id: 's5', name: 'Variables on both sides', short: 'Both sides' },
+    { id: 's6', name: 'Inequalities', short: 'Inequalities' },
+  ];
+
+  tierStyle = {
+    not_attempted: { label: 'Not attempted', dot: 'oklch(80% 0.01 264.4)' },
+    struggling: { label: 'Struggling', dot: 'oklch(58% 0.11 25)' },
+    emerging: { label: 'Emerging', dot: 'oklch(63% 0.10 60)' },
+    tentative: { label: 'Tentative', dot: 'oklch(68% 0.09 100)' },
+    durable: { label: 'Durable', dot: 'oklch(60% 0.10 150)' },
+  };
+
+  // Same 25-row roster as Mastery Overview (Ms. Mokoena's Grade 8A Algebra + Remediation) \u2014 the only Space live so far.
+  students = [
+    { name: 'Mia Ndlovu', space: 'Algebra', tiers: ['durable','struggling','tentative','struggling','emerging','not_attempted','not_attempted'], activity: '12m ago' },
+    { name: 'Thabo Mahlangu', space: 'Algebra', tiers: ['durable','durable','durable','durable','tentative','emerging','not_attempted'], activity: 'Practicing now', isLive: true },
+    { name: 'Zainab Osei', space: 'Algebra', tiers: ['durable','tentative','tentative','emerging','not_attempted','not_attempted','not_attempted'], activity: '2h ago' },
+    { name: 'Marcus Diaz', space: 'Algebra', tiers: ['durable','tentative','tentative','struggling','not_attempted','not_attempted','not_attempted'], activity: 'Practicing now', isLive: true },
+    { name: 'Elena Cruz', space: 'Algebra', tiers: ['durable','durable','tentative','emerging','not_attempted','not_attempted','not_attempted'], activity: 'Yesterday' },
+    { name: 'Noah Whitfield', space: 'Remediation', tiers: ['tentative','struggling','not_attempted','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '3h ago' },
+    { name: 'Priya Chen', space: 'Algebra', tiers: ['durable','durable','tentative','tentative','emerging','not_attempted','not_attempted'], activity: '38m ago' },
+    { name: 'Jamal Reed', space: 'Algebra', tiers: ['durable','tentative','tentative','tentative','not_attempted','not_attempted','not_attempted'], activity: 'Yesterday' },
+    { name: 'Sofia Torres', space: 'Algebra', tiers: ['durable','durable','durable','tentative','tentative','emerging','not_attempted'], activity: 'Practicing now', isLive: true },
+    { name: 'Ken Watanabe', space: 'Algebra', tiers: ['durable','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '2 days ago' },
+    { name: 'Aaliyah Brooks', space: 'Algebra', tiers: ['durable','durable','tentative','emerging','not_attempted','not_attempted','not_attempted'], activity: '45m ago' },
+    { name: 'Ravi Patel', space: 'Algebra', tiers: ['durable','tentative','tentative','tentative','emerging','not_attempted','not_attempted'], activity: '1h ago' },
+    { name: 'Grace Kim', space: 'Algebra', tiers: ['durable','durable','tentative','tentative','tentative','emerging','not_attempted'], activity: '20m ago' },
+    { name: 'Ibrahim Nasser', space: 'Algebra', tiers: ['durable','struggling','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '3 days ago' },
+    { name: 'Chloe Dubois', space: 'Algebra', tiers: ['durable','durable','durable','tentative','emerging','not_attempted','not_attempted'], activity: '5h ago' },
+    { name: 'Omar Farouk', space: 'Algebra', tiers: ['tentative','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '2h ago' },
+    { name: 'Lily Zhang', space: 'Algebra', tiers: ['durable','durable','tentative','tentative','emerging','not_attempted','not_attempted'], activity: 'Yesterday' },
+    { name: 'Destiny Moore', space: 'Remediation', tiers: ['tentative','tentative','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '1h ago' },
+    { name: 'Carlos Mendez', space: 'Remediation', tiers: ['durable','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '25m ago' },
+    { name: 'Fatima Ali', space: 'Remediation', tiers: ['tentative','struggling','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '4h ago' },
+    { name: 'Tyler Brooks', space: 'Remediation', tiers: ['durable','tentative','tentative','not_attempted','not_attempted','not_attempted','not_attempted'], activity: 'Yesterday' },
+    { name: 'Amina Yusuf', space: 'Remediation', tiers: ['tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '2 days ago' },
+    { name: 'Jordan Lee', space: 'Remediation', tiers: ['durable','tentative','struggling','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '50m ago' },
+    { name: 'Nadia Hassan', space: 'Remediation', tiers: ['tentative','tentative','emerging','not_attempted','not_attempted','not_attempted','not_attempted'], activity: '3h ago' },
+  ];
+
+  teachers = [
+    { id: 'all', label: 'All teachers' },
+    { id: 'mokoena', label: 'Ms. Mokoena', hasSpace: true },
+    { id: 'alvarez', label: 'Ms. Alvarez', hasSpace: false },
+    { id: 'chibale', label: 'Mr. Chibale', hasSpace: false },
+    { id: 'osborne', label: 'Ms. Osborne', hasSpace: false },
+  ];
+
+  classLabels = { Algebra: 'Grade 8A Algebra', Remediation: 'Grade 8A Remediation' };
+  dateLabels = { last24h: 'Last 24 hours', last7d: 'Last 7 days' };
+
+  handleTeacherChange = (e) => this.setState({ teacherId: e.target.value });
+  handleClassChange = (e) => this.setState({ classFilter: e.target.value });
+  handleDateChange = (e) => this.setState({ dateFilter: e.target.value });
+  setTeacher = (id) => this.setState({ teacherId: id });
+  setClass = (v) => this.setState({ classFilter: v });
+  setDate = (v) => this.setState({ dateFilter: v });
+  resetAll = () => this.setState({ teacherId: 'all', classFilter: 'all', dateFilter: 'all' });
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+  handleAskKeyDown = (e) => { if (e.key === 'Enter') this.handleAskSubmit(); };
+
+  recencyHours = (activity) => {
+    if (activity === 'Practicing now') return 0;
+    let m = activity.match(/^(\d+)m ago$/); if (m) return parseInt(m[1]) / 60;
+    m = activity.match(/^(\d+)h ago$/); if (m) return parseInt(m[1]);
+    if (activity === 'Yesterday') return 24;
+    m = activity.match(/^(\d+) days? ago$/); if (m) return parseInt(m[1]) * 24;
+    return 999;
+  };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  getScoped = () => {
+    const s = this.state;
+    const teacher = this.teachers.find((t) => t.id === s.teacherId);
+    if (teacher.id !== 'all' && teacher.hasSpace === false) return { teacher, students: [], isEmptyScope: true };
+    let filtered = this.students.filter((stu) => s.classFilter === 'all' || stu.space === s.classFilter);
+    if (s.dateFilter === 'last24h') filtered = filtered.filter((stu) => this.recencyHours(stu.activity) <= 24);
+    if (s.dateFilter === 'last7d') filtered = filtered.filter((stu) => this.recencyHours(stu.activity) <= 168);
+    return { teacher, students: filtered, isEmptyScope: false };
+  };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const { students } = this.getScoped();
+    const lines = students.map((stu) => {
+      const parts = stu.tiers.map((t, i) => `${this.skillDefs[i].short}=${this.tierStyle[t].label}`).join(', ');
+      return `- ${stu.name} (Grade 8A ${stu.space}): ${parts}`;
+    }).join('\n');
+    this.setState({ askLoading: true, askAnswer: '' });
+    try {
+      const prompt = `You are answering a school administrator's question about school-wide mastery analytics, using ONLY this real per-student, per-skill data currently in view (nothing outside it):\n${lines || '(no students in the current scope)'}\n\nHis question: "${this.state.askText}"\n\nAnswer directly and briefly, grounded only in the data above. If nothing matches or the scope is empty, say so plainly rather than inventing anything. Respond with ONLY the plain answer \u2014 no markdown, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ askLoading: false, askAnswer: this.sanitizeAiText(text) || "I couldn't check that right now \u2014 try again in a moment." });
+    } catch (e) {
+      this.setState({ askLoading: false, askAnswer: "I couldn't check that right now \u2014 try again in a moment." });
+    }
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const { teacher, students, isEmptyScope } = this.getScoped();
+
+    const teacherOptions = this.teachers.map((t) => ({ id: t.id, label: t.label }));
+
+    const chips = [];
+    if (s.teacherId !== 'all') chips.push({ label: teacher.label, onClear: () => this.setTeacher('all') });
+    if (s.classFilter !== 'all') chips.push({ label: this.classLabels[s.classFilter], onClear: () => this.setClass('all') });
+    if (s.dateFilter !== 'all') chips.push({ label: this.dateLabels[s.dateFilter], onClear: () => this.setDate('all') });
+
+    const scopeLabel = chips.length === 0 ? 'Teneo, school-wide' : 'Teneo, school-wide \u2192 ' + chips.map((c) => c.label).join(' \u2192 ');
+
+    let emptyTitle = '', emptySubtitle = '';
+    if (isEmptyScope) {
+      emptyTitle = `${teacher.label} hasn't created a Space yet.`;
+      emptySubtitle = `Six weeks into the pilot, still no Space set up \u2014 nothing to show here until one exists.`;
+    }
+
+    const liveCount = students.filter((stu) => stu.isLive).length;
+    const activeCount = students.length;
+    const totalPossibleCells = students.length * this.skillDefs.length;
+    const tierCounts = { not_attempted: 0, struggling: 0, emerging: 0, tentative: 0, durable: 0 };
+    students.forEach((stu) => stu.tiers.forEach((t) => { tierCounts[t]++; }));
+    const attemptedCount = totalPossibleCells - tierCounts.not_attempted;
+    const durablePct = attemptedCount > 0 ? Math.round((tierCounts.durable / attemptedCount) * 100) : 0;
+    const attemptedPct = totalPossibleCells > 0 ? Math.round((attemptedCount / totalPossibleCells) * 100) : 0;
+
+    const metrics = [
+      { label: 'Active students', value: `${activeCount}`, subtitle: `${liveCount} practicing right now` },
+      { label: 'Practicing now', value: `${liveCount}`, subtitle: `of ${activeCount} active students in scope` },
+      { label: 'Skill checks attempted', value: `${attemptedCount}`, subtitle: `of ${totalPossibleCells} possible (${attemptedPct}%)` },
+    ];
+
+    const tierOrder = ['durable', 'tentative', 'emerging', 'struggling', 'not_attempted'];
+    const tierBars = tierOrder.map((key) => {
+      const ts = this.tierStyle[key];
+      const count = tierCounts[key];
+      const pct = totalPossibleCells > 0 ? (count / totalPossibleCells) * 100 : 0;
+      return { label: ts.label, dot: ts.dot, pct, countLabel: `${count} (${Math.round(pct)}%)` };
+    });
+
+    return {
+      scopeLabel,
+      showRolloutNote: s.teacherId === 'all',
+      askMarginTop: '20px',
+      teacherOptions, teacherId: s.teacherId, classFilter: s.classFilter, dateFilter: s.dateFilter,
+      handleTeacherChange: this.handleTeacherChange, handleClassChange: this.handleClassChange, handleDateChange: this.handleDateChange,
+      hasChips: chips.length > 0, chips, resetAll: this.resetAll,
+      isEmptyScope, emptyTitle, emptySubtitle,
+      contentDisplay: isEmptyScope ? 'display:none;' : 'display:block;',
+      metrics, durableHeadline: attemptedCount > 0 ? `${durablePct}% of attempted skill checks are durable` : 'No skill checks attempted yet in this scope.',
+      tierBars,
+      askText: s.askText, askHasText: s.askText.trim() !== '',
+      handleAskChange: this.handleAskChange, handleAskKeyDown: this.handleAskKeyDown, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askReady: !s.askLoading && !!s.askAnswer, askAnswer: s.askAnswer,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

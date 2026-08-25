@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.010 55);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes lrn-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+  @keyframes lrn-fade{0%{opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{opacity:0;}}
+  #app-rail{display:none;}
+  #app-bottomnav{display:flex;}
+  @media (min-width:760px){
+    #app-rail{display:flex;}
+    #app-bottomnav{display:none;}
+  }
+</style>
+</helmet>
+
+<div style="display:flex;align-items:center;padding:14px 24px;background:oklch(99% 0.007 55);border-bottom:1px solid oklch(88% 0.014 55);">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:17px;color:oklch(24% 0.014 55);">Escolent</div>
+    <div style="width:1px;height:14px;background:oklch(88% 0.014 55);"></div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:oklch(64% 0.016 55);"></div>
+      <div style="font-size:12px;color:oklch(64% 0.016 55);">Synced</div>
+    </div>
+  </div>
+</div>
+<div style="display:flex;">
+  <nav id="app-rail" style="flex-direction:column;width:250px;flex-shrink:0;padding:24px 16px;gap:4px;border-right:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);min-height:100vh;box-sizing:border-box;">
+    <a href="Today.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Today</a>
+    <a href="Learn.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:oklch(94% 0.03 264.4);color:oklch(48.8% 0.217 264.4);">Learn</a>
+    <a href="Practice Session.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Practice</a>
+    <a href="Progress.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Progress</a>
+  </nav>
+  <div style="flex:1;min-width:0;">
+
+<div data-screen-label="Student Learn" style="max-width:720px;margin:0 auto;padding:20px 24px 90px;font-family:'Geist',sans-serif;color:oklch(24% 0.014 55);min-height:100vh;box-sizing:border-box;">
+
+  <div style="margin-bottom:24px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:26px;">Learn</div>
+    <div style="font-size:13px;color:oklch(64% 0.016 55);margin-top:2px;">Grade 8 &middot; Algebra: equations</div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:32px;">
+    <sc-for list="{{ skills }}" as="skill" hint-placeholder-count="7">
+      <div style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:18px;overflow:hidden;">
+        <div onClick="{{ skill.toggle }}" style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;">
+          <div style="width:11px;height:11px;border-radius:50%;background:{{ skill.dotBg }};border:{{ skill.dotBorder }};flex-shrink:0;"></div>
+          <div style="flex:1;font-size:15px;font-weight:600;">{{ skill.name }}</div>
+          <span style="font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:{{ skill.badgeBg }};color:{{ skill.badgeColor }};">{{ skill.label }}</span>
+          <div style="font-size:13px;color:oklch(64% 0.016 55);width:14px;text-align:center;">{{ skill.chevron }}</div>
+        </div>
+        <sc-if value="{{ skill.expanded }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 18px 18px 41px;">
+            <sc-if value="{{ skill.contentLoading }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:oklch(64% 0.016 55);animation:lrn-pulse 1.3s ease-in-out infinite;">Putting this together&#8230;</div>
+            </sc-if>
+            <sc-if value="{{ skill.contentReady }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;line-height:1.65;color:oklch(24% 0.014 55);margin-bottom:14px;">{{ skill.contentText }}</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="font-size:11px;color:oklch(64% 0.016 55);">{{ skill.sourceLabel }}</div>
+                <button onClick="{{ skill.openSource }}" style="background:none;border:none;padding:0;font-family:'Geist',sans-serif;font-size:11px;font-weight:600;color:oklch(64% 0.016 55);text-decoration:underline;cursor:pointer;">View original</button>
+              </div>
+              <sc-if value="{{ skill.showToast }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12px;color:oklch(64% 0.016 55);margin-top:6px;animation:lrn-fade 1.6s ease-out forwards;">Opening source material&#8230;</div>
+              </sc-if>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(88% 0.014 55);border-radius:18px;background:oklch(99% 0.007 55);">
+    <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.016 55);border-radius:4px;flex-shrink:0;"></div>
+    <input type="text" placeholder="Ask about any skill&#8230; e.g. &quot;why do we flip the sign in inequalities&quot;" value="{{ askText }}" onChange="{{ handleAskChange }}" onKeyDown="{{ handleAskKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(24% 0.014 55);"/>
+    <sc-if value="{{ askHasText }}">
+      <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Ask</button>
+    </sc-if>
+  </div>
+  <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+    <div style="font-size:13px;color:oklch(64% 0.016 55);margin-top:10px;animation:lrn-pulse 1.3s ease-in-out infinite;">Thinking&#8230;</div>
+  </sc-if>
+  <sc-if value="{{ askReady }}" hint-placeholder-val="{{ false }}">
+    <div style="margin-top:10px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);">{{ askAnswer }}</div>
+  </sc-if>
+
+</div>
+
+  </div>
+</div>
+
+<nav id="app-bottomnav" style="position:fixed;left:0;right:0;bottom:0;background:oklch(99% 0.007 55);border-top:1px solid oklch(88% 0.014 55);z-index:10;">
+  <a href="Today.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Today</a>
+  <a href="Learn.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:700;color:oklch(48.8% 0.217 264.4);">Learn</a>
+  <a href="Practice Session.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Practice</a>
+  <a href="Progress.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Progress</a>
+</nav>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { expanded: {}, content: {}, toastId: null, askText: '', askLoading: false, askAnswer: '' };
+
+  // Same progression + tier treatment as Progress.dc.html \u2014 reused, not reinvented.
+  skillDefs = [
+    { id: 's0', name: 'Equation basics & balancing', tier: 'durable', source: 'Grade 8 Algebra Curriculum Guide, Unit 1',
+      lesson: 'Think of an equation like a balanced scale at a grocery store. On one side you have some apples, and on the other side you have weights\u2014and right now they\'re perfectly balanced, not tipping either way. That balanced state is what the equal sign means. When you do something to one side of the equation, like adding or removing an apple, the scale tips out of balance, so you have to do the exact same thing to the other side to make it level again. The whole point of working with equations is to keep that balance while you figure out what the unknown thing is. Whatever you do to one side, you do to the other, and that\'s how you solve for what you\'re looking for.' },
+    { id: 's1', name: 'Integer operations', tier: 'struggling', source: 'Grade 8 Algebra Curriculum Guide, Unit 1',
+      lesson: 'Think of integers like money in your wallet\u2014positive numbers are dollars you have, and negative numbers are dollars you owe. When you do operations with integers, you\'re basically managing that money: adding more cash increases what you have, subtracting takes it away, and when you owe money and add more debt, you go further into the negative. Multiplying and dividing integers works the same way, except you\'re scaling up or breaking down those amounts. The key is paying attention to the signs, because owing money twice as much is very different from having twice as much, and learning these operations helps you work with equations that have both positive and negative values.' },
+    { id: 's2', name: 'One-step equations', tier: 'tentative', source: 'Grade 8 Algebra Curriculum Guide, Unit 2',
+      lesson: 'Think of a one-step equation like figuring out what\'s inside a locked box. You know what the box weighs when it\'s sealed, and you know the box itself weighs a certain amount, so you can subtract to find what\'s inside. In the same way, an equation like x + 5 = 12 is telling you that some unknown number plus 5 equals 12, and your job is to undo that addition to find what x actually is. You solve it by doing the opposite operation\u2014if something was added, you subtract it from both sides, and if something was multiplied, you divide both sides by that number. The key is keeping things balanced, just like a seesaw: whatever you do to one side, you do to the other side too. Once you get x by itself, you\'ve found the answer.' },
+    { id: 's3', name: 'Two-step equations', tier: 'struggling', source: 'Grade 8 Algebra Curriculum Guide, Unit 2',
+      lesson: 'Imagine you\'re trying to figure out how much money your friend started with before spending some and then doubling what was left. To work backwards and find that starting amount, you\'d need to undo those actions in reverse order\u2014first undo the doubling, then undo the spending. Two-step equations work exactly the same way: you have an unknown number that\'s been changed by two operations, and you reverse those operations one at a time to find what the unknown started as. The trick is to undo them in backwards order\u2014if something was multiplied and then added to, you subtract first, then divide. Once you get the hang of undoing operations in the right sequence, you can solve any two-step equation.' },
+    { id: 's4', name: 'Multi-step equations', tier: 'emerging', source: 'Grade 8 Algebra Curriculum Guide, Unit 3',
+      lesson: 'Imagine you\'re trying to figure out how much money your friend started with. She spent $12 on a movie ticket, then spent half of what she had left on snacks, and ended up with $8. To work backwards and find her starting amount, you\'d need to undo each thing she did, but in reverse order\u2014first accounting for the snacks, then the movie ticket. Multi-step equations work the same way. You\'re given a situation where a number has had several things done to it, and you need to figure out what that number was by carefully undoing each operation, one at a time, until you get the answer.' },
+    { id: 's5', name: 'Variables on both sides', tier: 'not_attempted', source: 'Grade 8 Algebra Curriculum Guide, Unit 3',
+      lesson: 'Imagine you and your friend are both collecting video game points, and you want to know when you\'ll have the same score. You might start with some points already, then earn more each round\u2014and so does your friend. To figure out when your scores match, you need to think about what\'s happening on both sides at the same time. This is like solving a two-step equation, where you undo operations one at a time to find what a number is, except now you have the variable (the unknown) showing up in more than one place. The trick is to move all the variables to one side first, like gathering all your points in one pile and your friend\'s points in another pile, so you can actually compare them. Once the variables are all on one side, you\'ll solve it just like a two-step equation by undoing addition or subtraction, then undoing multiplication or division. The main new skill is recognizing that you can move variables around before you start simplifying, and that makes finding the answer possible.' },
+    { id: 's6', name: 'Inequalities', tier: 'not_attempted', source: 'Grade 8 Algebra Curriculum Guide, Unit 4',
+      lesson: 'Imagine you\'re saving up for a concert ticket that costs $60, and you\'re adding money to your piggy bank each week. An inequality is like asking \'Will I have enough money?\' instead of \'Will I have exactly $60?\' \u2014 the answer might be \'yes, I\'ll have more than $60\' or \'I might have less.\' When you solve inequalities, you\'re doing almost the same moves as when you had variables on both sides of an equals sign \u2014 moving numbers around and combining like terms to figure out what values work \u2014 except now instead of finding one exact answer, you\'re finding a range of answers. For example, if you earn $8 per week and you\'ve already saved $12, you might ask \'After how many weeks will I have more than $60?\' That\'s an inequality, and solving it uses all those same skills of getting your variable by itself. The big new thing is that instead of an equals sign, you\'ll see symbols like > (greater than) or < (less than), which means your answer isn\'t just one number \u2014 it\'s a whole group of numbers that make the statement true.' },
+  ];
+
+  // Direct-prerequisite overrides where they don't match simple list order (matches Practice Session's first-exposure logic).
+  prereqOverride = { s5: 's3' };
+
+  tierStyle = {
+    not_attempted: { label: 'Not attempted', dotBg: 'oklch(88% 0.014 55)', dotBorder: '1px solid oklch(88% 0.014 55)', badgeBg: 'oklch(93% 0.008 55)', badgeColor: 'oklch(49% 0.018 55)' },
+    struggling: { label: 'Struggling', dotBg: 'oklch(58% 0.11 25)', dotBorder: 'none', badgeBg: 'oklch(95% 0.03 25)', badgeColor: 'oklch(45% 0.11 25)' },
+    emerging: { label: 'Emerging', dotBg: 'oklch(63% 0.10 60)', dotBorder: 'none', badgeBg: 'oklch(95% 0.03 60)', badgeColor: 'oklch(45% 0.10 60)' },
+    tentative: { label: 'Tentative', dotBg: 'oklch(68% 0.09 100)', dotBorder: 'none', badgeBg: 'oklch(95% 0.025 100)', badgeColor: 'oklch(42% 0.09 100)' },
+    durable: { label: 'Durable', dotBg: 'oklch(60% 0.10 150)', dotBorder: 'none', badgeBg: 'oklch(93% 0.03 150)', badgeColor: 'oklch(38% 0.10 150)' },
+  };
+
+  // Fixed platform Lens for this overview surface \u2014 concrete/analogy default, same mechanism Practice Session uses for first exposure.
+  lens = { name: 'Concrete / analogy', styleInstruction: 'Explain using a concrete, everyday analogy that makes the idea tangible. Do not present it as a numbered procedure.' };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  prereqOf = (id) => {
+    const overrideId = this.prereqOverride[id];
+    if (overrideId) return this.skillDefs.find((s) => s.id === overrideId);
+    const idx = this.skillDefs.findIndex((s) => s.id === id);
+    return idx > 0 ? this.skillDefs[idx - 1] : null;
+  };
+
+  toggleSkill = (id) => {
+    const opening = !this.state.expanded[id];
+    this.setState((s) => ({ expanded: { ...s.expanded, [id]: !s.expanded[id] } }));
+    if (opening && !this.state.content[id]) this.generateContent(id);
+  };
+
+  generateContent = (id) => {
+    const skill = this.skillDefs.find((sk) => sk.id === id);
+    this.setState((s) => ({ content: { ...s.content, [id]: { loading: false, text: skill.lesson } } }));
+  };
+
+  openSource = (id) => {
+    this.setState({ toastId: id });
+    setTimeout(() => this.setState((s) => (s.toastId === id ? { toastId: null } : {})), 1600);
+  };
+
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+  handleAskKeyDown = (e) => { if (e.key === 'Enter') this.handleAskSubmit(); };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const skillLines = this.skillDefs.map((sk) => `- ${sk.name}: ${this.tierStyle[sk.tier].label}`).join('\n');
+    this.setState({ askLoading: true, askAnswer: '' });
+    try {
+      const prompt = `You are answering a grade 8 student's question in the "Learn" area of her algebra equations Space, using ONLY this real skill list. She is only tracked on this algebra equations unit \u2014 nothing outside it (a different subject entirely) is tracked here.\n\nSkills in this Space:\n${skillLines}\n\nHer question: "${this.state.askText}"\n\nTwo rules, both important:\n1. If the question is about a different subject entirely (not part of this algebra equations unit), say plainly that it's outside what's tracked in this Space, rather than answering it.\n2. If she is directly asking for the final answer to a specific problem (e.g. "what's the answer to 3x + 5 = 20") rather than asking to understand something, do NOT give the numeric answer. Instead, ask her to share her own thinking or work so far on that problem, so you can help her from there.\n\nOtherwise, answer directly and briefly (1-3 sentences), grounded only in the skills above. Respond with ONLY the plain sentence(s) \u2014 no markdown, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ askLoading: false, askAnswer: this.sanitizeAiText(text) || "I couldn't check that right now \u2014 try again in a moment." });
+    } catch (e) {
+      this.setState({ askLoading: false, askAnswer: "I couldn't check that right now \u2014 try again in a moment." });
+    }
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const skills = this.skillDefs.map((sk) => {
+      const ts = this.tierStyle[sk.tier];
+      const isExpanded = !!s.expanded[sk.id];
+      const c = s.content[sk.id];
+      return {
+        name: sk.name, expanded: isExpanded,
+        chevron: isExpanded ? '\u2304' : '\u203a', toggle: () => this.toggleSkill(sk.id),
+        dotBg: ts.dotBg, dotBorder: ts.dotBorder, badgeBg: ts.badgeBg, badgeColor: ts.badgeColor, label: ts.label,
+        contentLoading: !!(c && c.loading), contentReady: !!(c && !c.loading && c.text), contentText: c ? c.text : '',
+        sourceLabel: sk.source, openSource: () => this.openSource(sk.id), showToast: s.toastId === sk.id,
+      };
+    });
+    return {
+      skills,
+      askText: s.askText, askHasText: s.askText.trim() !== '',
+      handleAskChange: this.handleAskChange, handleAskKeyDown: this.handleAskKeyDown, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askReady: !s.askLoading && !!s.askAnswer, askAnswer: s.askAnswer,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

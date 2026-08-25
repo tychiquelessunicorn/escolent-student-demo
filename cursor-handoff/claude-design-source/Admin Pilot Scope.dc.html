@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+</style>
+</helmet>
+
+<div data-screen-label="Admin Pilot Scope" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="margin-bottom:6px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Pilot scope</div>
+    <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">Teneo, school-wide</div>
+  </div>
+  <div style="font-size:14px;color:oklch(48% 0.012 264.4);line-height:1.55;margin-bottom:36px;">Which classes are running Escolent, and which curricula are turned on for them.</div>
+
+  <!-- CLASSES -->
+  <div style="margin-bottom:40px;">
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:14px;">Classes</div>
+    <sc-for list="{{ classes }}" as="cls" hint-placeholder-count="1">
+      <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:20px 24px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+          <div>
+            <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:17px;margin-bottom:4px;">{{ cls.name }}</div>
+            <div style="font-size:13px;color:{{ cls.statusColor }};font-weight:600;">{{ cls.statusLabel }}</div>
+          </div>
+          <button onClick="{{ cls.onToggle }}" style="flex-shrink:0;width:46px;height:26px;border-radius:999px;border:none;cursor:pointer;background:{{ cls.trackColor }};position:relative;padding:0;">
+            <div style="position:absolute;top:3px;left:{{ cls.knobLeft }};width:20px;height:20px;border-radius:50%;background:oklch(99% 0.003 264.4);transition:left 0.15s ease;"></div>
+          </button>
+        </div>
+        <div style="font-size:13px;color:oklch(48% 0.012 264.4);margin-top:12px;line-height:1.5;">{{ cls.note }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- SUBJECTS -->
+  <div>
+    <div style="font-size:13px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Curricula</div>
+    <div style="font-size:13px;color:oklch(64% 0.012 264.4);line-height:1.55;margin-bottom:16px;">Turn validated content on, choose when, and which classes see it. Content itself is reviewed and validated by the Pedagogical Lead team before it appears here.</div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <sc-for list="{{ subjects }}" as="sub" hint-placeholder-count="2">
+        <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:20px 24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:4px;">
+            <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:17px;">{{ sub.name }}</div>
+            <span style="font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:3px 10px;border-radius:5px;color:{{ sub.badgeFg }};background:{{ sub.badgeBg }};flex-shrink:0;">{{ sub.badgeLabel }}</span>
+          </div>
+          <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-bottom:14px;">{{ sub.validatedNote }}</div>
+
+          <sc-if value="{{ sub.isActive }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;border-top:1px solid oklch(93% 0.005 264.4);">
+              <div style="font-size:13px;color:oklch(48% 0.012 264.4);">{{ sub.activeSummary }}</div>
+              <button onClick="{{ sub.onDeactivate }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(48% 0.012 264.4);cursor:pointer;">Deactivate</button>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sub.isPending }}">
+            <sc-if value="{{ sub.formOpen }}">
+              <div style="padding-top:14px;border-top:1px solid oklch(93% 0.005 264.4);display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:160px;">
+                    <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Class</div>
+                    <select onChange="{{ sub.handleClassChange }}" value="{{ sub.selectedClass }}" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+                      <option value="Grade 8A">Grade 8A</option>
+                    </select>
+                  </div>
+                  <div style="flex:1;min-width:160px;">
+                    <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Available from</div>
+                    <input type="date" value="{{ sub.selectedDate }}" onChange="{{ sub.handleDateChange }}" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+                  </div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button onClick="{{ sub.onConfirmActivate }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Activate</button>
+                  <button onClick="{{ sub.onCancelForm }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(48% 0.012 264.4);cursor:pointer;">Cancel</button>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ sub.formClosed }}">
+              <div style="padding-top:12px;border-top:1px solid oklch(93% 0.005 264.4);">
+                <button onClick="{{ sub.onOpenForm }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Activate&#8230;</button>
+              </div>
+            </sc-if>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 700, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = {
+    classActive: true,
+    subjectStatus: { algebra: 'active', geometry: 'pending' },
+    formOpenId: null,
+    formState: { algebra: { classVal: 'Grade 8A', date: this.defaultDate() }, geometry: { classVal: 'Grade 8A', date: this.defaultDate() } },
+    activationInfo: { algebra: { className: 'Grade 8A', date: '2026-07-08' }, geometry: null },
+  };
+
+  subjectDefs = [
+    { id: 'algebra', name: 'Grade 8 Math: Algebra' },
+    { id: 'geometry', name: 'Grade 8 Math: Geometry' },
+  ];
+
+  defaultDate() {
+    const d = new Date(2026, 7, 26); // Wed Aug 19 today + 1 week
+    return d.toISOString().slice(0, 10);
+  }
+
+  formatDate = (iso) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    const dt = new Date(y, m - 1, d);
+    return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  };
+
+  toggleClass = () => this.setState((s) => ({ classActive: !s.classActive }));
+  openForm = (id) => this.setState({ formOpenId: id });
+  cancelForm = () => this.setState({ formOpenId: null });
+
+  handleClassChange = (id) => (e) => this.setState((s) => ({ formState: { ...s.formState, [id]: { ...s.formState[id], classVal: e.target.value } } }));
+  handleDateChange = (id) => (e) => this.setState((s) => ({ formState: { ...s.formState, [id]: { ...s.formState[id], date: e.target.value } } }));
+
+  confirmActivate = (id) => {
+    this.setState((s) => ({
+      subjectStatus: { ...s.subjectStatus, [id]: 'active' },
+      formOpenId: null,
+      activationInfo: { ...s.activationInfo, [id]: { className: s.formState[id].classVal, date: s.formState[id].date } },
+    }));
+  };
+
+  deactivate = (id) => {
+    this.setState((s) => ({ subjectStatus: { ...s.subjectStatus, [id]: 'pending' } }));
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const accent = 'oklch(48.8% 0.217 264.4)';
+
+    const classes = [{
+      name: 'Grade 8A',
+      statusLabel: s.classActive ? 'Active' : 'Disabled',
+      statusColor: s.classActive ? 'oklch(50% 0.11 150)' : 'oklch(64% 0.012 264.4)',
+      trackColor: s.classActive ? accent : 'oklch(89% 0.006 264.4)',
+      knobLeft: s.classActive ? '23px' : '3px',
+      onToggle: this.toggleClass,
+      note: s.classActive
+        ? 'Students in Grade 8A can practice with Escolent right now. Disabling pauses it for the whole class immediately.'
+        : 'Grade 8A is disabled \u2014 students can\u2019t practice until it\u2019s re-enabled.',
+    }];
+
+    const subjects = this.subjectDefs.map((def) => {
+      const { id, name } = def;
+      const isActive = s.subjectStatus[id] === 'active';
+      const formOpen = s.formOpenId === id;
+      const info = s.activationInfo[id];
+      return {
+        id, name,
+        validatedNote: isActive ? 'Validated by the Pedagogical Lead team, platform-wide.' : 'Validated by the Pedagogical Lead team, platform-wide \u2014 not yet activated for Teneo.',
+        isActive, isPending: !isActive,
+        badgeLabel: isActive ? 'Active' : 'Not activated',
+        badgeFg: isActive ? 'oklch(40% 0.1 150)' : 'oklch(48% 0.012 264.4)',
+        badgeBg: isActive ? 'oklch(93% 0.03 150)' : 'oklch(93% 0.005 264.4)',
+        activeSummary: info ? `Active for ${info.className}, available from ${this.formatDate(info.date)}.` : '',
+        onDeactivate: () => this.deactivate(id),
+        formOpen, formClosed: !formOpen,
+        selectedClass: s.formState[id].classVal, selectedDate: s.formState[id].date,
+        handleClassChange: this.handleClassChange(id), handleDateChange: this.handleDateChange(id),
+        onOpenForm: () => this.openForm(id), onCancelForm: this.cancelForm,
+        onConfirmActivate: () => this.confirmActivate(id),
+      };
+    });
+
+    return { classes, subjects };
+  };
+}
+
+</script>
+</body>
+</html>

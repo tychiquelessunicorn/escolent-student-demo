@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+</style>
+</helmet>
+
+<div data-screen-label="Escalation Detail — Noah Whitfield" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <a href="Escalation List.dc.html" style="display:inline-block;font-size:13px;color:oklch(64% 0.012 264.4);text-decoration:none;margin-bottom:20px;">&#8249; All escalations</a>
+
+  <sc-if value="{{ isOpen }}">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:oklch(99% 0.01 27);background:oklch(54% 0.22 27);padding:4px 11px;border-radius:5px;">Escalation</span>
+      <span style="font-size:13px;color:oklch(64% 0.012 264.4);">Open {{ openDurationLabel }}</span>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isResolved }}">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+      <span style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:oklch(38% 0.10 150);background:oklch(93% 0.03 150);padding:4px 11px;border-radius:5px;">Resolved</span>
+      <span style="font-size:13px;color:oklch(64% 0.012 264.4);">{{ resolvedLabel }}</span>
+    </div>
+  </sc-if>
+
+  <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;margin-bottom:4px;">Noah Whitfield</div>
+  <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-bottom:28px;">Grade 8A Remediation</div>
+
+  <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:24px 26px;margin-bottom:20px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:12px;">What triggered this</div>
+    <div style="font-size:15px;line-height:1.6;font-style:italic;color:oklch(23% 0.008 264.4);background:oklch(97% 0.003 264.4);border-radius:8px;padding:14px 16px;margin-bottom:14px;">"I don't really see the point in trying anymore. Nothing I do makes a difference, at school or at home. I don't want to talk about it."</div>
+    <div style="font-size:13px;color:oklch(48% 0.012 264.4);line-height:1.6;">From Noah's response during Tuesday's scheduled check-in, {{ triggerTimestamp }}. Detected by the response-sentiment safety classifier and routed for immediate review.</div>
+  </div>
+
+  <div style="background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:oklch(38% 0.15 264.4);margin-bottom:10px;">Shown to Noah</div>
+    <div style="font-size:15px;line-height:1.5;color:oklch(38% 0.15 264.4);">"Your teacher has been notified and will follow up with you."</div>
+    <div style="font-size:12px;color:oklch(38% 0.15 264.4);opacity:0.75;margin-top:8px;">This is the exact message he saw &mdash; shown here so your follow-up doesn't contradict it.</div>
+  </div>
+
+  <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:14px;">Backup escalation</div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:22px;height:22px;border-radius:50%;background:oklch(94% 0.025 264.4);color:oklch(40% 0.10 264.4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">DC</div>
+      <div style="font-size:14px;">Automatically escalated to David Chen (Admin) after 10 minutes unacknowledged.</div>
+    </div>
+  </div>
+
+  <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:20px 24px;margin-bottom:28px;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:14px;">Viewed by</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <sc-for list="{{ viewers }}" as="v" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:24px;height:24px;border-radius:50%;background:oklch(94% 0.025 264.4);color:oklch(40% 0.10 264.4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">{{ v.initials }}</div>
+          <div style="font-size:14px;">{{ v.name }}</div>
+          <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-left:auto;">{{ v.timeLabel }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ isResolved }}">
+    <div style="background:oklch(97% 0.003 264.4);border:1px solid oklch(93% 0.005 264.4);border-radius:12px;padding:20px 24px;">
+      <div style="font-size:14px;color:oklch(48% 0.012 264.4);line-height:1.6;">Marked resolved by you. Nice work following up.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isOpen }}">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <sc-if value="{{ showAcknowledge }}">
+        <button onClick="{{ handleAcknowledge }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:8px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Acknowledge</button>
+      </sc-if>
+      <sc-if value="{{ showAcknowledgedLabel }}">
+        <div style="display:flex;align-items:center;font-size:14px;color:oklch(38% 0.10 150);background:oklch(93% 0.03 150);padding:10px 18px;border-radius:8px;">Acknowledged {{ acknowledgedTimeLabel }}</div>
+      </sc-if>
+      <button onClick="{{ handleResolve }}" disabled="{{ resolveDisabled }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:10px 20px;border-radius:8px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;">Mark resolved</button>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 640, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = { acknowledged: false, resolved: false };
+
+  handleAcknowledge = () => this.setState({ acknowledged: true });
+  handleResolve = () => this.setState({ resolved: true });
+
+  renderVals = () => {
+    const s = this.state;
+    const viewers = [
+      { initials: 'SM', name: 'Sarah Mokoena (you)', timeLabel: '12 minutes ago' },
+      { initials: 'DC', name: 'David Chen (Admin)', timeLabel: '40 minutes ago' },
+    ];
+    return {
+      isOpen: !s.resolved, isResolved: s.resolved,
+      openDurationLabel: 'longer than 3 hours',
+      resolvedLabel: 'Resolved just now',
+      triggerTimestamp: '2:14pm',
+      viewers,
+      showAcknowledge: !s.acknowledged, showAcknowledgedLabel: s.acknowledged,
+      acknowledgedTimeLabel: 'just now',
+      handleAcknowledge: this.handleAcknowledge,
+      handleResolve: this.handleResolve, resolveDisabled: !s.acknowledged,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

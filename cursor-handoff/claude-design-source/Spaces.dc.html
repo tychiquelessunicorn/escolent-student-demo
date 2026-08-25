@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes sp-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+</style>
+</helmet>
+
+<div data-screen-label="Spaces" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <sc-if value="{{ isList }}">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+      <div>
+        <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">Your Spaces</div>
+        <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">Teneo &middot; Grade 8</div>
+      </div>
+      <button onClick="{{ startNew }}" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:10px 18px;border-radius:8px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">New Space</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <sc-for list="{{ spaceCards }}" as="sp" hint-placeholder-count="2">
+        <div onClick="{{ sp.onEdit }}" style="cursor:pointer;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:22px 24px;">
+          <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:19px;margin-bottom:6px;">{{ sp.name }}</div>
+          <div style="font-size:14px;color:oklch(48% 0.012 264.4);margin-bottom:10px;">{{ sp.studentCount }} students &middot; {{ sp.coverageLabel }}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:oklch(93% 0.005 264.4);color:oklch(48% 0.012 264.4);">{{ sp.pacingLabel }}</span>
+            <span style="font-size:13px;color:oklch(48.8% 0.217 264.4);margin-left:auto;">Edit &#8250;</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDescribe }}">
+    <button onClick="{{ backToList }}" style="background:none;border:none;padding:0;font-family:'Geist',sans-serif;font-size:13px;color:oklch(64% 0.012 264.4);cursor:pointer;margin-bottom:20px;">&#8249; Spaces</button>
+    <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:22px;margin-bottom:8px;">Describe the Space you want</div>
+    <div style="font-size:14px;color:oklch(48% 0.012 264.4);margin-bottom:20px;line-height:1.5;">Tell me who it's for and what it should cover, in your own words. I'll draft the structure and a suggested roster for you to review.</div>
+    <textarea rows="4" placeholder="e.g. a remediation group for students still shaky on the fundamentals before the class moves to multi-step equations" value="{{ describeText }}" onChange="{{ handleDescribeChange }}" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:14px 16px;border-radius:10px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);resize:vertical;margin-bottom:16px;"></textarea>
+    <button onClick="{{ handleDraft }}" disabled="{{ draftDisabled }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:8px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Draft with AI</button>
+    <sc-if value="{{ draftLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:14px;color:oklch(64% 0.012 264.4);margin-top:16px;animation:sp-pulse 1.3s ease-in-out infinite;">Looking at the roster and drafting a Space&#8230;</div>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ isForm }}">
+    <button onClick="{{ formBack }}" style="background:none;border:none;padding:0;font-family:'Geist',sans-serif;font-size:13px;color:oklch(64% 0.012 264.4);cursor:pointer;margin-bottom:20px;">{{ formBackLabel }}</button>
+
+    <sc-if value="{{ showRationale }}">
+      <div style="background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.5;color:oklch(38% 0.15 264.4);margin-bottom:24px;">{{ rationale }}</div>
+    </sc-if>
+
+    <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Space name</div>
+    <input type="text" value="{{ formName }}" onChange="{{ handleNameChange }}" style="width:100%;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:16px;padding:10px 14px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);margin-bottom:22px;"/>
+
+    <div style="font-size:13px;font-weight:600;margin-bottom:6px;">Skill range</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px;">
+      <select onChange="{{ handleSkillStartChange }}" style="font-family:'Geist',sans-serif;font-size:14px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+        <sc-for list="{{ skillDefs }}" as="sk" hint-placeholder-count="7">
+          <option value="{{ sk.id }}" selected="{{ sk.isStartSelected }}">{{ sk.name }}</option>
+        </sc-for>
+      </select>
+      <div style="color:oklch(64% 0.012 264.4);">through</div>
+      <select onChange="{{ handleSkillEndChange }}" style="font-family:'Geist',sans-serif;font-size:14px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+        <sc-for list="{{ skillDefs }}" as="sk" hint-placeholder-count="7">
+          <option value="{{ sk.id }}" selected="{{ sk.isEndSelected }}">{{ sk.name }}</option>
+        </sc-for>
+      </select>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Classroom pacing</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:28px;">
+      <div onClick="{{ togglePacing }}" style="cursor:pointer;width:40px;height:24px;border-radius:999px;background:{{ pacingTrackBg }};position:relative;">
+        <div style="position:absolute;top:2px;left:{{ pacingKnobLeft }};width:20px;height:20px;border-radius:50%;background:oklch(99% 0.003 264.4);box-shadow:0 1px 2px oklch(23% 0.008 264.4 / 0.15);transition:left 0.15s;"></div>
+      </div>
+      <div style="font-size:13px;color:oklch(48% 0.012 264.4);">{{ pacingLabel }}</div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Roster ({{ rosterCount }})</div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      <sc-for list="{{ roster }}" as="r" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:10px;background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:8px;padding:10px 14px;">
+          <div style="flex:1;font-size:14px;font-weight:600;">{{ r.name }}</div>
+          <sc-if value="{{ r.hasReason }}">
+            <span style="font-size:11px;color:oklch(38% 0.15 264.4);background:oklch(94% 0.03 264.4);padding:3px 9px;border-radius:999px;">{{ r.reason }}</span>
+          </sc-if>
+          <button onClick="{{ r.onRemove }}" style="background:none;border:none;font-size:13px;color:oklch(64% 0.012 264.4);cursor:pointer;">Remove</button>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:32px;">
+      <select onChange="{{ handleAddSelectChange }}" style="flex:1;font-family:'Geist',sans-serif;font-size:14px;padding:8px 12px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);">
+        <option value="">Add a student&#8230;</option>
+        <sc-for list="{{ addCandidates }}" as="c" hint-placeholder-count="4">
+          <option value="{{ c.name }}">{{ c.name }} ({{ c.space }})</option>
+        </sc-for>
+      </select>
+      <button onClick="{{ handleAddStudent }}" disabled="{{ addDisabled }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;">Add</button>
+    </div>
+
+    <div style="display:flex;gap:12px;">
+      <button onClick="{{ handleCancel }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:10px 20px;border-radius:8px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;">Cancel</button>
+      <button onClick="{{ handleConfirm }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:8px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;margin-left:auto;">{{ confirmLabel }}</button>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 760, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  skillDefs0 = [
+    { id: 's0', name: 'Equation basics & balancing' },
+    { id: 's1', name: 'Integer operations' },
+    { id: 's2', name: 'One-step equations' },
+    { id: 's3', name: 'Two-step equations' },
+    { id: 's4', name: 'Multi-step equations' },
+    { id: 's5', name: 'Variables on both sides' },
+    { id: 's6', name: 'Inequalities' },
+  ];
+
+  candidatePool = [
+    { name: 'Noah Whitfield', space: 'Remediation', note: 'struggling on Integer operations' },
+    { name: 'Destiny Moore', space: 'Remediation', note: 'struggling on One-step equations' },
+    { name: 'Fatima Ali', space: 'Remediation', note: 'struggling on Integer operations and One-step equations' },
+    { name: 'Amina Yusuf', space: 'Remediation', note: 'emerging on Integer operations' },
+    { name: 'Jordan Lee', space: 'Remediation', note: 'struggling on One-step equations' },
+    { name: 'Nadia Hassan', space: 'Remediation', note: 'emerging on One-step equations' },
+    { name: 'Tyler Brooks', space: 'Remediation', note: 'tentative on One-step equations' },
+    { name: 'Carlos Mendez', space: 'Remediation', note: 'emerging on Integer operations' },
+    { name: 'Ibrahim Nasser', space: 'Algebra', note: 'struggling on Integer operations and One-step equations' },
+    { name: 'Omar Farouk', space: 'Algebra', note: 'emerging on One-step equations' },
+  ];
+
+  existingSpaces = {
+    algebra: {
+      id: 'algebra', name: 'Grade 8A Algebra', skillStart: 's0', skillEnd: 's6', pacingMode: true,
+      roster: ['Mia Ndlovu','Thabo Mahlangu','Zainab Osei','Marcus Diaz','Elena Cruz','Priya Chen','Jamal Reed','Sofia Torres','Ken Watanabe','Aaliyah Brooks','Ravi Patel','Grace Kim','Ibrahim Nasser','Chloe Dubois','Omar Farouk','Lily Zhang'].map((n) => ({ name: n })),
+    },
+    remediation: {
+      id: 'remediation', name: 'Grade 8A Remediation', skillStart: 's0', skillEnd: 's2', pacingMode: false,
+      roster: ['Noah Whitfield','Destiny Moore','Carlos Mendez','Fatima Ali','Tyler Brooks','Amina Yusuf','Jordan Lee','Nadia Hassan'].map((n) => ({ name: n })),
+    },
+  };
+
+  state = {
+    view: 'list',
+    spacesOrder: ['algebra', 'remediation'],
+    describeText: '',
+    draftLoading: false,
+    formMode: null, // 'new' | 'edit'
+    editingId: null,
+    rationale: '',
+    formName: '', skillStart: 's0', skillEnd: 's2', pacingMode: false, roster: [], addSelectValue: '',
+  };
+
+  skillIndex = (id) => this.skillDefs0.findIndex((sk) => sk.id === id);
+  coverageLabel = (startId, endId) => {
+    const a = this.skillIndex(startId), b = this.skillIndex(endId);
+    const n = b - a + 1;
+    return `covers ${this.skillDefs0[a].name} through ${this.skillDefs0[b].name} (${n} skill${n === 1 ? '' : 's'})`;
+  };
+
+  startNew = () => this.setState({ view: 'describe', describeText: '', rationale: '' });
+  backToList = () => this.setState({ view: 'list' });
+  handleDescribeChange = (e) => this.setState({ describeText: e.target.value });
+
+  editSpace = (id) => {
+    const sp = this.existingSpaces[id];
+    this.setState({
+      view: 'form', formMode: 'edit', editingId: id, rationale: '',
+      formName: sp.name, skillStart: sp.skillStart, skillEnd: sp.skillEnd, pacingMode: sp.pacingMode,
+      roster: sp.roster.map((r) => ({ ...r })), addSelectValue: '',
+    });
+  };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '');
+    return t.trim();
+  };
+
+  handleDraft = async () => {
+    if (this.state.describeText.trim() === '') return;
+    this.setState({ draftLoading: true });
+    const candidateLines = this.candidatePool.map((c) => `- ${c.name} (Grade 8A ${c.space}): ${c.note}`).join('\n');
+    const skillLines = this.skillDefs0.map((sk) => `${sk.id} = ${sk.name}`).join(', ');
+    try {
+      const prompt = `You are drafting a new instructional Space for a teacher, from her plain-language description. Only choose students from this real candidate list \u2014 never invent a name or fact:\n${candidateLines}\n\nSkills, in sequence: ${skillLines}\n\nTeacher's description: "${this.state.describeText}"\n\nRespond with ONLY a raw JSON object (no markdown fences, no commentary) with exactly this shape:\n{"name": "short Space name", "skillStart": "one of s0-s6", "skillEnd": "one of s0-s6 at or after skillStart", "pacingMode": true or false, "students": [{"name": "exact name from the candidate list", "reason": "short phrase grounded in their real data"}], "rationale": "one sentence summarizing the draft for the teacher"}`;
+      const text = await window.claude.complete(prompt);
+      const cleaned = this.sanitizeAiText(text);
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(match ? match[0] : cleaned);
+      const validIds = this.skillDefs0.map((s) => s.id);
+      const skillStart = validIds.includes(parsed.skillStart) ? parsed.skillStart : 's0';
+      const skillEnd = validIds.includes(parsed.skillEnd) ? parsed.skillEnd : 's2';
+      const roster = (Array.isArray(parsed.students) ? parsed.students : [])
+        .filter((st) => this.candidatePool.some((c) => c.name === st.name))
+        .map((st) => ({ name: st.name, reason: st.reason || '' }));
+      this.setState({
+        draftLoading: false, view: 'form', formMode: 'new', editingId: null,
+        formName: parsed.name || 'New Space', skillStart, skillEnd, pacingMode: !!parsed.pacingMode,
+        roster, addSelectValue: '', rationale: parsed.rationale || '',
+      });
+    } catch (e) {
+      this.setState({
+        draftLoading: false, view: 'form', formMode: 'new', editingId: null,
+        formName: 'New remediation group', skillStart: 's0', skillEnd: 's2', pacingMode: false,
+        roster: [
+          { name: 'Noah Whitfield', reason: 'struggling on Integer operations' },
+          { name: 'Destiny Moore', reason: 'struggling on One-step equations' },
+          { name: 'Fatima Ali', reason: 'struggling on Integer operations' },
+        ],
+        addSelectValue: '', rationale: "Couldn't reach the drafting assistant \u2014 here's a starting point you can adjust.",
+      });
+    }
+  };
+
+  formBack = () => this.setState({ view: this.state.formMode === 'edit' ? 'list' : 'describe' });
+  handleCancel = () => this.setState({ view: 'list', describeText: '' });
+  handleNameChange = (e) => this.setState({ formName: e.target.value });
+  handleSkillStartChange = (e) => this.setState((s) => {
+    const startIdx = this.skillIndex(e.target.value);
+    const endIdx = this.skillIndex(s.skillEnd);
+    return { skillStart: e.target.value, skillEnd: endIdx < startIdx ? e.target.value : s.skillEnd };
+  });
+  handleSkillEndChange = (e) => this.setState((s) => {
+    const endIdx = this.skillIndex(e.target.value);
+    const startIdx = this.skillIndex(s.skillStart);
+    return { skillEnd: e.target.value, skillStart: startIdx > endIdx ? e.target.value : s.skillStart };
+  });
+  togglePacing = () => this.setState((s) => ({ pacingMode: !s.pacingMode }));
+  removeStudent = (name) => this.setState((s) => ({ roster: s.roster.filter((r) => r.name !== name) }));
+  handleAddSelectChange = (e) => this.setState({ addSelectValue: e.target.value });
+  handleAddStudent = () => {
+    const name = this.state.addSelectValue;
+    if (!name || this.state.roster.some((r) => r.name === name)) return;
+    this.setState((s) => ({ roster: [...s.roster, { name }], addSelectValue: '' }));
+  };
+
+  handleConfirm = () => {
+    const s = this.state;
+    const id = s.formMode === 'edit' ? s.editingId : (s.formName.toLowerCase().replace(/[^a-z0-9]+/g, '-') || 'space-' + Date.now());
+    this.existingSpaces[id] = { id, name: s.formName, skillStart: s.skillStart, skillEnd: s.skillEnd, pacingMode: s.pacingMode, roster: s.roster.map((r) => ({ ...r })) };
+    this.setState((prev) => ({
+      view: 'list',
+      spacesOrder: prev.spacesOrder.includes(id) ? prev.spacesOrder : [...prev.spacesOrder, id],
+    }));
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const skillDefs = this.skillDefs0.map((sk) => ({ id: sk.id, name: sk.name, isStartSelected: sk.id === s.skillStart, isEndSelected: sk.id === s.skillEnd }));
+
+    const spaceCards = s.spacesOrder.map((id) => {
+      const sp = this.existingSpaces[id];
+      return {
+        name: sp.name, studentCount: sp.roster.length, coverageLabel: this.coverageLabel(sp.skillStart, sp.skillEnd),
+        pacingLabel: sp.pacingMode ? 'Classroom pacing' : 'Self-paced',
+        onEdit: () => this.editSpace(id),
+      };
+    });
+
+    const roster = s.roster.map((r) => ({ name: r.name, hasReason: !!r.reason, reason: r.reason, onRemove: () => this.removeStudent(r.name) }));
+    const rosterNames = new Set(s.roster.map((r) => r.name));
+    const addCandidates = this.candidatePool.filter((c) => !rosterNames.has(c.name));
+
+    return {
+      isList: s.view === 'list', isDescribe: s.view === 'describe', isForm: s.view === 'form',
+      startNew: this.startNew, spaceCards,
+      backToList: this.backToList,
+      describeText: s.describeText, handleDescribeChange: this.handleDescribeChange,
+      handleDraft: this.handleDraft, draftDisabled: s.describeText.trim() === '' || s.draftLoading,
+      draftLoading: s.draftLoading,
+      formBackLabel: s.formMode === 'edit' ? '\u2039 Spaces' : '\u2039 Back to description',
+      formBack: this.formBack, handleCancel: this.handleCancel,
+      showRationale: !!s.rationale, rationale: s.rationale,
+      formName: s.formName, handleNameChange: this.handleNameChange,
+      skillDefs, handleSkillStartChange: this.handleSkillStartChange, handleSkillEndChange: this.handleSkillEndChange,
+      pacingTrackBg: s.pacingMode ? 'oklch(48.8% 0.217 264.4)' : 'oklch(89% 0.006 264.4)',
+      pacingKnobLeft: s.pacingMode ? '18px' : '2px',
+      pacingLabel: s.pacingMode ? 'On \u2014 whole group moves together' : 'Off \u2014 students move at their own pace',
+      togglePacing: this.togglePacing,
+      rosterCount: s.roster.length, roster,
+      addCandidates, handleAddSelectChange: this.handleAddSelectChange,
+      handleAddStudent: this.handleAddStudent, addDisabled: !s.addSelectValue,
+      confirmLabel: s.formMode === 'edit' ? 'Save changes' : 'Create Space',
+      handleConfirm: this.handleConfirm,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

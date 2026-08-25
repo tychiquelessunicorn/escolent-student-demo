@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.010 55);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes prg-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+  #app-rail{display:none;}
+  #app-bottomnav{display:flex;}
+  @media (min-width:760px){
+    #app-rail{display:flex;}
+    #app-bottomnav{display:none;}
+  }
+</style>
+</helmet>
+
+<div style="display:flex;align-items:center;padding:14px 24px;background:oklch(99% 0.007 55);border-bottom:1px solid oklch(88% 0.014 55);">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:17px;color:oklch(24% 0.014 55);">Escolent</div>
+    <div style="width:1px;height:14px;background:oklch(88% 0.014 55);"></div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div style="width:8px;height:8px;border-radius:50%;background:oklch(64% 0.016 55);"></div>
+      <div style="font-size:12px;color:oklch(64% 0.016 55);">Synced</div>
+    </div>
+  </div>
+</div>
+<div style="display:flex;">
+  <nav id="app-rail" style="flex-direction:column;width:250px;flex-shrink:0;padding:24px 16px;gap:4px;border-right:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);min-height:100vh;box-sizing:border-box;">
+    <a href="Today.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Today</a>
+    <a href="Learn.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Learn</a>
+    <a href="Practice Session.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:transparent;color:oklch(49% 0.018 55);">Practice</a>
+    <a href="Progress.dc.html" style="font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:12px 16px;border-radius:14px;text-decoration:none;background:oklch(94% 0.03 264.4);color:oklch(48.8% 0.217 264.4);">Progress</a>
+  </nav>
+  <div style="flex:1;min-width:0;">
+
+<div data-screen-label="Student Progress" style="max-width:720px;margin:0 auto;padding:20px 24px 90px;font-family:'Geist',sans-serif;color:oklch(24% 0.014 55);min-height:100vh;box-sizing:border-box;">
+
+  <div style="margin-bottom:24px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:26px;">My progress</div>
+    <div style="font-size:13px;color:oklch(64% 0.016 55);margin-top:2px;">Grade 8 &middot; Algebra: equations</div>
+  </div>
+
+  <div style="margin-bottom:28px;">
+    <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid oklch(88% 0.014 55);border-radius:18px;background:oklch(99% 0.007 55);">
+      <div style="width:14px;height:14px;border:1.5px solid oklch(64% 0.016 55);border-radius:4px;flex-shrink:0;"></div>
+      <input type="text" placeholder="Ask about your progress&#8230; e.g. &quot;how am I doing on fractions&quot;" value="{{ askText }}" onChange="{{ handleAskChange }}" onKeyDown="{{ handleAskKeyDown }}" style="flex:1;border:none;outline:none;background:transparent;font-family:'Geist',sans-serif;font-size:14px;color:oklch(24% 0.014 55);"/>
+      <sc-if value="{{ askHasText }}">
+        <button onClick="{{ handleAskSubmit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:6px 14px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;">Ask</button>
+      </sc-if>
+    </div>
+    <sc-if value="{{ askLoading }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13px;color:oklch(64% 0.016 55);margin-top:10px;animation:prg-pulse 1.3s ease-in-out infinite;">Checking your progress&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ askReady }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:10px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);">{{ askAnswer }}</div>
+    </sc-if>
+  </div>
+
+  <div style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:24px 28px;margin-bottom:36px;">
+    <div style="font-size:12px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);margin-bottom:10px;">Next review</div>
+    <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:19px;margin-bottom:6px;">One-step equations, in 2 days</div>
+    <div style="font-size:14px;color:oklch(49% 0.018 55);">A quick check-in to help this one stick for good.</div>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);margin-bottom:14px;">Skill progression</div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:36px;">
+    <sc-for list="{{ skills }}" as="skill" hint-placeholder-count="7">
+      <div style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:18px;overflow:hidden;">
+        <div onClick="{{ skill.toggle }}" style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;">
+          <div style="width:11px;height:11px;border-radius:50%;background:{{ skill.dotBg }};border:{{ skill.dotBorder }};flex-shrink:0;"></div>
+          <div style="flex:1;font-size:15px;font-weight:600;">{{ skill.name }}</div>
+          <sc-if value="{{ skill.isFlagged }}">
+            <span style="font-size:11px;font-weight:700;letter-spacing:0.02em;padding:3px 9px;border-radius:999px;background:oklch(94% 0.03 264.4);color:oklch(38% 0.15 264.4);">Prerequisite gap</span>
+          </sc-if>
+          <span style="font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:{{ skill.badgeBg }};color:{{ skill.badgeColor }};">{{ skill.label }}</span>
+          <div style="font-size:13px;color:oklch(64% 0.016 55);width:14px;text-align:center;">{{ skill.chevron }}</div>
+        </div>
+        <sc-if value="{{ skill.expanded }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 18px 16px 41px;">
+            <div style="font-size:13px;color:oklch(49% 0.018 55);line-height:1.5;margin-bottom:12px;">{{ skill.detail }}</div>
+            <a href="{{ skill.practiceHref }}" style="display:inline-block;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:14px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);text-decoration:none;cursor:pointer;">Practice this now</a>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="font-size:13px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.016 55);margin-bottom:14px;">Recent sessions</div>
+  <div style="display:flex;flex-direction:column;gap:0;border:1px solid oklch(88% 0.014 55);border-radius:18px;overflow:hidden;background:oklch(99% 0.007 55);">
+    <sc-for list="{{ sessions }}" as="sess" hint-placeholder-count="4">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:{{ sess.borderBottom }};">
+        <div style="width:64px;font-size:12px;color:oklch(64% 0.016 55);flex-shrink:0;">{{ sess.date }}</div>
+        <div style="flex:1;font-size:14px;">{{ sess.title }}</div>
+        <div style="font-size:12px;color:oklch(64% 0.016 55);text-align:right;">{{ sess.result }}</div>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+
+  </div>
+</div>
+
+<nav id="app-bottomnav" style="position:fixed;left:0;right:0;bottom:0;background:oklch(99% 0.007 55);border-top:1px solid oklch(88% 0.014 55);z-index:10;">
+  <a href="Today.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Today</a>
+  <a href="Learn.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Learn</a>
+  <a href="Practice Session.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Practice</a>
+  <a href="Progress.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:700;color:oklch(48.8% 0.217 264.4);">Progress</a>
+</nav>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 640, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  state = { expanded: {}, askText: '', askLoading: false, askAnswer: '' };
+
+  skillDefs = [
+    { id: 's0', slug: 'equation_basics', name: 'Equation basics & balancing', tier: 'durable', flagged: false, detail: 'Locked in since early in the unit \u2014 no review needed right now.' },
+    { id: 's1', slug: 'integer_operations', name: 'Integer operations', tier: 'struggling', flagged: true, detail: 'Flagged as a gap underneath the current unit \u2014 worth reinforcing alongside two-step equations.' },
+    { id: 's2', slug: 'one_step', name: 'One-step equations', tier: 'tentative', flagged: false, detail: "Getting there \u2014 one more clean streak and this should stick for good." },
+    { id: 's3', slug: 'two_step', name: 'Two-step equations', tier: 'struggling', flagged: false, detail: "What you're actively working on right now." },
+    { id: 's4', slug: 'multi_step', name: 'Multi-step equations', tier: 'emerging', flagged: false, detail: 'Just starting to take shape from early exposure.' },
+    { id: 's5', slug: 'variables_both_sides', name: 'Variables on both sides', tier: 'not_attempted', flagged: false, detail: 'Not reached yet.' },
+    { id: 's6', slug: 'inequalities', name: 'Inequalities', tier: 'not_attempted', flagged: false, detail: 'Not reached yet.' },
+  ];
+
+  tierStyle = {
+    not_attempted: { label: 'Not attempted', dotBg: 'oklch(88% 0.014 55)', dotBorder: '1px solid oklch(88% 0.014 55)', badgeBg: 'oklch(93% 0.008 55)', badgeColor: 'oklch(49% 0.018 55)' },
+    struggling: { label: 'Struggling', dotBg: 'oklch(58% 0.11 25)', dotBorder: 'none', badgeBg: 'oklch(95% 0.03 25)', badgeColor: 'oklch(45% 0.11 25)' },
+    emerging: { label: 'Emerging', dotBg: 'oklch(63% 0.10 60)', dotBorder: 'none', badgeBg: 'oklch(95% 0.03 60)', badgeColor: 'oklch(45% 0.10 60)' },
+    tentative: { label: 'Tentative', dotBg: 'oklch(68% 0.09 100)', dotBorder: 'none', badgeBg: 'oklch(95% 0.025 100)', badgeColor: 'oklch(42% 0.09 100)' },
+    durable: { label: 'Durable', dotBg: 'oklch(60% 0.10 150)', dotBorder: 'none', badgeBg: 'oklch(93% 0.03 150)', badgeColor: 'oklch(38% 0.10 150)' },
+  };
+
+  sessions = [
+    { date: 'Aug 18', title: 'Two-step equations', result: '4 problems \u00b7 used a hint once' },
+    { date: 'Aug 16', title: 'Two-step equations', result: '3 problems \u00b7 first attempt' },
+    { date: 'Aug 15', title: 'One-step equations', result: '5 of 5 correct \u2014 crossed to tentative' },
+    { date: 'Aug 12', title: 'Integer operations', result: '1 of 3 correct \u2014 flagged as a gap' },
+  ];
+
+  toggleSkill = (id) => this.setState((s) => ({ expanded: { ...s.expanded, [id]: !s.expanded[id] } }));
+  handleAskChange = (e) => this.setState({ askText: e.target.value });
+  handleAskKeyDown = (e) => { if (e.key === 'Enter') this.handleAskSubmit(); };
+
+  sanitizeAiText = (text) => {
+    let t = (text || '').trim();
+    t = t.replace(/^#{1,6}\s*.*\n+/, '');
+    t = t.replace(/\*\*/g, '');
+    return t.trim();
+  };
+
+  handleAskSubmit = async () => {
+    if (this.state.askText.trim() === '') return;
+    const skillLines = this.skillDefs.map((sk) => `- ${sk.name}: ${this.tierStyle[sk.tier].label}${sk.flagged ? ' (flagged prerequisite gap)' : ''}`).join('\n');
+    const sessionLines = this.sessions.map((s) => `- ${s.date}: ${s.title} \u2014 ${s.result}`).join('\n');
+    this.setState({ askLoading: true, askAnswer: '' });
+    try {
+      const prompt = `You are answering a grade 8 student's question about her own math progress, using ONLY this real data. She is only tracked on this algebra equations unit \u2014 nothing outside it (e.g. fractions, geometry) is tracked or assessed here.\n\nSkills tracked:\n${skillLines}\n\nRecent sessions:\n${sessionLines}\n\nHer question: "${this.state.askText}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If she asks about something not in this list, say plainly that it isn't part of what's being tracked here, rather than inventing an answer. Respond with ONLY the plain sentence(s) \u2014 no markdown, no labels, no emojis.`;
+      const text = await window.claude.complete(prompt);
+      this.setState({ askLoading: false, askAnswer: this.sanitizeAiText(text) || "I couldn't check that right now \u2014 try again in a moment." });
+    } catch (e) {
+      this.setState({ askLoading: false, askAnswer: "I couldn't check that right now \u2014 try again in a moment." });
+    }
+  };
+
+  renderVals = () => {
+    const s = this.state;
+    const skills = this.skillDefs.map((sk) => {
+      const ts = this.tierStyle[sk.tier];
+      const isExpanded = !!s.expanded[sk.id];
+      return {
+        name: sk.name, isFlagged: sk.flagged, detail: sk.detail, expanded: isExpanded,
+        chevron: isExpanded ? '\u2304' : '\u203a', toggle: () => this.toggleSkill(sk.id),
+        practiceHref: 'Practice Session.dc.html?skill=' + sk.slug,
+        dotBg: ts.dotBg, dotBorder: ts.dotBorder, badgeBg: ts.badgeBg, badgeColor: ts.badgeColor, label: ts.label,
+      };
+    });
+    const sessions = this.sessions.map((sess, i) => ({ ...sess, borderBottom: i === this.sessions.length - 1 ? 'none' : '1px solid oklch(93% 0.008 55)' }));
+    return {
+      skills, sessions,
+      askText: s.askText, askHasText: s.askText.trim() !== '',
+      handleAskChange: this.handleAskChange, handleAskKeyDown: this.handleAskKeyDown, handleAskSubmit: this.handleAskSubmit,
+      askLoading: s.askLoading, askReady: !s.askLoading && !!s.askAnswer, askAnswer: s.askAnswer,
+    };
+  };
+}
+
+</script>
+</body>
+</html>

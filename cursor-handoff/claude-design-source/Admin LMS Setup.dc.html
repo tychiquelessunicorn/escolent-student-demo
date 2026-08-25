@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Crimson+Pro:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:oklch(97% 0.003 264.4);}
+  a{color:oklch(48.8% 0.217 264.4);}
+  a:hover{color:oklch(42% 0.217 264.4);}
+  @keyframes lms-fade{0%{opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{opacity:0;}}
+</style>
+</helmet>
+
+<div data-screen-label="Admin LMS Setup" style="max-width:720px;margin:0 auto;padding:28px 24px 90px;font-family:'Geist',sans-serif;color:oklch(23% 0.008 264.4);min-height:100vh;box-sizing:border-box;">
+
+  <div style="margin-bottom:6px;">
+    <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:24px;">LMS integration</div>
+    <div style="font-size:13px;color:oklch(64% 0.012 264.4);margin-top:2px;">Teneo, school-wide</div>
+  </div>
+  <div style="font-size:14px;color:oklch(48% 0.012 264.4);line-height:1.55;margin-bottom:32px;">Which learning platforms Escolent syncs assignments and grades from.</div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    <sc-for list="{{ platforms }}" as="p" hint-placeholder-count="3">
+      <div style="background:oklch(99% 0.003 264.4);border:1px solid oklch(89% 0.006 264.4);border-radius:12px;padding:22px 24px;">
+
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="width:36px;height:36px;border-radius:8px;background:oklch(93% 0.005 264.4);display:flex;align-items:center;justify-content:center;font-family:'Crimson Pro',serif;font-weight:600;font-size:16px;color:oklch(48% 0.012 264.4);flex-shrink:0;">{{ p.initial }}</div>
+          <div style="flex:1;">
+            <div style="font-family:'Crimson Pro',serif;font-weight:600;font-size:17px;">{{ p.name }}</div>
+            <sc-if value="{{ p.isConnected }}">
+              <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                <div style="width:6px;height:6px;border-radius:50%;background:oklch(58% 0.13 150);"></div>
+                <div style="font-size:12px;color:oklch(64% 0.012 264.4);">Synced {{ p.lastSynced }}</div>
+              </div>
+            </sc-if>
+          </div>
+          <span style="font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;padding:3px 10px;border-radius:5px;color:{{ p.badgeFg }};background:{{ p.badgeBg }};flex-shrink:0;">{{ p.badgeLabel }}</span>
+        </div>
+
+        <sc-if value="{{ p.isConnected }}">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;padding:16px 0;border-top:1px solid oklch(93% 0.005 264.4);border-bottom:1px solid oklch(93% 0.005 264.4);margin-bottom:16px;">
+            <div>
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:4px;">Institution URL</div>
+              <div style="font-size:13px;font-family:monospace;">{{ p.url }}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:4px;">Client ID</div>
+              <div style="font-size:13px;font-family:monospace;">{{ p.maskedClientId }}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:4px;">Connected since</div>
+              <div style="font-size:13px;">{{ p.connectedSince }}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:4px;">Connected by</div>
+              <div style="font-size:13px;">{{ p.connectedBy }}</div>
+            </div>
+          </div>
+
+          <sc-if value="{{ p.editOpen }}">
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:4px;">
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Institution URL</div>
+                <input type="text" value="{{ p.draftUrl }}" onChange="{{ p.handleDraftUrlChange }}" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Client ID</div>
+                <input type="text" value="{{ p.draftClientId }}" onChange="{{ p.handleDraftClientIdChange }}" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Client secret</div>
+                <input type="password" placeholder="Leave blank to keep the current secret" value="{{ p.draftSecret }}" onChange="{{ p.handleDraftSecretChange }}" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:2px;">
+                <button onClick="{{ p.onSaveEdit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Save</button>
+                <button onClick="{{ p.onCancelEdit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(48% 0.012 264.4);cursor:pointer;">Cancel</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ p.disconnectConfirmOpen }}">
+            <div style="background:oklch(95% 0.035 45);border:1px solid oklch(80% 0.08 45);border-radius:10px;padding:14px 16px;margin-bottom:4px;">
+              <div style="font-size:13px;color:oklch(40% 0.13 45);line-height:1.5;margin-bottom:12px;">Disconnecting {{ p.name }} stops new items from syncing into Escolent across the whole school. This can be reconnected later.</div>
+              <div style="display:flex;gap:8px;">
+                <button onClick="{{ p.onConfirmDisconnect }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;border:none;background:oklch(56% 0.15 45);color:oklch(99% 0.01 45);cursor:pointer;">Disconnect</button>
+                <button onClick="{{ p.onCancelDisconnect }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(48% 0.012 264.4);cursor:pointer;">Cancel</button>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ p.showActionsRow }}">
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+              <button onClick="{{ p.onReauthorize }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);cursor:pointer;">Re-authorize</button>
+              <button onClick="{{ p.onOpenEdit }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:7px 14px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);cursor:pointer;">Update credentials</button>
+              <button onClick="{{ p.onOpenDisconnect }}" style="border:none;background:none;cursor:pointer;font-size:13px;color:oklch(56% 0.15 45);padding:0;margin-left:auto;">Disconnect</button>
+            </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ p.isNotConnected }}">
+          <div style="font-size:13px;color:oklch(48% 0.012 264.4);margin-bottom:14px;">Connect {{ p.name }} to sync assignments and grades into Escolent.</div>
+          <sc-if value="{{ p.connectFormOpen }}">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Site URL</div>
+                <input type="text" placeholder="teneo.example.edu" value="{{ p.draftUrl }}" onChange="{{ p.handleDraftUrlChange }}" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Client ID</div>
+                <input type="text" placeholder="Provided by your platform admin" value="{{ p.draftClientId }}" onChange="{{ p.handleDraftClientIdChange }}" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+              </div>
+              <div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(64% 0.012 264.4);margin-bottom:6px;">Client secret</div>
+                <input type="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" value="{{ p.draftSecret }}" onChange="{{ p.handleDraftSecretChange }}" style="width:100%;box-sizing:border-box;font-family:monospace;font-size:13px;padding:8px 10px;border-radius:8px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(23% 0.008 264.4);"/>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:2px;">
+                <button onClick="{{ p.onSubmitConnect }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Connect</button>
+                <button onClick="{{ p.onCancelConnect }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:1px solid oklch(89% 0.006 264.4);background:oklch(99% 0.003 264.4);color:oklch(48% 0.012 264.4);cursor:pointer;">Cancel</button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ p.connectFormClosed }}">
+            <button onClick="{{ p.onOpenConnect }}" style="font-family:'Geist',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.003 264.4);cursor:pointer;">Connect&#8230;</button>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ p.toastText }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:oklch(64% 0.012 264.4);margin-top:12px;animation:lms-fade 2s ease-out forwards;">{{ p.toastText }}</div>
+        </sc-if>
+
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 700, &quot;height&quot;: 900}}">
+class Component extends DCLogic {
+  platformDefs = [
+    { id: 'canvas', name: 'Canvas', initial: 'C' },
+    { id: 'moodle', name: 'Moodle', initial: 'M' },
+    { id: 'classroom', name: 'Google Classroom', initial: 'G' },
+  ];
+
+  state = {
+    status: { canvas: 'connected', moodle: 'not_connected', classroom: 'not_connected' },
+    meta: {
+      canvas: { url: 'teneo.instructure.com', clientId: '4471-8842', lastSynced: '6 minutes ago', connectedSince: 'Jul 2, 2026', connectedBy: 'David Chen' },
+      moodle: null, classroom: null,
+    },
+    draft: {
+      canvas: { url: 'teneo.instructure.com', clientId: '4471-8842', secret: '' },
+      moodle: { url: '', clientId: '', secret: '' },
+      classroom: { url: '', clientId: '', secret: '' },
+    },
+    editOpenId: null, disconnectConfirmId: null, connectFormOpenId: null,
+    toastId: null, toastText: '',
+  };
+
+  showToast = (id, text) => {
+    this.setState({ toastId: id, toastText: text });
+    setTimeout(() => this.setState((s) => (s.toastId === id ? { toastId: null, toastText: '' } : {})), 2400);
+  };
+
+  handleDraftChange = (id, field) => (e) => this.setState((s) => ({ draft: { ...s.draft, [id]: { ...s.draft[id], [field]: e.target.value } } }));
+
+  openEdit = (id) => this.setState({ editOpenId: id });
+  cancelEdit = () => this.setState((s) => ({ editOpenId: null, draft: { ...s.draft, [this.state.editOpenId]: { ...s.meta[this.state.editOpenId], secret: '' } } }));
+  saveEdit = (id) => {
+    this.setState((s) => ({
+      meta: { ...s.meta, [id]: { ...s.meta[id], url: s.draft[id].url, clientId: s.draft[id].clientId } },
+      draft: { ...s.draft, [id]: { ...s.draft[id], secret: '' } },
+      editOpenId: null,
+    }));
+    const def = this.platformDefs.find((p) => p.id === id);
+    this.showToast(id, `Credentials updated for ${def.name}.`);
+  };
+
+  openDisconnect = (id) => this.setState({ disconnectConfirmId: id });
+  cancelDisconnect = () => this.setState({ disconnectConfirmId: null });
+  confirmDisconnect = (id) => {
+    const def = this.platformDefs.find((p) => p.id === id);
+    this.setState((s) => ({
+      status: { ...s.status, [id]: 'not_connected' },
+      meta: { ...s.meta, [id]: null },
+      draft: { ...s.draft, [id]: { url: '', clientId: '', secret: '' } },
+      disconnectConfirmId: null,
+    }));
+    this.showToast(id, `${def.name} disconnected.`);
+  };
+
+  reauthorize = (id) => {
+    const def = this.platformDefs.find((p) => p.id === id);
+    this.showToast(id, `Would redirect to ${def.name} to re-authorize \u2014 stub for this prototype.`);
+  };
+
+  openConnect = (id) => this.setState({ connectFormOpenId: id });
+  cancelConnect = (id) => this.setState((s) => ({ connectFormOpenId: null, draft: { ...s.draft, [id]: { url: '', clientId: '', secret: '' } } }));
+  submitConnect = (id) => {
+    const s = this.state;
+    if (s.draft[id].url.trim() === '' || s.draft[id].clientId.trim() === '') return;
+    const def = this.platformDefs.find((p) => p.id === id);
+    this.setState((st) => ({
+      status: { ...st.status, [id]: 'connected' },
+      meta: { ...st.meta, [id]: { url: st.draft[id].url.trim(), clientId: st.draft[id].clientId.trim(), lastSynced: 'just now', connectedSince: 'Aug 19, 2026', connectedBy: 'David Chen' } },
+      connectFormOpenId: null,
+    }));
+    this.showToast(id, `${def.name} connected.`);
+  };
+
+  maskClientId = (clientId) => {
+    if (!clientId) return '';
+    const tail = clientId.slice(-4);
+    return `\u2022\u2022\u2022\u2022\u2022\u2022${tail}`;
+  };
+
+  renderVals = () => {
+    const s = this.state;
+
+    const platforms = this.platformDefs.map((def) => {
+      const id = def.id;
+      const isConnected = s.status[id] === 'connected';
+      const m = s.meta[id];
+      const editOpen = s.editOpenId === id;
+      const disconnectConfirmOpen = s.disconnectConfirmId === id;
+      const connectFormOpen = s.connectFormOpenId === id;
+      return {
+        id, name: def.name, initial: def.initial,
+        isConnected, isNotConnected: !isConnected,
+        badgeLabel: isConnected ? 'Connected' : 'Not connected',
+        badgeFg: isConnected ? 'oklch(40% 0.1 150)' : 'oklch(48% 0.012 264.4)',
+        badgeBg: isConnected ? 'oklch(93% 0.03 150)' : 'oklch(93% 0.005 264.4)',
+        lastSynced: m ? m.lastSynced : '',
+        url: m ? m.url : '',
+        maskedClientId: m ? this.maskClientId(m.clientId) : '',
+        connectedSince: m ? m.connectedSince : '',
+        connectedBy: m ? m.connectedBy : '',
+        editOpen, disconnectConfirmOpen,
+        showActionsRow: isConnected && !editOpen && !disconnectConfirmOpen,
+        draftUrl: s.draft[id].url, draftClientId: s.draft[id].clientId, draftSecret: s.draft[id].secret,
+        handleDraftUrlChange: this.handleDraftChange(id, 'url'),
+        handleDraftClientIdChange: this.handleDraftChange(id, 'clientId'),
+        handleDraftSecretChange: this.handleDraftChange(id, 'secret'),
+        onOpenEdit: () => this.openEdit(id), onCancelEdit: this.cancelEdit, onSaveEdit: () => this.saveEdit(id),
+        onOpenDisconnect: () => this.openDisconnect(id), onCancelDisconnect: this.cancelDisconnect, onConfirmDisconnect: () => this.confirmDisconnect(id),
+        onReauthorize: () => this.reauthorize(id),
+        connectFormOpen, connectFormClosed: !connectFormOpen,
+        onOpenConnect: () => this.openConnect(id), onCancelConnect: () => this.cancelConnect(id), onSubmitConnect: () => this.submitConnect(id),
+        toastText: s.toastId === id ? s.toastText : '',
+      };
+    });
+
+    return { platforms };
+  };
+}
+
+</script>
+</body>
+</html>
