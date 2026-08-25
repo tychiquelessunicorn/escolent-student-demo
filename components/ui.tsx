@@ -3,7 +3,7 @@ import { hapticTap } from "@/lib/haptics";
 
 export type AreaTone = "today" | "learn" | "practice" | "progress";
 
-const AREA_VARS: Record<
+export const AREA_VARS: Record<
   AreaTone,
   { fg: string; subtle: string; border: string; solid: string }
 > = {
@@ -67,7 +67,13 @@ export function Card({
   );
 }
 
-export function CardTitle({ children }: { children: ReactNode }) {
+export function CardTitle({
+  children,
+  style,
+}: {
+  children: ReactNode;
+  style?: CSSProperties;
+}) {
   return (
     <div
       style={{
@@ -77,6 +83,7 @@ export function CardTitle({ children }: { children: ReactNode }) {
         letterSpacing: "-0.02em",
         lineHeight: 1.15,
         marginBottom: 10,
+        ...style,
       }}
     >
       {children}
@@ -206,12 +213,14 @@ export function Button({
   variant = "primary",
   disabled = false,
   style,
+  className,
 }: {
   children: ReactNode;
   onClick?: () => void;
   variant?: ButtonVariant;
   disabled?: boolean;
   style?: CSSProperties;
+  className?: string;
 }) {
   const shared: CSSProperties = {
     fontFamily: "var(--font-body)",
@@ -250,7 +259,7 @@ export function Button({
   return (
     <button
       type="button"
-      className="esc-pressable"
+      className={["esc-pressable", className].filter(Boolean).join(" ")}
       onClick={() => {
         if (!disabled) hapticTap();
         onClick?.();

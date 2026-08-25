@@ -4,16 +4,8 @@ import { useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { PathIllustration } from "@/components/illustrations";
 import { SkillRow } from "@/components/skill-row";
-import { PageHeading } from "@/components/ui";
+import { PageHeading, SectionLabel } from "@/components/ui";
 import { SKILLS, STUDENT } from "@/lib/demo-data";
-
-const wrapper = {
-  maxWidth: "var(--container-focused)",
-  margin: "0 auto",
-  padding: "20px 24px 90px",
-  minHeight: "100vh",
-  boxSizing: "border-box" as const,
-};
 
 export function LearnScreen() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -25,26 +17,19 @@ export function LearnScreen() {
   };
 
   return (
-    <div style={wrapper}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 16,
-          marginBottom: 24,
-        }}
-      >
+    <div className="esc-screen">
+      <div className="esc-screen-top">
         <PageHeading
           area="learn"
           title="Learn"
           subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
         />
-        <div className="esc-illust" style={{ flexShrink: 0 }}>
+        <div className="esc-illust esc-illust-header">
           <PathIllustration size={88} style={{ marginBottom: 0 }} />
         </div>
       </div>
 
+      <SectionLabel area="learn">Skills in this Space</SectionLabel>
       <div
         style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 32 }}
       >
@@ -52,6 +37,7 @@ export function LearnScreen() {
           <SkillRow
             key={skill.id}
             skill={skill}
+            area="learn"
             expanded={Boolean(expanded[skill.id])}
             onToggle={() =>
               setExpanded((current) => ({
@@ -60,7 +46,7 @@ export function LearnScreen() {
               }))
             }
           >
-            <div style={{ padding: "0 18px 18px 41px" }}>
+            <div className="esc-skill-expanded">
               <div
                 style={{
                   fontSize: 14,
@@ -123,6 +109,7 @@ export function LearnScreen() {
       <AskBox
         task="learn_ask"
         surface="learn_ask"
+        area="learn"
         placeholder={
           'Ask about any skill… e.g. "why do we flip the sign in inequalities"'
         }

@@ -137,14 +137,26 @@
 
   --container-focused: 720px;
 
+  --shell-gutter-inline: 24px;
+  --shell-pad-top: 20px;
+  --shell-pad-bottom: 40px;
+  --shell-header-y: 16px;
+  --shell-header-x: 24px;
+  --bottom-nav-height: 56px;
+
   --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
   --duration-fast: 140ms;
   --duration-med: 280ms;
 }
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     margin: 0;
+    overflow-x: hidden;
     background:
       radial-gradient(
         1200px 600px at 10% -10%,
@@ -185,6 +197,184 @@
   display: flex;
 }
 
+.esc-shell-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: var(--shell-header-y) var(--shell-header-x);
+  padding-top: calc(var(--shell-header-y) + env(safe-area-inset-top, 0px));
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.esc-shell-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1 1 160px;
+}
+
+.esc-shell-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  flex: 0 1 auto;
+}
+
+.esc-shell-layout {
+  display: flex;
+  min-width: 0;
+}
+
+.esc-shell-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.esc-shell-inset {
+  max-width: var(--container-focused);
+  margin: 0 auto;
+  padding: 0 var(--shell-gutter-inline);
+  box-sizing: border-box;
+}
+
+.esc-screen {
+  max-width: var(--container-focused);
+  margin: 0 auto;
+  padding: var(--shell-pad-top) var(--shell-gutter-inline) var(--shell-pad-bottom);
+  min-height: 100vh;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.esc-screen-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.esc-screen-top-aside {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.esc-illust-header {
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.esc-schedule-item {
+  box-sizing: border-box;
+}
+
+.esc-schedule-item-compact {
+  box-sizing: border-box;
+}
+
+.esc-skill-row-toggle {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+.esc-skill-row-name {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.esc-skill-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.esc-skill-expanded {
+  padding: 0 18px 18px 41px;
+}
+
+.esc-recent-session-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.esc-recent-session-date {
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.esc-recent-session-result {
+  text-align: right;
+}
+
+.esc-ask-box-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-shell);
+  background: var(--color-surface-raised);
+  box-sizing: border-box;
+}
+
+.esc-ask-box-input-row input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--color-content-primary);
+}
+
+.esc-practice-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.esc-practice-answer-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.esc-practice-answer-row input,
+.esc-practice-answer-row textarea {
+  min-width: 0;
+}
+
+.esc-demo-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 72px;
+  z-index: 50;
+  width: 268px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 8px 24px oklch(24% 0.014 55 / 0.18);
+  padding: 18px;
+  font-family: var(--font-body);
+  box-sizing: border-box;
+}
+
 @media (min-width: 760px) {
   #app-rail {
     display: flex;
@@ -192,6 +382,134 @@
 
   #app-bottomnav {
     display: none;
+  }
+}
+
+@media (max-width: 759px) {
+  :root {
+    --shell-gutter-inline: 16px;
+    --shell-header-x: 16px;
+    --shell-pad-top: 16px;
+    --shell-pad-bottom: calc(
+      var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px
+    );
+    --text-xl: 32px;
+    --text-lg: 24px;
+    --text-2xl: 36px;
+  }
+
+  .esc-screen-top {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .esc-screen-top-aside {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .esc-shell-connectivity-label {
+    display: none;
+  }
+
+  .esc-shell-header-note {
+    display: none;
+  }
+
+  .esc-illust-header {
+    transform: scale(0.82);
+    transform-origin: top right;
+  }
+
+  .esc-ask-box-input-row input {
+    font-size: 16px;
+  }
+
+  .esc-practice-answer-row input,
+  .esc-practice-answer-row textarea {
+    font-size: 16px;
+  }
+
+  .esc-demo-panel {
+    left: var(--shell-gutter-inline);
+    right: var(--shell-gutter-inline);
+    width: auto;
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 12px);
+    max-height: 55vh;
+  }
+
+  #app-bottomnav a {
+    min-height: var(--bottom-nav-height);
+    min-width: 44px;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (max-width: 559px) {
+  .esc-schedule-item {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .esc-schedule-item-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .esc-schedule-item-compact {
+    flex-wrap: wrap;
+  }
+
+  .esc-view-tabs {
+    flex: 1;
+  }
+
+  .esc-view-tabs a {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .esc-recent-session-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .esc-recent-session-date {
+    width: auto;
+  }
+
+  .esc-recent-session-result {
+    text-align: left;
+  }
+
+  .esc-practice-actions-end {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+}
+
+@media (max-width: 399px) {
+  :root {
+    --shell-gutter-inline: 14px;
+    --shell-header-x: 14px;
+    --text-xl: 28px;
+    --text-lg: 22px;
+  }
+
+  .esc-shell-header-brand {
+    gap: 8px;
+  }
+
+  .esc-illust-header {
+    display: none;
+  }
+
+  .esc-skill-expanded {
+    padding: 0 14px 16px 14px;
   }
 }
 

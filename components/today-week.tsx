@@ -17,14 +17,6 @@ import {
 } from "@/lib/demo-data";
 import { hapticTap } from "@/lib/haptics";
 
-const wrapper = {
-  maxWidth: "var(--container-focused)",
-  margin: "0 auto",
-  padding: "20px 24px 90px",
-  minHeight: "100vh",
-  boxSizing: "border-box" as const,
-};
-
 /**
  * Requirement 7a.2: an LMS item is shown so the student sees one honest picture
  * of the day, but it stays visibly reference-only — dashed border, muted, and a
@@ -75,7 +67,10 @@ function LmsItem({ item, compact }: { item: ScheduleItem; compact?: boolean }) {
 
   return (
     <div
+      className="esc-schedule-item"
       style={{
+        display: "flex",
+        flexDirection: "column",
         background: "var(--color-surface)",
         border: "1px dashed var(--color-border)",
         borderRadius: "var(--radius-shell)",
@@ -89,6 +84,7 @@ function LmsItem({ item, compact }: { item: ScheduleItem; compact?: boolean }) {
           justifyContent: "space-between",
           gap: 12,
         }}
+        className="esc-schedule-item-header"
       >
         <div>
           <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 3 }}>
@@ -164,20 +160,23 @@ function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean
     return (
       <Link
         href={href}
+        className="esc-pressable esc-schedule-item-compact"
         style={{
           display: "flex",
           alignItems: "center",
           gap: 10,
           textDecoration: "none",
           color: "inherit",
-          background: "var(--color-surface-raised)",
-          border: "1px solid var(--color-border)",
-          borderLeft: "3px solid var(--color-accent)",
+          background: "var(--color-area-today-subtle)",
+          border: "1.5px solid var(--color-area-today-border)",
+          borderLeft: "3px solid var(--color-area-today)",
           borderRadius: "4px 14px 14px 4px",
           padding: "10px 14px",
         }}
       >
-        <div style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>{item.title}</div>
+        <div style={{ flex: 1, fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 700 }}>
+          {item.title}
+        </div>
         <div style={{ fontSize: 12, color: "var(--color-content-muted)" }}>
           {item.dueMeta}
         </div>
@@ -188,15 +187,16 @@ function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean
   return (
     <Link
       href={href}
+      className="esc-pressable esc-schedule-item"
       style={{
         display: "flex",
         alignItems: "center",
         gap: 16,
         textDecoration: "none",
         color: "inherit",
-        background: "var(--color-surface-raised)",
-        border: "1px solid var(--color-border)",
-        borderLeft: "4px solid var(--color-accent)",
+        background: "var(--color-area-today-subtle)",
+        border: "1.5px solid var(--color-area-today-border)",
+        borderLeft: "4px solid var(--color-area-today)",
         borderRadius: "6px 20px 20px 6px",
         padding: "18px 20px",
       }}
@@ -205,8 +205,9 @@ function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean
         <div
           style={{
             fontFamily: "var(--font-display)",
-            fontWeight: 700,
+            fontWeight: 800,
             fontSize: 18,
+            letterSpacing: "-0.02em",
             marginBottom: 4,
           }}
         >
@@ -216,7 +217,7 @@ function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean
           {item.subjectLine}
         </div>
       </div>
-      <div style={{ fontSize: 20, color: "var(--color-content-muted)" }}>›</div>
+      <div style={{ fontSize: 20, color: "var(--color-area-today-fg)" }}>›</div>
     </Link>
   );
 }
@@ -225,15 +226,23 @@ function ViewTabs({ view }: { view: "today" | "week" }) {
   const tab = (label: string, href: string, active: boolean) => (
     <Link
       href={href}
+      className="esc-pressable"
       style={{
-        fontFamily: "var(--font-body)",
+        fontFamily: "var(--font-display)",
         fontSize: 14,
-        fontWeight: 600,
+        fontWeight: active ? 800 : 600,
+        letterSpacing: active ? "-0.02em" : "0",
         padding: "8px 16px",
         borderRadius: "var(--radius-control)",
         textDecoration: "none",
-        background: active ? "var(--color-surface-raised)" : "transparent",
-        color: active ? "var(--color-accent)" : "var(--color-content-secondary)",
+        background: active ? "var(--color-area-today-subtle)" : "transparent",
+        color: active ? "var(--color-area-today-fg)" : "var(--color-content-secondary)",
+        border: active
+          ? "1.5px solid var(--color-area-today-border)"
+          : "1.5px solid transparent",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
       {label}
@@ -242,6 +251,7 @@ function ViewTabs({ view }: { view: "today" | "week" }) {
 
   return (
     <div
+      className="esc-view-tabs"
       style={{
         display: "flex",
         gap: 4,
@@ -262,23 +272,15 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
   const lmsToday = todayItems.filter((item) => item.source === "lms");
 
   return (
-    <div style={wrapper}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 16,
-          marginBottom: 24,
-        }}
-      >
+    <div className="esc-screen">
+      <div className="esc-screen-top">
         <PageHeading
           area="today"
           title={`Hi ${STUDENT.firstName}`}
           subtitle={TODAY_DATE_LABEL}
         />
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div className="esc-illust" style={{ flexShrink: 0 }}>
+        <div className="esc-screen-top-aside">
+          <div className="esc-illust esc-illust-header">
             <ResumeIllustration size={72} style={{ marginBottom: 0 }} />
           </div>
           <ViewTabs view={view} />
@@ -289,6 +291,7 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
         <AskBox
           task="today_ask"
           surface="today_ask"
+          area="today"
           placeholder={'Ask what\u2019s due… e.g. "what do I have due Thursday"'}
           loadingLabel="Checking what's due…"
         />
@@ -331,10 +334,12 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
               >
                 <div
                   style={{
+                    fontFamily: "var(--font-display)",
                     fontSize: 14,
-                    fontWeight: 700,
+                    fontWeight: day.isToday ? 800 : 700,
+                    letterSpacing: day.isToday ? "-0.02em" : "0",
                     color: day.isToday
-                      ? "var(--color-accent)"
+                      ? "var(--color-area-today-fg)"
                       : "var(--color-content-primary)",
                   }}
                 >

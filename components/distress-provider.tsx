@@ -130,6 +130,7 @@ export function DistressNotice() {
       <div
         role="status"
         style={{
+          marginTop: 20,
           background: "var(--color-notice-bg)",
           border: "1px solid var(--color-notice-border)",
           borderRadius: "var(--radius-shell)",
@@ -149,6 +150,7 @@ export function DistressNotice() {
       <div
         role="status"
         style={{
+          marginTop: 20,
           background: "var(--color-surface)",
           border: "1px solid var(--color-border)",
           borderRadius: "var(--radius-shell)",

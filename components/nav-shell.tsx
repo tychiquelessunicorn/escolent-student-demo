@@ -77,7 +77,7 @@ function activeArea(pathname: string): AreaTone {
  * Styled on the brand accent — same family as primary actions — so it does not
  * read as a separate muddy chrome control.
  */
-function HelpButton({ minimal }: { minimal: boolean }) {
+function HelpButton() {
   const { requestHelp } = useDistress();
 
   return (
@@ -92,12 +92,13 @@ function HelpButton({ minimal }: { minimal: boolean }) {
         fontFamily: "var(--font-body)",
         fontSize: 12,
         fontWeight: 700,
-        padding: minimal ? "7px 14px" : "8px 16px",
+        padding: "8px 16px",
         borderRadius: "var(--radius-control)",
         border: "1.5px solid var(--color-accent-subtle-border)",
         background: "var(--color-accent-subtle)",
         color: "var(--color-accent-strong)",
         cursor: "pointer",
+        whiteSpace: "nowrap",
       }}
     >
       I need help
@@ -110,30 +111,12 @@ export function NavShell({ children }: { children: React.ReactNode }) {
   const { connectivity, headerNote } = useShellState();
   const area = activeArea(pathname);
   const tone = AREA_ACTIVE[area];
-
-  /**
-   * During active practice the chrome drops to minimal weight — smaller, lower
-   * contrast, no divider — rather than disappearing. Quiet and available, never
-   * competing with the problem itself. Still sits on the same warm ground as
-   * the rest of the app (no flat white strip).
-   */
-  const minimal = pathname === "/practice";
+  const headerBorder = `1.5px solid color-mix(in oklch, ${tone.border} 55%, transparent)`;
 
   return (
     <>
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 14,
-          padding: minimal ? "12px 24px" : "16px 24px",
-          background: "transparent",
-          borderBottom: minimal
-            ? "none"
-            : `1.5px solid color-mix(in oklch, ${tone.border} 55%, transparent)`,
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <header className="esc-shell-header" style={{ borderBottom: headerBorder }}>
+        <div className="esc-shell-header-brand">
           <span
             aria-hidden
             style={{
@@ -142,34 +125,40 @@ export function NavShell({ children }: { children: React.ReactNode }) {
               borderRadius: 3,
               background: tone.solid,
               boxShadow: `0 0 0 4px color-mix(in oklch, ${tone.solid} 22%, transparent)`,
+              flexShrink: 0,
             }}
           />
           <span
             style={{
               fontFamily: "var(--font-display)",
               fontWeight: 800,
-              fontSize: minimal ? 16 : 20,
+              fontSize: 20,
               letterSpacing: "-0.03em",
               color: "var(--color-content-primary)",
+              whiteSpace: "nowrap",
             }}
           >
             Escolent
           </span>
           <div
+            aria-hidden
             style={{
               width: 1.5,
-              height: minimal ? 14 : 16,
+              height: 16,
               background: "var(--color-border)",
               opacity: 0.7,
+              flexShrink: 0,
             }}
           />
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
             <ConnectivityGlyph state={connectivity} />
             <span
+              className="esc-shell-connectivity-label"
               style={{
                 fontSize: 12,
                 fontWeight: 600,
                 color: "var(--color-content-secondary)",
+                whiteSpace: "nowrap",
               }}
             >
               {CONNECTIVITY_LABELS[connectivity]}
@@ -177,17 +166,11 @@ export function NavShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <div
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            alignItems: "center",
-            gap: 14,
-          }}
-        >
-          <HelpButton minimal={minimal} />
+        <div className="esc-shell-header-actions">
+          <HelpButton />
           {headerNote ? (
             <span
+              className="esc-shell-header-note"
               style={{
                 fontSize: 12,
                 fontWeight: 600,
@@ -200,7 +183,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <div style={{ display: "flex" }}>
+      <div className="esc-shell-layout">
         <nav
           id="app-rail"
           style={{
@@ -247,9 +230,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
                     width: 8,
                     height: 8,
                     borderRadius: 3,
-                    background: active
-                      ? itemTone.solid
-                      : "var(--color-border)",
+                    background: active ? itemTone.solid : "var(--color-border)",
                     flexShrink: 0,
                   }}
                 />
@@ -259,14 +240,8 @@ export function NavShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              maxWidth: "var(--container-focused)",
-              margin: "0 auto",
-              padding: "0 24px",
-            }}
-          >
+        <div className="esc-shell-main">
+          <div className="esc-shell-inset">
             <DistressNotice />
           </div>
           {children}
@@ -294,6 +269,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
+              className="esc-pressable"
               style={{
                 flex: 1,
                 height: 56,

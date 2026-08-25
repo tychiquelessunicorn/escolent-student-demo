@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { BeginningIllustration } from "@/components/illustrations";
 import { SkillRow } from "@/components/skill-row";
-import { PageHeading, SectionLabel } from "@/components/ui";
+import { PageHeading, SectionLabel, Card, CardBody, CardTitle } from "@/components/ui";
 import {
   NEXT_REVIEW,
   RECENT_SESSIONS,
@@ -13,34 +13,18 @@ import {
   STUDENT,
 } from "@/lib/demo-data";
 
-const wrapper = {
-  maxWidth: "var(--container-focused)",
-  margin: "0 auto",
-  padding: "20px 24px 90px",
-  minHeight: "100vh",
-  boxSizing: "border-box" as const,
-};
-
 export function ProgressScreen() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   return (
-    <div style={wrapper}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: 16,
-          marginBottom: 24,
-        }}
-      >
+    <div className="esc-screen">
+      <div className="esc-screen-top">
         <PageHeading
           area="progress"
           title="My progress"
           subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
         />
-        <div className="esc-illust" style={{ flexShrink: 0 }}>
+        <div className="esc-illust esc-illust-header">
           <BeginningIllustration size={88} style={{ marginBottom: 0 }} />
         </div>
       </div>
@@ -49,6 +33,7 @@ export function ProgressScreen() {
         <AskBox
           task="progress_ask"
           surface="progress_ask"
+          area="progress"
           placeholder={'Ask about your progress… e.g. "how am I doing on fractions"'}
           loadingLabel="Checking your progress…"
         />
@@ -58,41 +43,15 @@ export function ProgressScreen() {
         Spaced repetition is surfaced as a plain upcoming review. No streak, no
         countdown pressure, nothing that turns a gap into a loss.
       */}
-      <div
-        style={{
-          background: "var(--color-surface-raised)",
-          border: "1px solid var(--color-border)",
-          borderRadius: "var(--radius-card)",
-          padding: "24px 28px",
-          marginBottom: 36,
-        }}
-      >
-        <div
-          style={{
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: "0.03em",
-            textTransform: "uppercase",
-            color: "var(--color-content-muted)",
-            marginBottom: 10,
-          }}
-        >
+      <Card area="progress" style={{ padding: "24px 28px", marginBottom: 36 }}>
+        <SectionLabel area="progress" style={{ marginBottom: 10 }}>
           Next review
-        </div>
-        <div
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 700,
-            fontSize: 19,
-            marginBottom: 6,
-          }}
-        >
+        </SectionLabel>
+        <CardTitle style={{ fontSize: 19, marginBottom: 6 }}>
           {NEXT_REVIEW.skillName}, {NEXT_REVIEW.whenLabel}
-        </div>
-        <div style={{ fontSize: 14, color: "var(--color-content-secondary)" }}>
-          {NEXT_REVIEW.note}
-        </div>
-      </div>
+        </CardTitle>
+        <CardBody style={{ fontSize: 14 }}>{NEXT_REVIEW.note}</CardBody>
+      </Card>
 
       <SectionLabel area="progress">Skill progression</SectionLabel>
       <div
@@ -102,6 +61,7 @@ export function ProgressScreen() {
           <SkillRow
             key={skill.id}
             skill={skill}
+            area="progress"
             showFlag
             expanded={Boolean(expanded[skill.id])}
             onToggle={() =>
@@ -111,7 +71,7 @@ export function ProgressScreen() {
               }))
             }
           >
-            <div style={{ padding: "0 18px 16px 41px" }}>
+            <div className="esc-skill-expanded">
               <div
                 style={{
                   fontSize: 13,
@@ -129,16 +89,17 @@ export function ProgressScreen() {
               */}
               <Link
                 href={`/practice?skill=${skill.slug}`}
+                className="esc-pressable"
                 style={{
                   display: "inline-block",
                   fontFamily: "var(--font-body)",
                   fontSize: 13,
-                  fontWeight: 600,
+                  fontWeight: 700,
                   padding: "8px 16px",
                   borderRadius: "var(--radius-control)",
-                  border: "1.5px solid var(--color-accent-subtle-border)",
-                  background: "transparent",
-                  color: "var(--color-accent)",
+                  border: "1.5px solid var(--color-area-progress-border)",
+                  background: "var(--color-area-progress-subtle)",
+                  color: "var(--color-area-progress-fg)",
                   textDecoration: "none",
                 }}
               >
@@ -154,42 +115,39 @@ export function ProgressScreen() {
         style={{
           display: "flex",
           flexDirection: "column",
-          border: "1px solid var(--color-border)",
+          border: "1.5px solid var(--color-area-progress-border)",
           borderRadius: "var(--radius-shell)",
           overflow: "hidden",
-          background: "var(--color-surface-raised)",
+          background: "var(--color-area-progress-subtle)",
         }}
       >
         {RECENT_SESSIONS.map((session, index) => (
           <div
             key={`${session.date}-${session.title}`}
+            className="esc-recent-session-row"
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
               padding: "12px 18px",
               borderBottom:
                 index === RECENT_SESSIONS.length - 1
                   ? "none"
-                  : "1px solid var(--color-border-subtle)",
+                  : "1px solid var(--color-area-progress-border)",
             }}
           >
             <div
+              className="esc-recent-session-date"
               style={{
-                width: 64,
                 fontSize: 12,
                 color: "var(--color-content-muted)",
-                flexShrink: 0,
               }}
             >
               {session.date}
             </div>
-            <div style={{ flex: 1, fontSize: 14 }}>{session.title}</div>
+            <div style={{ flex: 1, fontSize: 14, minWidth: 0 }}>{session.title}</div>
             <div
+              className="esc-recent-session-result"
               style={{
                 fontSize: 12,
                 color: "var(--color-content-muted)",
-                textAlign: "right",
               }}
             >
               {session.result}

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { AREA_VARS, type AreaTone } from "@/components/ui";
 import { TIER_STYLE, type Skill } from "@/lib/demo-data";
 
 /**
@@ -13,27 +14,32 @@ export function SkillRow({
   expanded,
   onToggle,
   showFlag = false,
+  area,
   children,
 }: {
   skill: Skill;
   expanded: boolean;
   onToggle: () => void;
   showFlag?: boolean;
+  area?: AreaTone;
   children: ReactNode;
 }) {
   const tier = TIER_STYLE[skill.tier];
+  const tone = area ? AREA_VARS[area] : null;
 
   return (
     <div
+      className="esc-phase"
       style={{
-        background: "var(--color-surface-raised)",
-        border: "1px solid var(--color-border)",
+        background: tone ? tone.subtle : "var(--color-surface-raised)",
+        border: `1.5px solid ${tone ? tone.border : "var(--color-border)"}`,
         borderRadius: "var(--radius-shell)",
         overflow: "hidden",
       }}
     >
       <button
         type="button"
+        className="esc-pressable esc-skill-row-toggle"
         onClick={onToggle}
         aria-expanded={expanded}
         style={{
@@ -61,7 +67,10 @@ export function SkillRow({
             flexShrink: 0,
           }}
         />
-        <div style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>{skill.name}</div>
+        <div className="esc-skill-row-name" style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 700 }}>
+          {skill.name}
+        </div>
+        <div className="esc-skill-row-meta">
         {showFlag && skill.flagged ? (
           <span
             style={{
@@ -99,6 +108,7 @@ export function SkillRow({
           }}
         >
           {expanded ? "\u2304" : "\u203a"}
+        </div>
         </div>
       </button>
       {expanded ? children : null}

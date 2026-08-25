@@ -21,8 +21,8 @@ import {
 } from "@/components/ui";
 
 /**
- * Direction board for the Phase 3 visual reset. Shared primitives only —
- * the five Student screens are left alone until this direction is signed off.
+ * Direction board for the Phase 3 visual reset. The five Student screens now
+ * carry the same primitives — area accents, display type, motion, illustrations.
  */
 export default function FoundationPage() {
   return (

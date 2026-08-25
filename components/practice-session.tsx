@@ -738,14 +738,6 @@ function PracticeSessionInner() {
     };
   });
 
-  const wrapper = {
-    maxWidth: "var(--container-focused)",
-    margin: "0 auto",
-    padding: "8px 24px 90px",
-    minHeight: "100vh",
-    boxSizing: "border-box" as const,
-  };
-
   const achievementBanner = (text: string) => (
     <div
       style={{
@@ -753,6 +745,7 @@ function PracticeSessionInner() {
         alignItems: "center",
         gap: 12,
         background: "var(--color-achievement-subtle)",
+        border: "1.5px solid var(--color-achievement-border)",
         color: "var(--color-achievement-heading)",
         fontSize: 14,
         padding: "12px 16px",
@@ -766,7 +759,7 @@ function PracticeSessionInner() {
   );
 
   return (
-    <div style={wrapper}>
+    <div className="esc-screen">
       {showQueueBanner ? (
         <div
           style={{
@@ -786,7 +779,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "notificationPreview" ? (
-        <Card>
+        <Card area="practice">
           <div
             style={{
               fontSize: 12,
@@ -857,7 +850,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "noValidSession" ? (
-        <Card key="noValidSession">
+        <Card key="noValidSession" area="practice">
           <Motif>
             <OutlineIllustration size={ILLUST} />
           </Motif>
@@ -870,7 +863,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "resumePrompt" ? (
-        <Card key="resumePrompt">
+        <Card key="resumePrompt" area="practice">
           <Motif>
             <ResumeIllustration size={ILLUST} />
           </Motif>
@@ -879,7 +872,7 @@ function PracticeSessionInner() {
             Two-step equations — problem {SAVED_INTERRUPTION.problemIndex + 1} of{" "}
             {TWO_STEP_PROBLEMS.length}, {SAVED_INTERRUPTION.wrongAnswers.length} tries in.
           </CardBody>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div className="esc-practice-actions">
             <Button
               variant="secondary"
               onClick={() =>
@@ -910,7 +903,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "gate" ? (
-        <Card key="gate" style={{ textAlign: "left" }}>
+        <Card key="gate" area="practice" style={{ textAlign: "left" }}>
           <Motif>
             <PathIllustration size={ILLUST} />
           </Motif>
@@ -918,7 +911,7 @@ function PracticeSessionInner() {
           <CardBody style={{ lineHeight: 1.55, marginBottom: 28 }}>
             Want to try a two-step equations problem, just for practice?
           </CardBody>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div className="esc-practice-actions">
             <Button variant="secondary" onClick={() => patch({ phase: "closed" })}>
               Not now
             </Button>
@@ -930,7 +923,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "offlineBlocked" ? (
-        <Card key="offlineBlocked">
+        <Card key="offlineBlocked" area="practice">
           <Motif>
             <GapIllustration size={ILLUST} />
           </Motif>
@@ -943,7 +936,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "skillUnavailable" ? (
-        <Card key="skillUnavailable">
+        <Card key="skillUnavailable" area="practice">
           <Motif>
             <OutlineIllustration size={ILLUST} />
           </Motif>
@@ -957,7 +950,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "rubricGrading" ? (
-        <Card>
+        <Card area="practice">
           <div
             style={{
               fontSize: 15,
@@ -971,7 +964,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "rubricResult" && state.rubricTier ? (
-        <Card>
+        <Card area="practice">
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
             <div
               style={{
@@ -989,7 +982,7 @@ function PracticeSessionInner() {
           <div style={{ fontSize: 15, lineHeight: 1.6, marginBottom: 28 }}>
             {state.rubricFeedback}
           </div>
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+          <div className="esc-practice-actions">
             {state.rubricTier !== "strong" ? (
               <Button
                 onClick={() =>
@@ -1069,7 +1062,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "closed" ? (
-        <Card key="closed" subtleBorder>
+        <Card key="closed" area="practice" subtleBorder>
           <Motif>
             <PathIllustration size={ILLUST} />
           </Motif>
@@ -1079,7 +1072,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "ended" ? (
-        <Card key="ended">
+        <Card key="ended" area="practice">
           <Motif>
             {entryVariant === "first_time" ? (
               <BeginningIllustration size={ILLUST} />
@@ -1095,6 +1088,7 @@ function PracticeSessionInner() {
       {state.phase === "active" || state.phase === "correct" ? (
         <Card
           key={`${state.phase}-${state.problemIndex}-${state.sessionCompleted}`}
+          area="practice"
           className={
             submitFlash === "ok"
               ? "esc-flash-ok"
@@ -1133,7 +1127,7 @@ function PracticeSessionInner() {
                   )
                 : null}
 
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 8 }}>
+              <div className="esc-practice-actions" style={{ marginTop: 8 }}>
                 {state.sessionCompleted >= 2 && hasMore ? (
                   <Button
                     variant="ghost"
@@ -1142,7 +1136,11 @@ function PracticeSessionInner() {
                     Stop for now
                   </Button>
                 ) : null}
-                <Button onClick={() => advanceOrEnd()} style={{ marginLeft: "auto" }}>
+                <Button
+                  onClick={() => advanceOrEnd()}
+                  className="esc-practice-actions-end"
+                  style={{ marginLeft: "auto" }}
+                >
                   {hasMore ? "Next problem" : "Finish for today"}
                 </Button>
               </div>
@@ -1449,7 +1447,7 @@ function PracticeSessionInner() {
               ) : null}
 
               {!state.ladderExhausted ? (
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div className="esc-practice-answer-row">
                   {evaluationStrategy !== "rubric_llm" ? (
                     <>
                       <div style={{ fontSize: 16, fontWeight: 600, flexShrink: 0 }}>

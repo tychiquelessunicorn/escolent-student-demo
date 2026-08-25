@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useDistress } from "@/components/distress-provider";
+import { AREA_VARS, type AreaTone } from "@/components/ui";
 import type { DistressSurface } from "@/lib/distress";
 import { hapticSoft, hapticTap } from "@/lib/haptics";
 
@@ -21,12 +22,15 @@ export function AskBox({
   surface,
   placeholder,
   loadingLabel,
+  area = "practice",
 }: {
   task: "today_ask" | "learn_ask" | "progress_ask";
   surface: DistressSurface;
   placeholder: string;
   loadingLabel: string;
+  area?: AreaTone;
 }) {
+  const tone = AREA_VARS[area];
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState("");
@@ -60,17 +64,7 @@ export function AskBox({
 
   return (
     <div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          padding: "12px 16px",
-          border: "1px solid var(--color-border)",
-          borderRadius: "var(--radius-shell)",
-          background: "var(--color-surface-raised)",
-        }}
-      >
+      <div className="esc-ask-box-input-row">
         <div
           aria-hidden
           style={{
@@ -89,28 +83,20 @@ export function AskBox({
           onKeyDown={(event) => {
             if (event.key === "Enter") void submit();
           }}
-          style={{
-            flex: 1,
-            border: "none",
-            outline: "none",
-            background: "transparent",
-            fontFamily: "var(--font-body)",
-            fontSize: 14,
-            color: "var(--color-content-primary)",
-          }}
         />
         {text.trim() !== "" ? (
           <button
             type="button"
+            className="esc-pressable"
             onClick={() => void submit()}
             style={{
               fontFamily: "var(--font-body)",
               fontSize: 13,
-              fontWeight: 600,
+              fontWeight: 700,
               padding: "6px 14px",
               borderRadius: "var(--radius-control)",
               border: "none",
-              background: "var(--color-accent)",
+              background: tone.solid,
               color: "var(--color-surface-raised)",
               cursor: "pointer",
             }}
@@ -138,13 +124,13 @@ export function AskBox({
           className="esc-rise"
           style={{
             marginTop: 10,
-            background: "var(--color-accent-subtle)",
-            border: "1px solid var(--color-accent-subtle-border)",
+            background: tone.subtle,
+            border: `1px solid ${tone.border}`,
             borderRadius: "var(--radius-shell)",
             padding: "14px 16px",
             fontSize: 14,
             lineHeight: 1.55,
-            color: "var(--color-accent-strong)",
+            color: tone.fg,
           }}
         >
           {answer}

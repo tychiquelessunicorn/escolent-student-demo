@@ -145,23 +145,7 @@ export function DemoPanel() {
   const reset = () => router.replace(`${pathname}?demo=1`, { scroll: false });
 
   return (
-    <aside
-      style={{
-        position: "fixed",
-        right: 16,
-        bottom: 72,
-        zIndex: 50,
-        width: 268,
-        maxHeight: "70vh",
-        overflowY: "auto",
-        background: "var(--color-surface-raised)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-card)",
-        boxShadow: "0 8px 24px oklch(24% 0.014 55 / 0.18)",
-        padding: 18,
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <aside className="esc-demo-panel">
       <div
         style={{
           display: "flex",
