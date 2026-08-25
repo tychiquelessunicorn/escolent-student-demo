@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { MODEL_DEFAULT, complete } from "@/lib/ai/models";
 import {
+  ASK_LOOKUP_SYSTEM,
   hintPrompt,
   introPrompt,
   learnAskPrompt,
@@ -136,6 +137,7 @@ export async function POST(request: Request) {
         if (!question) return badRequest("Invalid question");
         const text = await complete({
           model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
           prompt: practiceAskPrompt(skillKey, index, question),
           maxTokens: 400,
         });
@@ -173,6 +175,10 @@ export async function POST(request: Request) {
       case "today_ask":
       case "learn_ask":
       case "progress_ask": {
+        // Only `task` and `question` are read. A distress verdict is never an
+        // input here — classification is a different route with no shared
+        // history. The student's literal text is the question, answered as a
+        // lookup over grounded data, as if the classifier did not exist.
         const question = readQuestion(body);
         if (!question) return badRequest("Invalid question");
         const prompt =
@@ -183,6 +189,7 @@ export async function POST(request: Request) {
               : progressAskPrompt(question);
         const text = await complete({
           model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
           prompt,
           maxTokens: 400,
         });

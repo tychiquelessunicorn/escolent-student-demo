@@ -33,12 +33,17 @@ export async function complete(options: {
   prompt: string;
   maxTokens: number;
   timeoutMs?: number;
+  /** Optional system turn. Ask-box lookups use this so the default model
+   *  cannot counsel on the student's literal text. Distress classification
+   *  must not pass one — that route is a different call with its own prompt. */
+  system?: string;
 }): Promise<string> {
   const anthropic = getAnthropic();
   const message = await anthropic.messages.create(
     {
       model: options.model,
       max_tokens: options.maxTokens,
+      ...(options.system ? { system: options.system } : {}),
       messages: [{ role: "user", content: options.prompt }],
     },
     { timeout: options.timeoutMs ?? 30_000 },

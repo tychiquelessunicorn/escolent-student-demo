@@ -88,6 +88,15 @@ export function hintPrompt(
   return `A grade 8 student is solving this ${skillPhrase(skillKey)} for x: "${problem.text}" (correct answer x = ${problem.answer}). Her wrong attempts so far: ${wrongAnswers.join(", ")}. Write ONE short Socratic-style hint (a guiding question, not the answer) responding to her likely mistake. 1-2 sentences, warm, plain, grade-appropriate. Respond with ONLY the plain sentence(s) of the hint itself — no markdown, no headers, no "#", no labels like "Hint:", no emojis.`;
 }
 
+/**
+ * System turn for every student ask-box completion. The answer route never
+ * receives a distress verdict — /api/distress is a separate call — but it
+ * still sees the student's literal text. Without this, the default model
+ * treats hopelessness language as something to counsel on. Only
+ * DISTRESS_SCRIPTED_MESSAGE may acknowledge that anything was noticed.
+ */
+export const ASK_LOOKUP_SYSTEM = `You are a factual lookup over the data in the user message, not a counselor, friend, or trusted adult. Answer only from that data. If the input is not a question about that data, say plainly that nothing in the data matches; you may briefly name what is listed, then stop. Do not discuss feelings, offer reassurance, suggest talking to anyone, or comment on the wording of the input.`;
+
 export function practiceAskPrompt(
   skillKey: SkillKey,
   problemIndex: number,
