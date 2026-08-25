@@ -269,7 +269,11 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
           marginBottom: 24,
         }}
       >
-        <PageHeading title={`Hi ${STUDENT.firstName}`} subtitle={TODAY_DATE_LABEL} />
+        <PageHeading
+          area="today"
+          title={`Hi ${STUDENT.firstName}`}
+          subtitle={TODAY_DATE_LABEL}
+        />
         <ViewTabs view={view} />
       </div>
 
@@ -284,7 +288,7 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
 
       {view === "today" ? (
         <>
-          <SectionLabel>From Escolent</SectionLabel>
+          <SectionLabel area="today">From Escolent</SectionLabel>
           <div
             style={{
               display: "flex",

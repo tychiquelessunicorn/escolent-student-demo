@@ -26,7 +26,11 @@ export function LearnScreen() {
   return (
     <div style={wrapper}>
       <div style={{ marginBottom: 24 }}>
-        <PageHeading title="Learn" subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`} />
+        <PageHeading
+          area="learn"
+          title="Learn"
+          subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
+        />
       </div>
 
       <div

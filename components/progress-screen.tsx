@@ -27,6 +27,7 @@ export function ProgressScreen() {
     <div style={wrapper}>
       <div style={{ marginBottom: 24 }}>
         <PageHeading
+          area="progress"
           title="My progress"
           subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
         />
@@ -81,7 +82,7 @@ export function ProgressScreen() {
         </div>
       </div>
 
-      <SectionLabel>Skill progression</SectionLabel>
+      <SectionLabel area="progress">Skill progression</SectionLabel>
       <div
         style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 36 }}
       >
@@ -136,7 +137,7 @@ export function ProgressScreen() {
         ))}
       </div>
 
-      <SectionLabel>Recent sessions</SectionLabel>
+      <SectionLabel area="progress">Recent sessions</SectionLabel>
       <div
         style={{
           display: "flex",
