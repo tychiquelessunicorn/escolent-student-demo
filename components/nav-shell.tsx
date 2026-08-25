@@ -79,6 +79,9 @@ function activeArea(pathname: string): AreaTone {
  */
 function HelpButton() {
   const { requestHelp } = useDistress();
+  const { openPracticeHelp } = useShellState();
+  const pathname = usePathname();
+  const onPractice = pathname.startsWith("/practice");
 
   return (
     <button
@@ -86,7 +89,8 @@ function HelpButton() {
       className="esc-pressable"
       onClick={() => {
         hapticTap();
-        requestHelp();
+        if (onPractice) openPracticeHelp();
+        else requestHelp();
       }}
       style={{
         fontFamily: "var(--font-body)",
@@ -108,10 +112,16 @@ function HelpButton() {
 
 export function NavShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { connectivity, headerNote } = useShellState();
+  const { connectivity, headerNote, demoOffline, toggleDemoOffline } = useShellState();
   const area = activeArea(pathname);
   const tone = AREA_ACTIVE[area];
   const headerBorder = `1.5px solid color-mix(in oklch, ${tone.border} 55%, transparent)`;
+  const connectivityLabel = demoOffline
+    ? "Offline - Edge Saved"
+    : CONNECTIVITY_LABELS[connectivity];
+  const connectivityColor = demoOffline
+    ? "oklch(52% 0.14 18)"
+    : "var(--color-content-secondary)";
 
   return (
     <>
@@ -150,20 +160,39 @@ export function NavShell({ children }: { children: React.ReactNode }) {
               flexShrink: 0,
             }}
           />
-          <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
-            <ConnectivityGlyph state={connectivity} />
+          <button
+            type="button"
+            className="esc-conn-toggle esc-pressable"
+            title="Toggle offline demo"
+            onClick={() => {
+              hapticTap();
+              toggleDemoOffline();
+            }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              minWidth: 0,
+              border: "none",
+              background: "transparent",
+              padding: 0,
+              cursor: "pointer",
+              font: "inherit",
+            }}
+          >
+            <ConnectivityGlyph state={connectivity} demoOffline={demoOffline} />
             <span
               className="esc-shell-connectivity-label"
               style={{
                 fontSize: 12,
                 fontWeight: 600,
-                color: "var(--color-content-secondary)",
+                color: connectivityColor,
                 whiteSpace: "nowrap",
               }}
             >
-              {CONNECTIVITY_LABELS[connectivity]}
+              {connectivityLabel}
             </span>
-          </div>
+          </button>
         </div>
 
         <div className="esc-shell-header-actions">

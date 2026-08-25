@@ -1,30 +1,76 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { SyncFreshness } from "@/lib/demo-data";
+import { readDemoOffline, writeDemoOffline } from "@/lib/demo-persistence";
 
 interface ShellStateValue {
   connectivity: SyncFreshness;
   setConnectivity: (value: SyncFreshness) => void;
-  /** Small right-aligned note in the top bar. Practice uses it for session count. */
   headerNote: string;
   setHeaderNote: (value: string) => void;
+  demoOffline: boolean;
+  toggleDemoOffline: () => void;
+  registerPracticeHelp: (handler: (() => void) | null) => void;
+  openPracticeHelp: () => void;
 }
 
 const ShellStateContext = createContext<ShellStateValue | null>(null);
 
-/**
- * Connectivity is shell-level because the indicator lives in the shell's top
- * bar on every screen, but only Practice Session actually drives it through
- * offline and syncing states.
- */
 export function ShellStateProvider({ children }: { children: React.ReactNode }) {
   const [connectivity, setConnectivity] = useState<SyncFreshness>("fresh");
   const [headerNote, setHeaderNote] = useState("");
+  const [demoOffline, setDemoOffline] = useState(false);
+  const [practiceHelpHandler, setPracticeHelpHandler] = useState<(() => void) | null>(
+    null,
+  );
+
+  useEffect(() => {
+    setDemoOffline(readDemoOffline());
+  }, []);
+
+  const toggleDemoOffline = useCallback(() => {
+    setDemoOffline((current) => {
+      const next = !current;
+      writeDemoOffline(next);
+      return next;
+    });
+  }, []);
+
+  const registerPracticeHelp = useCallback((handler: (() => void) | null) => {
+    setPracticeHelpHandler(() => handler);
+  }, []);
+
+  const openPracticeHelp = useCallback(() => {
+    practiceHelpHandler?.();
+  }, [practiceHelpHandler]);
 
   const value = useMemo(
-    () => ({ connectivity, setConnectivity, headerNote, setHeaderNote }),
-    [connectivity, headerNote],
+    () => ({
+      connectivity,
+      setConnectivity,
+      headerNote,
+      setHeaderNote,
+      demoOffline,
+      toggleDemoOffline,
+      registerPracticeHelp,
+      openPracticeHelp,
+    }),
+    [
+      connectivity,
+      headerNote,
+      demoOffline,
+      toggleDemoOffline,
+      registerPracticeHelp,
+      openPracticeHelp,
+    ],
   );
 
   return (

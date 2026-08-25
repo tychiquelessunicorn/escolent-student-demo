@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDistress } from "@/components/distress-provider";
 import {
   BeginningIllustration,
@@ -12,7 +12,12 @@ import {
   SparkIllustration,
 } from "@/components/illustrations";
 import { useShellState } from "@/components/shell-context";
+import { DemoBktBanner } from "@/components/demo-bkt-banner";
+import { PracticeHelpDrawer } from "@/components/practice-help-drawer";
+import { PracticeVictoryModal } from "@/components/practice-victory-modal";
+import { SessionEndActions } from "@/components/session-end-actions";
 import { Button, Card, CardBody, CardTitle, InsetPanel } from "@/components/ui";
+import { completeVictoryLoop } from "@/lib/demo-persistence";
 import {
   FALLBACK_HINT,
   FEEDBACK_LINES,
@@ -87,6 +92,17 @@ interface State {
   interruptionHandled: boolean;
   rubricTier: string | null;
   rubricFeedback: string;
+  inputInvalid: boolean;
+  inputWrong: boolean;
+  inputErrorMessage: string;
+  socraticHintLoading: boolean;
+  socraticHintText: string;
+  showVictoryModal: boolean;
+  endedWithMastery: boolean;
+  helpDrawerOpen: boolean;
+  helpDrawerLoading: boolean;
+  helpDrawerContent: string;
+  pageHelpNotes: { content: string }[];
 }
 
 const INTRO_FALLBACK =
@@ -101,6 +117,10 @@ const INTRO_SKILL_KEY = "variables_both_sides";
 
 const ASK_FALLBACK =
   "Couldn't reach the hint helper right now — try tapping through to the next step instead.";
+
+const NUMERIC_ANSWER_RE = /^-?\d+(\.\d+)?$/;
+const SOCRATIC_FALLBACK =
+  "Not quite! Try moving 2x to the left side first by subtracting 2x from both sides.";
 
 const TIER_NAMES = ["Worked example", "Guided steps", "Hint", "On your own"];
 
@@ -135,6 +155,17 @@ function baseState(phase: Phase): State {
     interruptionHandled: false,
     rubricTier: null,
     rubricFeedback: "",
+    inputInvalid: false,
+    inputWrong: false,
+    inputErrorMessage: "",
+    socraticHintLoading: false,
+    socraticHintText: "",
+    showVictoryModal: false,
+    endedWithMastery: false,
+    helpDrawerOpen: false,
+    helpDrawerLoading: false,
+    helpDrawerContent: "",
+    pageHelpNotes: [],
   };
 }
 
@@ -161,7 +192,13 @@ export const HARNESS_PARAMS = [
 
 function PracticeSessionInner() {
   const params = useSearchParams();
-  const { setConnectivity, setHeaderNote } = useShellState();
+  const router = useRouter();
+  const {
+    setConnectivity,
+    setHeaderNote,
+    registerPracticeHelp,
+    demoOffline,
+  } = useShellState();
   const { checkFreeText } = useDistress();
 
   // Test-harness variants. Query params are the mechanism, the demo panel is
@@ -191,6 +228,8 @@ function PracticeSessionInner() {
   }, [isRubricDemo, isVariablesSkill]);
 
   const evaluationStrategy = isRubricDemo ? "rubric_llm" : "exact_match";
+  const isInvestorDemo =
+    isVariablesSkill && getProblems().length === 1 && !isRubricDemo;
 
   const [state, setState] = useState<State>(() => baseState("intro"));
   const [submitFlash, setSubmitFlash] = useState<"ok" | "miss" | null>(null);
@@ -212,14 +251,16 @@ function PracticeSessionInner() {
   );
 
   /**
-   * Single source of truth for effective connectivity: a live sync always shows
-   * syncing, otherwise the demo override wins when set, otherwise real state.
+   * Effective connectivity: live sync wins, then harness param, then the
+   * header offline toggle, otherwise session state.
    */
   const conn: SyncFreshness = state.isSyncingQueue
     ? "syncing"
     : connectivityDemo !== "auto"
       ? (connectivityDemo as SyncFreshness)
-      : state.connectivity;
+      : demoOffline
+        ? "unavailable"
+        : state.connectivity;
 
   // ---- AI calls, all routed through the server proxy ----
 
@@ -476,11 +517,102 @@ function PracticeSessionInner() {
 
   // ---- Answers ----
 
+  const openHelpDrawer = useCallback(() => {
+    patch({ helpDrawerOpen: true, helpDrawerLoading: false, helpDrawerContent: "" });
+  }, [patch]);
+
+  useEffect(() => {
+    registerPracticeHelp(openHelpDrawer);
+    return () => registerPracticeHelp(null);
+  }, [openHelpDrawer, registerPracticeHelp]);
+
+  const simulateHelpResponse = useCallback(
+    (content: string) => {
+      patch({ helpDrawerLoading: true, helpDrawerContent: "" });
+      setTimeout(() => {
+        patch((s) => ({
+          helpDrawerLoading: false,
+          helpDrawerContent: content,
+          pageHelpNotes: [...s.pageHelpNotes, { content }],
+        }));
+      }, 800);
+    },
+    [patch],
+  );
+
+  const finalizeEnded = useCallback(
+    (endReason: "stopped" | "finished", extra: Partial<State> = {}) => {
+      const withMastery = isVariablesSkill && state.sessionCompleted >= 1;
+      if (withMastery) completeVictoryLoop();
+      patch({
+        phase: "ended",
+        endReason,
+        endedWithMastery: withMastery,
+        ...extra,
+      });
+    },
+    [isVariablesSkill, patch, state.sessionCompleted],
+  );
+
   const handleSubmit = () => {
     if (isRubricDemo) {
       void handleRubricSubmit();
       return;
     }
+
+    if (isInvestorDemo && state.phase === "active") {
+      const raw = state.answerInput.trim();
+      if (raw === "" || !NUMERIC_ANSWER_RE.test(raw)) {
+        patch({ inputInvalid: true, inputErrorMessage: "Please enter a number." });
+        hapticSoft();
+        setTimeout(
+          () => patch({ inputInvalid: false, inputErrorMessage: "" }),
+          1200,
+        );
+        return;
+      }
+
+      hapticTap();
+      checkFreeText("practice_answer", raw);
+
+      const val = Number.parseFloat(raw);
+      if (Math.abs(val - 5) < 1e-9) {
+        completeVictoryLoop();
+        hapticConfirm();
+        patch({
+          showVictoryModal: true,
+          phase: "ended",
+          endReason: "finished",
+          endedWithMastery: true,
+          sessionCompleted: Math.max(1, state.sessionCompleted + 1),
+          inputInvalid: false,
+          inputWrong: false,
+          inputErrorMessage: "",
+          socraticHintLoading: false,
+          socraticHintText: "",
+          answerInput: "5",
+          connectivity: "fresh",
+        });
+        return;
+      }
+
+      patch({
+        socraticHintLoading: true,
+        socraticHintText: "",
+        inputWrong: true,
+        inputInvalid: false,
+        inputErrorMessage: "",
+      });
+      hapticSoft();
+      setTimeout(() => {
+        patch({
+          socraticHintLoading: false,
+          socraticHintText: SOCRATIC_FALLBACK,
+        });
+      }, 800);
+      return;
+    }
+
     if (state.answerInput.trim() === "") return;
 
     hapticTap();
@@ -657,7 +789,7 @@ function PracticeSessionInner() {
         ...extra,
       });
     } else {
-      patch({ phase: "ended", endReason: "finished" });
+      finalizeEnded("finished", extra);
     }
   };
 
@@ -932,6 +1064,7 @@ function PracticeSessionInner() {
             This is new content, so it needs a connection to load. It&rsquo;ll pick up on
             its own as soon as you&rsquo;re back online.
           </CardBody>
+          <SessionEndActions />
         </Card>
       ) : null}
 
@@ -946,6 +1079,7 @@ function PracticeSessionInner() {
             isn&rsquo;t wired up in this prototype — only two-step equations and variables
             on both sides have real practice content right now.
           </CardBody>
+          <SessionEndActions />
         </Card>
       ) : null}
 
@@ -997,7 +1131,7 @@ function PracticeSessionInner() {
                 Try again
               </Button>
             ) : (
-              <Button onClick={() => patch({ phase: "ended", endReason: "stopped" })}>
+              <Button onClick={() => finalizeEnded("stopped")}>
                 Finish for today
               </Button>
             )}
@@ -1068,6 +1202,7 @@ function PracticeSessionInner() {
           </Motif>
           <CardTitle>All clear for now</CardTitle>
           <CardBody>Okay — nothing else scheduled right now. Check back later.</CardBody>
+          <SessionEndActions />
         </Card>
       ) : null}
 
@@ -1082,6 +1217,10 @@ function PracticeSessionInner() {
           </Motif>
           <CardTitle>Nice work today.</CardTitle>
           <CardBody>{endedMessage}</CardBody>
+          {state.endedWithMastery || (isVariablesSkill && state.sessionCompleted >= 1) ? (
+            <DemoBktBanner />
+          ) : null}
+          <SessionEndActions />
         </Card>
       ) : null}
 
@@ -1131,7 +1270,7 @@ function PracticeSessionInner() {
                 {state.sessionCompleted >= 2 && hasMore ? (
                   <Button
                     variant="ghost"
-                    onClick={() => patch({ phase: "ended", endReason: "stopped" })}
+                    onClick={() => finalizeEnded("stopped")}
                   >
                     Stop for now
                   </Button>
@@ -1457,10 +1596,25 @@ function PracticeSessionInner() {
                         type="text"
                         placeholder="?"
                         value={state.answerInput}
-                        onChange={(event) => patch({ answerInput: event.target.value })}
+                        onChange={(event) =>
+                          patch({
+                            answerInput: event.target.value,
+                            inputInvalid: false,
+                            inputWrong: false,
+                            inputErrorMessage: "",
+                          })
+                        }
                         onKeyDown={(event) => {
                           if (event.key === "Enter") handleSubmit();
                         }}
+                        disabled={state.showVictoryModal}
+                        className={
+                          state.inputInvalid
+                            ? "esc-input-invalid"
+                            : state.inputWrong
+                              ? "esc-input-wrong"
+                              : undefined
+                        }
                         style={{
                           flex: 1,
                           boxSizing: "border-box",
@@ -1496,16 +1650,58 @@ function PracticeSessionInner() {
                   )}
                   <Button
                     onClick={handleSubmit}
-                    disabled={state.answerInput.trim() === ""}
+                    disabled={
+                      isInvestorDemo
+                        ? state.socraticHintLoading || state.showVictoryModal
+                        : state.answerInput.trim() === ""
+                    }
                     style={{ padding: "11px 22px", flexShrink: 0 }}
                   >
                     Submit
                   </Button>
                 </div>
               ) : null}
+              {state.inputErrorMessage ? (
+                <div className="esc-input-error-msg">{state.inputErrorMessage}</div>
+              ) : null}
+              {state.pageHelpNotes.map((note, index) => (
+                <div key={`help-${index}`} className="esc-help-response" style={{ marginTop: 12 }}>
+                  {note.content}
+                </div>
+              ))}
+              {state.socraticHintLoading ? (
+                <div className="esc-ai-thinking">
+                  <div className="esc-ai-spinner" />
+                  AI Thinking…
+                </div>
+              ) : null}
+              {!state.socraticHintLoading && state.socraticHintText ? (
+                <div className="esc-help-response" style={{ marginTop: 12 }}>
+                  {state.socraticHintText}
+                </div>
+              ) : null}
             </>
           )}
         </Card>
+      ) : null}
+
+      <PracticeHelpDrawer
+        open={state.helpDrawerOpen}
+        loading={state.helpDrawerLoading}
+        drawerContent={state.helpDrawerContent}
+        onClose={() =>
+          patch({ helpDrawerOpen: false, helpDrawerLoading: false, helpDrawerContent: "" })
+        }
+        onSelect={simulateHelpResponse}
+      />
+
+      {state.showVictoryModal ? (
+        <PracticeVictoryModal
+          onReturn={() => {
+            completeVictoryLoop();
+            router.push("/student/today");
+          }}
+        />
       ) : null}
     </div>
   );

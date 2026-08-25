@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { BeginningIllustration } from "@/components/illustrations";
 import { SkillRow } from "@/components/skill-row";
@@ -11,10 +11,38 @@ import {
   RECENT_SESSIONS,
   SKILLS,
   STUDENT,
+  TIER_STYLE,
+  type MasteryTier,
+  type Skill,
 } from "@/lib/demo-data";
+import { isVariablesCompleted } from "@/lib/demo-persistence";
+
+function resolveSkill(skill: Skill, mastered: boolean): Skill {
+  if (skill.id === "s5" && mastered) {
+    return {
+      ...skill,
+      tier: "durable" as MasteryTier,
+      progressDetail: "Just clicked — this one is sticking now.",
+    };
+  }
+  return skill;
+}
 
 export function ProgressScreen() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [mastered, setMastered] = useState(false);
+
+  useEffect(() => {
+    const refresh = () => setMastered(isVariablesCompleted());
+    refresh();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, []);
+
+  const skills = SKILLS.map((skill) => resolveSkill(skill, mastered));
 
   return (
     <div className="esc-screen">
@@ -39,10 +67,6 @@ export function ProgressScreen() {
         />
       </div>
 
-      {/*
-        Spaced repetition is surfaced as a plain upcoming review. No streak, no
-        countdown pressure, nothing that turns a gap into a loss.
-      */}
       <Card area="progress" style={{ padding: "24px 28px", marginBottom: 36 }}>
         <SectionLabel area="progress" style={{ marginBottom: 10 }}>
           Next review
@@ -57,12 +81,17 @@ export function ProgressScreen() {
       <div
         style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 36 }}
       >
-        {SKILLS.map((skill) => (
+        {skills.map((skill) => (
           <SkillRow
             key={skill.id}
             skill={skill}
             area="progress"
             showFlag
+            badgeLabel={
+              skill.id === "s5" && mastered
+                ? "Durable (85%)"
+                : TIER_STYLE[skill.tier].label
+            }
             expanded={Boolean(expanded[skill.id])}
             onToggle={() =>
               setExpanded((current) => ({
@@ -82,11 +111,6 @@ export function ProgressScreen() {
               >
                 {skill.progressDetail}
               </div>
-              {/*
-                Routes to the skill actually clicked. An earlier build sent every
-                row to the same two-step-equations demo, which silently mislabeled
-                what the student was practising.
-              */}
               <Link
                 href={`/practice?skill=${skill.slug}`}
                 className="esc-pressable"
@@ -148,6 +172,7 @@ export function ProgressScreen() {
               style={{
                 fontSize: 12,
                 color: "var(--color-content-muted)",
+                textAlign: "right",
               }}
             >
               {session.result}

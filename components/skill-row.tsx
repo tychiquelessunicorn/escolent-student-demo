@@ -15,6 +15,7 @@ export function SkillRow({
   onToggle,
   showFlag = false,
   area,
+  badgeLabel,
   children,
 }: {
   skill: Skill;
@@ -22,6 +23,7 @@ export function SkillRow({
   onToggle: () => void;
   showFlag?: boolean;
   area?: AreaTone;
+  badgeLabel?: string;
   children: ReactNode;
 }) {
   const tier = TIER_STYLE[skill.tier];
@@ -96,7 +98,7 @@ export function SkillRow({
             color: tier.badgeColor,
           }}
         >
-          {tier.label}
+          {badgeLabel ?? tier.label}
         </span>
         <div
           aria-hidden

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { ResumeIllustration } from "@/components/illustrations";
@@ -15,6 +15,7 @@ import {
   TODAY_KEY,
   type ScheduleItem,
 } from "@/lib/demo-data";
+import { getDemoStreak, isVariablesCompleted } from "@/lib/demo-persistence";
 import { hapticTap } from "@/lib/haptics";
 
 /**
@@ -153,8 +154,17 @@ function LmsItem({ item, compact }: { item: ScheduleItem; compact?: boolean }) {
   );
 }
 
-function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean }) {
+function EscolentItem({
+  item,
+  compact,
+  complete,
+}: {
+  item: ScheduleItem;
+  compact?: boolean;
+  complete?: boolean;
+}) {
   const href = item.actionRoute ?? "/practice";
+  const accent = complete ? "oklch(55% 0.14 150)" : "var(--color-area-today)";
 
   if (compact) {
     return (
@@ -169,17 +179,24 @@ function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean
           color: "inherit",
           background: "var(--color-area-today-subtle)",
           border: "1.5px solid var(--color-area-today-border)",
-          borderLeft: "3px solid var(--color-area-today)",
+          borderLeft: `3px solid ${accent}`,
           borderRadius: "4px 14px 14px 4px",
           padding: "10px 14px",
+          opacity: complete ? 0.82 : 1,
         }}
       >
         <div style={{ flex: 1, fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 700 }}>
           {item.title}
         </div>
-        <div style={{ fontSize: 12, color: "var(--color-content-muted)" }}>
-          {item.dueMeta}
-        </div>
+        {complete ? (
+          <div className="esc-tdy-check" aria-label="Completed">
+            ✓
+          </div>
+        ) : (
+          <div style={{ fontSize: 12, color: "var(--color-content-muted)" }}>
+            {item.dueMeta}
+          </div>
+        )}
       </Link>
     );
   }
@@ -196,9 +213,10 @@ function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean
         color: "inherit",
         background: "var(--color-area-today-subtle)",
         border: "1.5px solid var(--color-area-today-border)",
-        borderLeft: "4px solid var(--color-area-today)",
+        borderLeft: `4px solid ${accent}`,
         borderRadius: "6px 20px 20px 6px",
         padding: "18px 20px",
+        opacity: complete ? 0.82 : 1,
       }}
     >
       <div style={{ flex: 1 }}>
@@ -216,8 +234,26 @@ function EscolentItem({ item, compact }: { item: ScheduleItem; compact?: boolean
         <div style={{ fontSize: 13, color: "var(--color-content-secondary)" }}>
           {item.subjectLine}
         </div>
+        {complete ? (
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "oklch(38% 0.1 150)",
+              marginTop: 4,
+            }}
+          >
+            Completed
+          </div>
+        ) : null}
       </div>
-      <div style={{ fontSize: 20, color: "var(--color-area-today-fg)" }}>›</div>
+      {complete ? (
+        <div className="esc-tdy-check" aria-label="Completed">
+          ✓
+        </div>
+      ) : (
+        <div style={{ fontSize: 20, color: "var(--color-area-today-fg)" }}>›</div>
+      )}
     </Link>
   );
 }
@@ -267,6 +303,22 @@ function ViewTabs({ view }: { view: "today" | "week" }) {
 }
 
 export function TodayWeek({ view }: { view: "today" | "week" }) {
+  const [streak, setStreak] = useState(3);
+  const [taskComplete, setTaskComplete] = useState(false);
+
+  useEffect(() => {
+    const refresh = () => {
+      setStreak(getDemoStreak());
+      setTaskComplete(isVariablesCompleted());
+    };
+    refresh();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [view]);
+
   const todayItems = SCHEDULE_ITEMS.filter((item) => item.day === TODAY_KEY);
   const nativeToday = todayItems.filter((item) => item.source === "escolent");
   const lmsToday = todayItems.filter((item) => item.source === "lms");
@@ -280,6 +332,9 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
           subtitle={TODAY_DATE_LABEL}
         />
         <div className="esc-screen-top-aside">
+          <div className="esc-streak-badge" aria-label={`${streak}-day streak`}>
+            {streak}-day streak
+          </div>
           <div className="esc-illust esc-illust-header">
             <ResumeIllustration size={72} style={{ marginBottom: 0 }} />
           </div>
@@ -309,7 +364,11 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
             }}
           >
             {nativeToday.map((item) => (
-              <EscolentItem key={item.id} item={item} />
+              <EscolentItem
+                key={item.id}
+                item={item}
+                complete={Boolean(item.demoTask && taskComplete)}
+              />
             ))}
           </div>
 
@@ -352,7 +411,12 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {SCHEDULE_ITEMS.filter((item) => item.day === day.key).map((item) =>
                   item.source === "escolent" ? (
-                    <EscolentItem key={item.id} item={item} compact />
+                    <EscolentItem
+                      key={item.id}
+                      item={item}
+                      compact
+                      complete={Boolean(item.demoTask && taskComplete)}
+                    />
                   ) : (
                     <LmsItem key={item.id} item={item} compact />
                   ),

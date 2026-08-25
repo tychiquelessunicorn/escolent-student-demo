@@ -8,11 +8,24 @@ import type { SyncFreshness } from "@/lib/demo-data";
 export function ConnectivityGlyph({
   state,
   size = 8,
+  demoOffline = false,
 }: {
   state: SyncFreshness;
   size?: number;
+  demoOffline?: boolean;
 }) {
-  const muted = "var(--color-content-muted)";
+  if (demoOffline) {
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          background: "oklch(52% 0.14 18)",
+        }}
+      />
+    );
+  }
 
   if (state === "fresh") {
     return (
@@ -21,11 +34,13 @@ export function ConnectivityGlyph({
           width: size,
           height: size,
           borderRadius: "50%",
-          background: muted,
+          background: "oklch(55% 0.14 150)",
         }}
       />
     );
   }
+
+  const muted = "var(--color-content-muted)";
 
   if (state === "stale") {
     return (

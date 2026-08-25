@@ -54,6 +54,8 @@ export interface ScheduleItem {
   /** Only Escolent-native items are actionable. LMS items are reference-only. */
   actionRoute: string | null;
   freshness?: SyncFreshness;
+  /** Demo loop: today's task that completes when variables skill is mastered. */
+  demoTask?: boolean;
 }
 
 export interface SessionRecord {
