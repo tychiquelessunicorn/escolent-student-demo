@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="./support.js"></script>
+<script src="./demo-investor.js"></script>
 </head>
 <body>
 <x-dc>
@@ -17,6 +18,17 @@
   a:hover{color:oklch(42% 0.217 264.4);}
   @keyframes pss-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
   @keyframes pss-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
+  @keyframes pss-shake{
+    0%,100%{transform:translateX(0);}
+    20%{transform:translateX(-5px);}
+    40%{transform:translateX(5px);}
+    60%{transform:translateX(-3px);}
+    80%{transform:translateX(2px);}
+  }
+  .pss-input-invalid{border-color:oklch(52% 0.14 18) !important;animation:pss-shake 380ms ease;}
+  .pss-input-success{border-color:oklch(55% 0.14 150) !important;background:oklch(95% 0.04 150) !important;}
+  .pss-socratic-hint{margin-top:12px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);}
+  .pss-typing{margin-top:12px;font-size:13px;color:oklch(64% 0.016 55);animation:pss-pulse 1.3s ease-in-out infinite;}
   #app-rail{display:none;}
   #app-bottomnav{display:flex;}
   @media (min-width:760px){
@@ -46,11 +58,11 @@
       <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:14px;color:oklch(64% 0.016 55);">Escolent</div>
       <div style="width:1px;height:12px;background:oklch(93% 0.008 55);"></div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <sc-if value="{{ isConnFresh }}"><div style="width:9px;height:9px;border-radius:50%;background:oklch(64% 0.016 55);"></div></sc-if>
-        <sc-if value="{{ isConnStale }}"><div style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"></div></sc-if>
-        <sc-if value="{{ isConnSyncing }}"><div style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(93% 0.008 55);border-top-color:oklch(64% 0.016 55);animation:pss-spin 1s linear infinite;"></div></sc-if>
-        <sc-if value="{{ isConnUnavailable }}"><div style="position:relative;width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"><div style="position:absolute;top:50%;left:-1px;width:11px;height:1.5px;background:oklch(64% 0.016 55);transform:translateY(-50%) rotate(45deg);"></div></div></sc-if>
-        <div style="font-size:12px;color:oklch(64% 0.016 55);">{{ connectivityLabel }}</div>
+        <sc-if value="{{ isConnFresh }}"><div data-esc-connectivity-dot data-esc-online-bg="oklch(64% 0.016 55)" style="width:9px;height:9px;border-radius:50%;background:oklch(64% 0.016 55);"></div></sc-if>
+        <sc-if value="{{ isConnStale }}"><div data-esc-connectivity-dot data-esc-online-bg="transparent" data-esc-online-border="1.5px solid oklch(64% 0.016 55)" style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"></div></sc-if>
+        <sc-if value="{{ isConnSyncing }}"><div data-esc-connectivity-dot data-esc-online-bg="transparent" data-esc-online-border="1.5px solid oklch(93% 0.008 55)" data-esc-online-animation="pss-spin 1s linear infinite" style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(93% 0.008 55);border-top-color:oklch(64% 0.016 55);animation:pss-spin 1s linear infinite;"></div></sc-if>
+        <sc-if value="{{ isConnUnavailable }}"><div data-esc-connectivity-dot data-esc-online-bg="transparent" data-esc-online-border="1.5px solid oklch(64% 0.016 55)" style="position:relative;width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"><div style="position:absolute;top:50%;left:-1px;width:11px;height:1.5px;background:oklch(64% 0.016 55);transform:translateY(-50%) rotate(45deg);"></div></div></sc-if>
+        <div data-esc-connectivity-label data-esc-online-text="Synced" data-esc-online-color="oklch(64% 0.016 55)" style="font-size:12px;color:oklch(64% 0.016 55);">{{ connectivityLabel }}</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:14px;">
@@ -297,16 +309,22 @@
         </sc-if>
 
         <sc-if value="{{ showInput }}">
-          <div style="display:flex;align-items:center;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <div style="font-size:16px;font-weight:600;flex-shrink:0;">x =</div>
             <sc-if value="{{ isTextAnswer }}">
-              <input type="text" placeholder="?" value="{{ answerInput }}" onChange="{{ handleInputChange }}" onKeyDown="{{ handleKeyDown }}" style="flex:1;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:16px;padding:10px 14px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);"/>
+              <input type="text" placeholder="?" value="{{ answerInput }}" onChange="{{ handleInputChange }}" onKeyDown="{{ handleKeyDown }}" disabled="{{ inputDisabled }}" class="{{ answerInputClass }}" style="flex:1;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:16px;padding:10px 14px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);"/>
             </sc-if>
             <sc-if value="{{ isTextareaAnswer }}">
-              <textarea rows="3" placeholder="Explain your answer&#8230;" value="{{ answerInput }}" onChange="{{ handleInputChange }}" style="flex:1;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:10px 14px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);resize:vertical;"></textarea>
+              <textarea rows="3" placeholder="Explain your answer&#8230;" value="{{ answerInput }}" onChange="{{ handleInputChange }}" disabled="{{ inputDisabled }}" class="{{ answerInputClass }}" style="flex:1;box-sizing:border-box;font-family:'Geist',sans-serif;font-size:15px;padding:10px 14px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);resize:vertical;"></textarea>
             </sc-if>
-            <button onClick="{{ handleSubmit }}" disabled="{{ submitDisabled }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;flex-shrink:0;">Submit</button>
+            <button onClick="{{ handleSubmit }}" disabled="{{ submitDisabled }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:14px;border:none;background:{{ submitButtonBg }};color:oklch(99% 0.007 55);cursor:pointer;flex-shrink:0;">{{ submitButtonLabel }}</button>
           </div>
+          <sc-if value="{{ socraticHintLoading }}" hint-placeholder-val="{{ false }}">
+            <div class="pss-typing">Thinking of a good hint&#8230;</div>
+          </sc-if>
+          <sc-if value="{{ socraticHintReady }}" hint-placeholder-val="{{ false }}">
+            <div class="pss-socratic-hint">{{ socraticHintText }}</div>
+          </sc-if>
         </sc-if>
       </sc-if>
     </div>
@@ -369,7 +387,16 @@ class Component extends DCLogic {
     interruptionHandled: false,
     rubricTier: null,
     rubricFeedback: '',
+    inputInvalid: false,
+    socraticHintLoading: false,
+    socraticHintText: '',
+    demoAnswerComplete: false,
   };
+
+  SOCRATIC_FALLBACK = 'Not quite! Try moving the 2x to the left side first by subtracting 2x from both sides.';
+  NUMERIC_ANSWER_RE = /^-?\d+(\.\d+)?$/;
+
+  isInvestorDemoProblem = () => this.isVariablesSkill() && !this.isRubricDemo() && this.getProblems().length === 1;
 
   // Demo fixture for the "genuinely interrupted" scenario: partway into two-step equations, 2 wrong tries in.
   // interruptionDemo is the test harness for the 24h expiry rule (Requirement 30.4): 'recent' simulates a save
@@ -570,11 +597,63 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
     });
   };
 
-  handleInputChange = (e) => this.setState({ answerInput: e.target.value });
+  handleInputChange = (e) => this.setState({ answerInput: e.target.value, inputInvalid: false });
   handleKeyDown = (e) => { if (e.key === 'Enter') this.handleSubmit(); };
+
+  handleContinueAfterMaster = () => {
+    window.location.href = 'Progress.dc.html';
+  };
 
   handleSubmit = () => {
     if (this.isRubricDemo()) { this.handleRubricSubmit(); return; }
+
+    if (this.state.demoAnswerComplete && this.isInvestorDemoProblem()) {
+      this.handleContinueAfterMaster();
+      return;
+    }
+
+    if (this.isInvestorDemoProblem() && this.state.phase === 'active') {
+      const raw = this.state.answerInput.trim();
+      if (raw === '') {
+        this.setState({ inputInvalid: true });
+        setTimeout(() => this.setState({ inputInvalid: false }), 600);
+        return;
+      }
+      if (!this.NUMERIC_ANSWER_RE.test(raw)) {
+        this.setState({ inputInvalid: true });
+        setTimeout(() => this.setState({ inputInvalid: false }), 600);
+        return;
+      }
+      const val = parseFloat(raw);
+      if (Math.abs(val - 5) < 1e-9) {
+        if (window.EscolentDemo) window.EscolentDemo.markMastered();
+        else {
+          try { localStorage.setItem('variablesOnBothSides', 'mastered'); } catch (e) {}
+        }
+        this.setState({
+          demoAnswerComplete: true,
+          inputInvalid: false,
+          socraticHintLoading: false,
+          socraticHintText: '',
+          answerInput: '5',
+          connectivity: 'fresh',
+        });
+        return;
+      }
+      this.setState({
+        socraticHintLoading: true,
+        socraticHintText: '',
+        inputInvalid: false,
+      });
+      setTimeout(() => {
+        this.setState({
+          socraticHintLoading: false,
+          socraticHintText: this.SOCRATIC_FALLBACK,
+        });
+      }, 900);
+      return;
+    }
+
     if (this.state.answerInput.trim() === '') return;
     const val = parseFloat(this.state.answerInput);
     const offline = this.getConn() === 'unavailable';
@@ -836,7 +915,17 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
       handleNeedHelp: this.handleNeedHelp, showGlobalDistress: s.distressDetected,
       isTextAnswer: this.getEvaluationStrategy() !== 'rubric_llm', isTextareaAnswer: this.getEvaluationStrategy() === 'rubric_llm',
       answerInput: s.answerInput, handleInputChange: this.handleInputChange, handleKeyDown: this.handleKeyDown,
-      handleSubmit: this.handleSubmit, submitDisabled: s.answerInput.trim() === '',
+      handleSubmit: this.handleSubmit,
+      submitDisabled: this.isInvestorDemoProblem() && s.phase === 'active'
+        ? (s.socraticHintLoading)
+        : s.answerInput.trim() === '',
+      submitButtonLabel: s.demoAnswerComplete ? 'Continue' : 'Submit',
+      submitButtonBg: s.demoAnswerComplete ? 'oklch(55% 0.14 150)' : 'oklch(48.8% 0.217 264.4)',
+      inputDisabled: s.demoAnswerComplete,
+      answerInputClass: s.inputInvalid ? 'pss-input-invalid' : (s.demoAnswerComplete ? 'pss-input-success' : ''),
+      socraticHintLoading: s.socraticHintLoading,
+      socraticHintReady: !s.socraticHintLoading && !!s.socraticHintText,
+      socraticHintText: s.socraticHintText,
     };
   }
 }
