@@ -26,9 +26,24 @@
     80%{transform:translateX(2px);}
   }
   .pss-input-invalid{border-color:oklch(52% 0.14 18) !important;animation:pss-shake 380ms ease;}
+  .pss-input-wrong{border-color:oklch(72% 0.10 18) !important;box-shadow:0 0 0 1px oklch(72% 0.10 18 / 0.35);}
   .pss-input-success{border-color:oklch(55% 0.14 150) !important;background:oklch(95% 0.04 150) !important;}
   .pss-socratic-hint{margin-top:12px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);}
-  .pss-typing{margin-top:12px;font-size:13px;color:oklch(64% 0.016 55);animation:pss-pulse 1.3s ease-in-out infinite;}
+  .pss-ai-thinking{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:oklch(64% 0.016 55);}
+  .pss-ai-spinner{width:14px;height:14px;border:2px solid oklch(88% 0.014 55);border-top-color:oklch(48.8% 0.217 264.4);border-radius:50%;animation:pss-spin 0.8s linear infinite;flex-shrink:0;}
+  .esc-conn-toggle{cursor:pointer;border:none;background:transparent;padding:0;display:flex;align-items:center;gap:6px;font:inherit;}
+  .esc-conn-toggle:hover [data-esc-connectivity-label]{color:oklch(48.8% 0.217 264.4) !important;}
+  .pss-victory-overlay{position:fixed;inset:0;background:oklch(24% 0.014 55 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px;z-index:100;box-sizing:border-box;}
+  .pss-victory-modal{background:oklch(99% 0.007 55);border-radius:24px;padding:32px 28px;max-width:400px;width:100%;box-shadow:0 24px 48px oklch(24% 0.014 55 / 0.18);text-align:center;}
+  .pss-bkt-track{height:10px;background:oklch(93% 0.008 55);border-radius:999px;overflow:hidden;margin:20px 0 8px;}
+  .pss-bkt-fill{height:100%;background:linear-gradient(90deg,oklch(55% 0.14 150),oklch(48.8% 0.217 264.4));border-radius:999px;width:42%;transition:width 1.4s cubic-bezier(0.22,1,0.36,1);}
+  .pss-bkt-fill.pss-bkt-animate{width:85%;}
+  .pss-help-backdrop{position:fixed;inset:0;background:oklch(24% 0.014 55 / 0.25);z-index:90;}
+  .pss-help-drawer{position:fixed;top:0;right:0;bottom:0;width:min(340px,92vw);background:oklch(99% 0.007 55);border-left:1px solid oklch(88% 0.014 55);z-index:95;padding:24px 20px;box-sizing:border-box;transform:translateX(100%);transition:transform 280ms cubic-bezier(0.22,1,0.36,1);overflow-y:auto;}
+  .pss-help-drawer.pss-help-open{transform:translateX(0);}
+  .pss-help-option{display:block;width:100%;text-align:left;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:14px 16px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);cursor:pointer;margin-bottom:10px;}
+  .pss-help-option:hover{border-color:oklch(78% 0.09 264.4);background:oklch(97% 0.010 55);}
+  .pss-help-response{margin-top:16px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);}
   #app-rail{display:none;}
   #app-bottomnav{display:flex;}
   @media (min-width:760px){
@@ -57,13 +72,10 @@
     <div style="display:flex;align-items:center;gap:10px;">
       <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:14px;color:oklch(64% 0.016 55);">Escolent</div>
       <div style="width:1px;height:12px;background:oklch(93% 0.008 55);"></div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <sc-if value="{{ isConnFresh }}"><div data-esc-connectivity-dot data-esc-online-bg="oklch(64% 0.016 55)" style="width:9px;height:9px;border-radius:50%;background:oklch(64% 0.016 55);"></div></sc-if>
-        <sc-if value="{{ isConnStale }}"><div data-esc-connectivity-dot data-esc-online-bg="transparent" data-esc-online-border="1.5px solid oklch(64% 0.016 55)" style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"></div></sc-if>
-        <sc-if value="{{ isConnSyncing }}"><div data-esc-connectivity-dot data-esc-online-bg="transparent" data-esc-online-border="1.5px solid oklch(93% 0.008 55)" data-esc-online-animation="pss-spin 1s linear infinite" style="width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(93% 0.008 55);border-top-color:oklch(64% 0.016 55);animation:pss-spin 1s linear infinite;"></div></sc-if>
-        <sc-if value="{{ isConnUnavailable }}"><div data-esc-connectivity-dot data-esc-online-bg="transparent" data-esc-online-border="1.5px solid oklch(64% 0.016 55)" style="position:relative;width:9px;height:9px;border-radius:50%;border:1.5px solid oklch(64% 0.016 55);"><div style="position:absolute;top:50%;left:-1px;width:11px;height:1.5px;background:oklch(64% 0.016 55);transform:translateY(-50%) rotate(45deg);"></div></div></sc-if>
-        <div data-esc-connectivity-label data-esc-online-text="Synced" data-esc-online-color="oklch(64% 0.016 55)" style="font-size:12px;color:oklch(64% 0.016 55);">{{ connectivityLabel }}</div>
-      </div>
+      <button type="button" data-esc-connectivity-toggle class="esc-conn-toggle" title="Toggle offline demo">
+        <div data-esc-connectivity-dot data-esc-online-bg="oklch(55% 0.14 150)" style="width:9px;height:9px;border-radius:50%;background:oklch(55% 0.14 150);"></div>
+        <div data-esc-connectivity-label data-esc-online-text="Synced" data-esc-online-color="oklch(49% 0.018 55)" style="font-size:12px;color:oklch(49% 0.018 55);">Synced</div>
+      </button>
     </div>
     <div style="display:flex;align-items:center;gap:14px;">
       <button onClick="{{ handleNeedHelp }}" style="font-family:'Geist',sans-serif;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(49% 0.018 55);cursor:pointer;">I need help</button>
@@ -320,7 +332,7 @@
             <button onClick="{{ handleSubmit }}" disabled="{{ submitDisabled }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:14px;border:none;background:{{ submitButtonBg }};color:oklch(99% 0.007 55);cursor:pointer;flex-shrink:0;">{{ submitButtonLabel }}</button>
           </div>
           <sc-if value="{{ socraticHintLoading }}" hint-placeholder-val="{{ false }}">
-            <div class="pss-typing">Thinking of a good hint&#8230;</div>
+            <div class="pss-ai-thinking"><div class="pss-ai-spinner"></div>AI Thinking&#8230;</div>
           </sc-if>
           <sc-if value="{{ socraticHintReady }}" hint-placeholder-val="{{ false }}">
             <div class="pss-socratic-hint">{{ socraticHintText }}</div>
@@ -334,6 +346,42 @@
 
   </div>
 </div>
+
+<sc-if value="{{ showVictoryModal }}" hint-placeholder-val="{{ false }}">
+  <div class="pss-victory-overlay">
+    <div class="pss-victory-modal">
+      <div style="width:52px;height:52px;border-radius:50%;background:oklch(93% 0.03 150);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px;">&#10003;</div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin-bottom:6px;">Skill Mastered!</div>
+      <div style="font-size:14px;color:oklch(49% 0.018 55);margin-bottom:4px;">Variables on both sides</div>
+      <div class="pss-bkt-track"><div class="pss-bkt-fill {{ bktBarClass }}"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:oklch(64% 0.016 55);margin-bottom:24px;">
+        <span>BKT Mastery</span>
+        <span>{{ bktMasteryLabel }}</span>
+      </div>
+      <button onClick="{{ handleReturnToDashboard }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;width:100%;">Return to Dashboard</button>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ helpDrawerOpen }}" hint-placeholder-val="{{ false }}">
+  <div class="pss-help-backdrop" onClick="{{ closeHelpDrawer }}"></div>
+  <div class="pss-help-drawer pss-help-open">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="font-size:16px;font-weight:700;">Need help?</div>
+      <button onClick="{{ closeHelpDrawer }}" style="background:none;border:none;font-size:22px;color:oklch(64% 0.016 55);cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div style="font-size:13px;color:oklch(64% 0.016 55);margin-bottom:16px;">Choose how you'd like support — AI responses are simulated for this demo.</div>
+    <button onClick="{{ helpOptionSocratic }}" class="pss-help-option">Get a Socratic Hint</button>
+    <button onClick="{{ helpOptionSteps }}" class="pss-help-option">Break down the steps</button>
+    <button onClick="{{ helpOptionConcept }}" class="pss-help-option">Explain the concept</button>
+    <sc-if value="{{ helpDrawerLoading }}" hint-placeholder-val="{{ false }}">
+      <div class="pss-ai-thinking" style="margin-top:8px;"><div class="pss-ai-spinner"></div>AI Thinking&#8230;</div>
+    </sc-if>
+    <sc-if value="{{ helpDrawerReady }}" hint-placeholder-val="{{ false }}">
+      <div class="pss-help-response">{{ helpDrawerContent }}</div>
+    </sc-if>
+  </div>
+</sc-if>
 
 <nav id="app-bottomnav" style="position:fixed;left:0;right:0;bottom:0;background:oklch(99% 0.007 55);border-top:1px solid oklch(88% 0.014 55);z-index:10;">
   <a href="Today.dc.html" style="flex:1;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-decoration:none;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:oklch(64% 0.016 55);">Today</a>
@@ -388,12 +436,17 @@ class Component extends DCLogic {
     rubricTier: null,
     rubricFeedback: '',
     inputInvalid: false,
+    inputWrong: false,
     socraticHintLoading: false,
     socraticHintText: '',
-    demoAnswerComplete: false,
+    showVictoryModal: false,
+    bktAnimating: false,
+    helpDrawerOpen: false,
+    helpDrawerLoading: false,
+    helpDrawerContent: '',
   };
 
-  SOCRATIC_FALLBACK = 'Not quite! Try moving the 2x to the left side first by subtracting 2x from both sides.';
+  SOCRATIC_FALLBACK = 'Not quite! Remember to move the 2x term to the left side by subtracting 2x from both sides.';
   NUMERIC_ANSWER_RE = /^-?\d+(\.\d+)?$/;
 
   isInvestorDemoProblem = () => this.isVariablesSkill() && !this.isRubricDemo() && this.getProblems().length === 1;
@@ -597,20 +650,38 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
     });
   };
 
-  handleInputChange = (e) => this.setState({ answerInput: e.target.value, inputInvalid: false });
+  handleInputChange = (e) => this.setState({ answerInput: e.target.value, inputInvalid: false, inputWrong: false });
   handleKeyDown = (e) => { if (e.key === 'Enter') this.handleSubmit(); };
 
-  handleContinueAfterMaster = () => {
-    window.location.href = 'Progress.dc.html';
+  handleReturnToDashboard = () => {
+    if (window.EscolentDemo) window.EscolentDemo.completeVictoryLoop();
+    else {
+      try {
+        localStorage.setItem('variablesOnBothSides', 'mastered');
+        localStorage.setItem('demoDailyTaskComplete', 'true');
+        var streak = parseInt(localStorage.getItem('demoStreak') || '4', 10);
+        localStorage.setItem('demoStreak', String(streak + 1));
+      } catch (e) {}
+    }
+    window.location.href = 'Today.dc.html';
   };
+
+  openHelpDrawer = () => this.setState({ helpDrawerOpen: true, helpDrawerLoading: false, helpDrawerContent: '' });
+  closeHelpDrawer = () => this.setState({ helpDrawerOpen: false, helpDrawerLoading: false, helpDrawerContent: '' });
+
+  simulateHelpResponse = (content) => {
+    this.setState({ helpDrawerLoading: true, helpDrawerContent: '' });
+    setTimeout(() => {
+      this.setState({ helpDrawerLoading: false, helpDrawerContent: content });
+    }, 800);
+  };
+
+  helpOptionSocratic = () => this.simulateHelpResponse('What happens to the equation if you subtract 2x from both sides? Try naming what stays on each side before you solve for x.');
+  helpOptionSteps = () => this.simulateHelpResponse('Step 1: Subtract 2x from both sides \u2192 3x + 3 = 18\nStep 2: Subtract 3 from both sides \u2192 3x = 15\nStep 3: Divide both sides by 3 \u2192 x = 5');
+  helpOptionConcept = () => this.simulateHelpResponse('When x appears on both sides, the goal is to collect all variable terms on one side \u2014 just like balancing a scale. Once they\u2019re together, you\u2019re back to a two-step equation you already know how to finish.');
 
   handleSubmit = () => {
     if (this.isRubricDemo()) { this.handleRubricSubmit(); return; }
-
-    if (this.state.demoAnswerComplete && this.isInvestorDemoProblem()) {
-      this.handleContinueAfterMaster();
-      return;
-    }
 
     if (this.isInvestorDemoProblem() && this.state.phase === 'active') {
       const raw = this.state.answerInput.trim();
@@ -626,23 +697,23 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
       }
       const val = parseFloat(raw);
       if (Math.abs(val - 5) < 1e-9) {
-        if (window.EscolentDemo) window.EscolentDemo.markMastered();
-        else {
-          try { localStorage.setItem('variablesOnBothSides', 'mastered'); } catch (e) {}
-        }
         this.setState({
-          demoAnswerComplete: true,
+          showVictoryModal: true,
+          bktAnimating: false,
           inputInvalid: false,
+          inputWrong: false,
           socraticHintLoading: false,
           socraticHintText: '',
           answerInput: '5',
           connectivity: 'fresh',
         });
+        setTimeout(() => this.setState({ bktAnimating: true }), 120);
         return;
       }
       this.setState({
         socraticHintLoading: true,
         socraticHintText: '',
+        inputWrong: true,
         inputInvalid: false,
       });
       setTimeout(() => {
@@ -650,7 +721,7 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
           socraticHintLoading: false,
           socraticHintText: this.SOCRATIC_FALLBACK,
         });
-      }, 900);
+      }, 800);
       return;
     }
 
@@ -793,6 +864,10 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
   // Student-initiated: no confirmation step, fires the identical escalation message, logged with a distinct method
   // so a teacher reviewing it later can tell direct outreach from passive detection.
   handleNeedHelp = () => {
+    if (this.isInvestorDemoProblem() && (this.state.phase === 'active' || this.state.phase === 'intro')) {
+      this.openHelpDrawer();
+      return;
+    }
     this.setState((s) => ({
       distressDetected: true,
       distressSource: 'initiated',
@@ -913,16 +988,28 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
       askText: s.askText, handleAskChange: this.handleAskChange, handleAskSubmit: this.handleAskSubmit,
       askLoading: s.askLoading, askAnswered: !s.askLoading && !!s.askResponse, askResponse: s.askResponse,
       handleNeedHelp: this.handleNeedHelp, showGlobalDistress: s.distressDetected,
+      showVictoryModal: s.showVictoryModal,
+      bktBarClass: s.bktAnimating ? 'pss-bkt-animate' : '',
+      bktMasteryLabel: s.bktAnimating ? '85%' : '42%',
+      handleReturnToDashboard: this.handleReturnToDashboard,
+      helpDrawerOpen: s.helpDrawerOpen,
+      helpDrawerLoading: s.helpDrawerLoading,
+      helpDrawerReady: !s.helpDrawerLoading && !!s.helpDrawerContent,
+      helpDrawerContent: s.helpDrawerContent,
+      closeHelpDrawer: this.closeHelpDrawer,
+      helpOptionSocratic: this.helpOptionSocratic,
+      helpOptionSteps: this.helpOptionSteps,
+      helpOptionConcept: this.helpOptionConcept,
       isTextAnswer: this.getEvaluationStrategy() !== 'rubric_llm', isTextareaAnswer: this.getEvaluationStrategy() === 'rubric_llm',
       answerInput: s.answerInput, handleInputChange: this.handleInputChange, handleKeyDown: this.handleKeyDown,
       handleSubmit: this.handleSubmit,
       submitDisabled: this.isInvestorDemoProblem() && s.phase === 'active'
-        ? (s.socraticHintLoading)
+        ? (s.socraticHintLoading || s.showVictoryModal)
         : s.answerInput.trim() === '',
-      submitButtonLabel: s.demoAnswerComplete ? 'Continue' : 'Submit',
-      submitButtonBg: s.demoAnswerComplete ? 'oklch(55% 0.14 150)' : 'oklch(48.8% 0.217 264.4)',
-      inputDisabled: s.demoAnswerComplete,
-      answerInputClass: s.inputInvalid ? 'pss-input-invalid' : (s.demoAnswerComplete ? 'pss-input-success' : ''),
+      submitButtonLabel: 'Submit',
+      submitButtonBg: 'oklch(48.8% 0.217 264.4)',
+      inputDisabled: s.showVictoryModal,
+      answerInputClass: s.inputInvalid ? 'pss-input-invalid' : (s.inputWrong ? 'pss-input-wrong' : ''),
       socraticHintLoading: s.socraticHintLoading,
       socraticHintReady: !s.socraticHintLoading && !!s.socraticHintText,
       socraticHintText: s.socraticHintText,

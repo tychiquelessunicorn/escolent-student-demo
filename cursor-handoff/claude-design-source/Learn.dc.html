@@ -18,6 +18,8 @@
   a:hover{color:oklch(42% 0.217 264.4);}
   @keyframes lrn-pulse{0%,100%{opacity:0.4;}50%{opacity:0.9;}}
   @keyframes lrn-fade{0%{opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{opacity:0;}}
+  .esc-conn-toggle{cursor:pointer;border:none;background:transparent;padding:0;display:flex;align-items:center;gap:6px;font:inherit;}
+  .esc-conn-toggle:hover [data-esc-connectivity-label]{color:oklch(48.8% 0.217 264.4) !important;}
   #app-rail{display:none;}
   #app-bottomnav{display:flex;}
   @media (min-width:760px){
@@ -32,8 +34,10 @@
     <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:17px;color:oklch(24% 0.014 55);">Escolent</div>
     <div style="width:1px;height:14px;background:oklch(88% 0.014 55);"></div>
     <div style="display:flex;align-items:center;gap:6px;">
-      <div data-esc-connectivity-dot data-esc-online-bg="oklch(64% 0.016 55)" style="width:8px;height:8px;border-radius:50%;background:oklch(64% 0.016 55);"></div>
-      <div data-esc-connectivity-label data-esc-online-text="Synced" data-esc-online-color="oklch(64% 0.016 55)" style="font-size:12px;color:oklch(64% 0.016 55);">Synced</div>
+      <button type="button" data-esc-connectivity-toggle class="esc-conn-toggle" title="Toggle offline demo">
+        <div data-esc-connectivity-dot data-esc-online-bg="oklch(55% 0.14 150)" style="width:8px;height:8px;border-radius:50%;background:oklch(55% 0.14 150);"></div>
+        <div data-esc-connectivity-label data-esc-online-text="Synced" data-esc-online-color="oklch(49% 0.018 55)" style="font-size:12px;color:oklch(49% 0.018 55);">Synced</div>
+      </button>
     </div>
   </div>
 </div>
