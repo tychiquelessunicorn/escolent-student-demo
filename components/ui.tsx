@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { hapticTap } from "@/lib/haptics";
 
 export type AreaTone = "today" | "learn" | "practice" | "progress";
 
@@ -37,17 +38,19 @@ export function Card({
   style,
   subtleBorder = false,
   area,
+  className,
 }: {
   children: ReactNode;
   style?: CSSProperties;
   subtleBorder?: boolean;
   /** Optional functional area wash — identity, not decoration. */
   area?: AreaTone;
+  className?: string;
 }) {
   const tone = area ? AREA_VARS[area] : null;
   return (
     <div
-      className="esc-card esc-rise"
+      className={["esc-card", "esc-phase", className].filter(Boolean).join(" ")}
       style={{
         background: tone ? tone.subtle : "var(--color-surface-raised)",
         border: `1.5px solid ${
@@ -248,7 +251,10 @@ export function Button({
     <button
       type="button"
       className="esc-pressable"
-      onClick={onClick}
+      onClick={() => {
+        if (!disabled) hapticTap();
+        onClick?.();
+      }}
       disabled={disabled}
       style={{ ...shared, ...variants[variant], ...style }}
     >

@@ -279,6 +279,64 @@
   transform: scale(0.97);
 }
 
+@keyframes esc-flash-ok {
+  0% {
+    box-shadow: 0 0 0 0 oklch(55% 0.14 150 / 0);
+  }
+  35% {
+    box-shadow: 0 0 0 4px oklch(55% 0.14 150 / 0.35);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(55% 0.14 150 / 0);
+  }
+}
+
+@keyframes esc-flash-miss {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes esc-phase-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.esc-phase {
+  animation: esc-phase-in var(--duration-med) var(--ease-snap) both;
+}
+
+.esc-flash-ok {
+  animation: esc-flash-ok 520ms var(--ease-snap);
+}
+
+.esc-flash-miss {
+  animation: esc-flash-miss 380ms var(--ease-snap);
+}
+
+.esc-illust {
+  animation: esc-pop var(--duration-med) var(--ease-snap) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

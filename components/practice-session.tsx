@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 import { useDistress } from "@/components/distress-provider";
 import {
@@ -27,7 +27,18 @@ import {
   type PracticeProblem,
   type SyncFreshness,
 } from "@/lib/demo-data";
+import { hapticConfirm, hapticSoft, hapticTap } from "@/lib/haptics";
 
+/** Visible empty/sparse-state motif — large enough to read as part of the product. */
+function Motif({ children }: { children: ReactNode }) {
+  return (
+    <div className="esc-illust" style={{ marginBottom: 8 }}>
+      {children}
+    </div>
+  );
+}
+
+const ILLUST = 112;
 type Phase =
   | "checkingSession"
   | "noValidSession"
@@ -175,6 +186,14 @@ function PracticeSessionInner() {
   const evaluationStrategy = isRubricDemo ? "rubric_llm" : "exact_match";
 
   const [state, setState] = useState<State>(() => baseState("intro"));
+  const [submitFlash, setSubmitFlash] = useState<"ok" | "miss" | null>(null);
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const triggerFlash = useCallback((kind: "ok" | "miss") => {
+    if (flashTimer.current) clearTimeout(flashTimer.current);
+    setSubmitFlash(kind);
+    flashTimer.current = setTimeout(() => setSubmitFlash(null), 520);
+  }, []);
   const patch = useCallback(
     (update: Partial<State> | ((s: State) => Partial<State>)) => {
       setState((s) => ({
@@ -402,6 +421,8 @@ function PracticeSessionInner() {
     }
     if (state.answerInput.trim() === "") return;
 
+    hapticTap();
+
     const raw = state.answerInput;
     // Requirement 18.1 names practice responses explicitly, so the answer field
     // is a monitored surface like any other.
@@ -449,6 +470,13 @@ function PracticeSessionInner() {
         };
       });
 
+      if (correct) {
+        hapticConfirm();
+        triggerFlash("ok");
+      } else {
+        hapticSoft();
+        triggerFlash("miss");
+      }
       if (
         isFirstExposure &&
         nextWrong.length === 1 &&
@@ -479,6 +507,7 @@ function PracticeSessionInner() {
    */
   const handleRubricSubmit = async () => {
     if (state.answerInput.trim() === "") return;
+    hapticTap();
     const text = state.answerInput;
     checkFreeText("practice_rubric", text);
     patch({ phase: "rubricGrading" });
@@ -512,12 +541,15 @@ function PracticeSessionInner() {
         rubricTier: tier,
         rubricFeedback: data.feedback?.trim() || RUBRIC_FALLBACK_FEEDBACK[tier],
       });
+      if (tier === "strong") hapticConfirm();
+      else hapticSoft();
     } catch {
       patch({
         phase: "rubricResult",
         rubricTier: fallbackTier,
         rubricFeedback: RUBRIC_FALLBACK_FEEDBACK[fallbackTier],
       });
+      hapticSoft();
     }
   };
 
@@ -525,6 +557,7 @@ function PracticeSessionInner() {
     const question = state.askText.trim();
     if (question === "") return;
 
+    hapticTap();
     // Detection runs alongside answering, not instead of it. It deliberately
     // does not gate the answer: the classifier runs on a stronger, slower model
     // and making every question wait on it would be a worse experience for no
@@ -762,7 +795,10 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "noValidSession" ? (
-        <Card>
+        <Card key="noValidSession">
+          <Motif>
+            <OutlineIllustration size={ILLUST} />
+          </Motif>
           <CardTitle>Open Escolent from Canvas</CardTitle>
           <CardBody>
             We couldn&rsquo;t find an active session for you here. Open Escolent from
@@ -772,8 +808,10 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "resumePrompt" ? (
-        <Card>
-          <ResumeIllustration />
+        <Card key="resumePrompt">
+          <Motif>
+            <ResumeIllustration size={ILLUST} />
+          </Motif>
           <CardTitle>Resume where you left off?</CardTitle>
           <CardBody style={{ lineHeight: 1.55, marginBottom: 28 }}>
             Two-step equations — problem {SAVED_INTERRUPTION.problemIndex + 1} of{" "}
@@ -810,8 +848,10 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "gate" ? (
-        <Card style={{ textAlign: "left" }}>
-          <PathIllustration />
+        <Card key="gate" style={{ textAlign: "left" }}>
+          <Motif>
+            <PathIllustration size={ILLUST} />
+          </Motif>
           <CardTitle>Nothing&rsquo;s due right now.</CardTitle>
           <CardBody style={{ lineHeight: 1.55, marginBottom: 28 }}>
             Want to try a two-step equations problem, just for practice?
@@ -828,8 +868,10 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "offlineBlocked" ? (
-        <Card>
-          <GapIllustration />
+        <Card key="offlineBlocked">
+          <Motif>
+            <GapIllustration size={ILLUST} />
+          </Motif>
           <CardTitle>You&rsquo;re offline</CardTitle>
           <CardBody>
             This is new content, so it needs a connection to load. It&rsquo;ll pick up on
@@ -839,8 +881,10 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "skillUnavailable" ? (
-        <Card>
-          <OutlineIllustration />
+        <Card key="skillUnavailable">
+          <Motif>
+            <OutlineIllustration size={ILLUST} />
+          </Motif>
           <CardTitle>Not part of the demo yet</CardTitle>
           <CardBody>
             {(skillParam && UNSUPPORTED_SKILL_LABELS[skillParam]) || "This skill"}{" "}
@@ -907,14 +951,18 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "intro" ? (
-        <Card>
+        <Card key="intro" area="practice">
+          <Motif>
+            <BeginningIllustration size={ILLUST} />
+          </Motif>
           <div
             style={{
               fontSize: 12,
-              color: "var(--color-content-muted)",
+              color: "var(--color-area-practice-fg)",
               textTransform: "uppercase",
-              letterSpacing: "0.03em",
-              fontWeight: 600,
+              letterSpacing: "0.06em",
+              fontWeight: 700,
+              fontFamily: "var(--font-display)",
               marginBottom: 12,
             }}
           >
@@ -959,21 +1007,40 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "closed" ? (
-        <Card subtleBorder>
+        <Card key="closed" subtleBorder>
+          <Motif>
+            <PathIllustration size={ILLUST} />
+          </Motif>
+          <CardTitle>All clear for now</CardTitle>
           <CardBody>Okay — nothing else scheduled right now. Check back later.</CardBody>
         </Card>
       ) : null}
 
       {state.phase === "ended" ? (
-        <Card>
-          {entryVariant === "first_time" ? <BeginningIllustration /> : null}
+        <Card key="ended">
+          <Motif>
+            {entryVariant === "first_time" ? (
+              <BeginningIllustration size={ILLUST} />
+            ) : (
+              <PathIllustration size={ILLUST} />
+            )}
+          </Motif>
           <CardTitle>Nice work today.</CardTitle>
           <CardBody>{endedMessage}</CardBody>
         </Card>
       ) : null}
 
       {state.phase === "active" || state.phase === "correct" ? (
-        <Card>
+        <Card
+          key={`${state.phase}-${state.problemIndex}-${state.sessionCompleted}`}
+          className={
+            submitFlash === "ok"
+              ? "esc-flash-ok"
+              : submitFlash === "miss"
+                ? "esc-flash-miss"
+                : undefined
+          }
+        >
           {state.phase === "correct" ? (
             <>
               <div
@@ -1020,6 +1087,11 @@ function PracticeSessionInner() {
             </>
           ) : (
             <>
+              {state.sessionCompleted === 0 ? (
+                <Motif>
+                  <BeginningIllustration size={ILLUST} />
+                </Motif>
+              ) : null}
               <div
                 style={{
                   fontSize: 15,

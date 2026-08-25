@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
+import { ResumeIllustration } from "@/components/illustrations";
 import { PageHeading, SectionLabel } from "@/components/ui";
 import {
   FRESHNESS_LABELS,
@@ -14,6 +15,7 @@ import {
   TODAY_KEY,
   type ScheduleItem,
 } from "@/lib/demo-data";
+import { hapticTap } from "@/lib/haptics";
 
 const wrapper = {
   maxWidth: "var(--container-focused)",
@@ -34,6 +36,7 @@ function LmsItem({ item, compact }: { item: ScheduleItem; compact?: boolean }) {
   const freshness = item.freshness ?? "fresh";
 
   const openInLms = () => {
+    hapticTap();
     setToast(true);
     setTimeout(() => setToast(false), 1600);
   };
@@ -274,7 +277,12 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
           title={`Hi ${STUDENT.firstName}`}
           subtitle={TODAY_DATE_LABEL}
         />
-        <ViewTabs view={view} />
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div className="esc-illust" style={{ flexShrink: 0 }}>
+            <ResumeIllustration size={72} style={{ marginBottom: 0 }} />
+          </div>
+          <ViewTabs view={view} />
+        </div>
       </div>
 
       <div style={{ marginBottom: 32 }}>

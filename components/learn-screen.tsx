@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AskBox } from "@/components/ask-box";
+import { PathIllustration } from "@/components/illustrations";
 import { SkillRow } from "@/components/skill-row";
 import { PageHeading } from "@/components/ui";
 import { SKILLS, STUDENT } from "@/lib/demo-data";
@@ -25,12 +26,23 @@ export function LearnScreen() {
 
   return (
     <div style={wrapper}>
-      <div style={{ marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
         <PageHeading
           area="learn"
           title="Learn"
           subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
         />
+        <div className="esc-illust" style={{ flexShrink: 0 }}>
+          <PathIllustration size={88} style={{ marginBottom: 0 }} />
+        </div>
       </div>
 
       <div

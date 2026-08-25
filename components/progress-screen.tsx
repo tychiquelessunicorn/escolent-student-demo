@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AskBox } from "@/components/ask-box";
+import { BeginningIllustration } from "@/components/illustrations";
 import { SkillRow } from "@/components/skill-row";
 import { PageHeading, SectionLabel } from "@/components/ui";
 import {
@@ -25,12 +26,23 @@ export function ProgressScreen() {
 
   return (
     <div style={wrapper}>
-      <div style={{ marginBottom: 24 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 16,
+          marginBottom: 24,
+        }}
+      >
         <PageHeading
           area="progress"
           title="My progress"
           subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
         />
+        <div className="esc-illust" style={{ flexShrink: 0 }}>
+          <BeginningIllustration size={88} style={{ marginBottom: 0 }} />
+        </div>
       </div>
 
       <div style={{ marginBottom: 28 }}>

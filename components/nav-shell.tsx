@@ -6,6 +6,7 @@ import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { DistressNotice, useDistress } from "@/components/distress-provider";
 import { useShellState } from "@/components/shell-context";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
+import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
 
 const NAV_ITEMS: {
@@ -83,7 +84,10 @@ function HelpButton({ minimal }: { minimal: boolean }) {
     <button
       type="button"
       className="esc-pressable"
-      onClick={requestHelp}
+      onClick={() => {
+        hapticTap();
+        requestHelp();
+      }}
       style={{
         fontFamily: "var(--font-body)",
         fontSize: 12,

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDistress } from "@/components/distress-provider";
 import type { DistressSurface } from "@/lib/distress";
+import { hapticSoft, hapticTap } from "@/lib/haptics";
 
 const FALLBACK = "I couldn't check that right now — try again in a moment.";
 
@@ -35,6 +36,7 @@ export function AskBox({
     const question = text.trim();
     if (!question) return;
 
+    hapticTap();
     checkFreeText(surface, question);
 
     setLoading(true);
@@ -48,6 +50,7 @@ export function AskBox({
       if (!response.ok) throw new Error(`status ${response.status}`);
       const data = (await response.json()) as { text?: string };
       setAnswer(data.text?.trim() || FALLBACK);
+      hapticSoft();
     } catch {
       setAnswer(FALLBACK);
     } finally {
@@ -132,6 +135,7 @@ export function AskBox({
 
       {!loading && answer ? (
         <div
+          className="esc-rise"
           style={{
             marginTop: 10,
             background: "var(--color-accent-subtle)",
