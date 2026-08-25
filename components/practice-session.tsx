@@ -92,6 +92,13 @@ interface State {
 const INTRO_FALLBACK =
   "Think of an equation like a balance scale: whatever you do to one side, you have to do to the other to keep it level. Right now you've got x-terms sitting on both sides, so the first move is to get them onto one side — the same subtract-to-balance move you've been using in two-step equations, just applied one extra time before you're back to a problem you already know how to finish.";
 
+/**
+ * Shared in-flight intro fetch. Survives React StrictMode remounts so the
+ * first-exposure Lens call is one network request per skill key, not two.
+ */
+const introInFlight = new Map<string, Promise<string>>();
+const INTRO_SKILL_KEY = "variables_both_sides";
+
 const ASK_FALLBACK =
   "Couldn't reach the hint helper right now — try tapping through to the next step instead.";
 
@@ -236,26 +243,74 @@ function PracticeSessionInner() {
 
   /**
    * First-exposure instruction: fixed concrete/analogy Lens, bridged to the
-   * prerequisite. The fallback shows immediately so the student never waits on
-   * a blank card, and the generated version replaces it when it lands.
+   * prerequisite. Fires at most once per skill for this session instance;
+   * in-flight work is deduped across StrictMode remounts; a stale response
+   * never overwrites text the student is already reading.
    */
+  const introRequestId = useRef(0);
+  const introCommitted = useRef(false);
+  const introStarted = useRef(false);
+
   const generateIntro = useCallback(async () => {
-    patch({ introLoading: false, introText: INTRO_FALLBACK });
-    const text = await callAi({ task: "intro" });
-    if (text) patch({ introText: text });
+    if (introCommitted.current) return;
+    if (introStarted.current) return;
+    introStarted.current = true;
+
+    const requestId = ++introRequestId.current;
+    patch({ introLoading: true });
+
+    let pending = introInFlight.get(INTRO_SKILL_KEY);
+    if (!pending) {
+      pending = (async () => {
+        const text = await callAi({ task: "intro" });
+        return text || INTRO_FALLBACK;
+      })();
+      introInFlight.set(INTRO_SKILL_KEY, pending);
+    }
+
+    let text: string;
+    try {
+      text = await pending;
+    } catch {
+      introInFlight.delete(INTRO_SKILL_KEY);
+      if (requestId !== introRequestId.current) return;
+      if (introCommitted.current) return;
+      introCommitted.current = true;
+      patch({ introLoading: false, introText: INTRO_FALLBACK });
+      return;
+    }
+
+    // Stale: a newer generateIntro superseded this one, or another response
+    // already committed. Never replace what the student may be reading.
+    if (requestId !== introRequestId.current) return;
+    if (introCommitted.current) return;
+
+    introCommitted.current = true;
+    patch({ introLoading: false, introText: text });
   }, [callAi, patch]);
+
+  /** Allow a deliberate re-fetch after session state was fully reset (e.g. offline recovery). */
+  const restartIntroGeneration = useCallback(() => {
+    introCommitted.current = false;
+    introStarted.current = false;
+    introRequestId.current += 1;
+    introInFlight.delete(INTRO_SKILL_KEY);
+  }, []);
 
   /**
    * The ladder's worked-example tier, on a first-exposure skill's first wrong
    * attempt: the same rung, showing a different Lens. Not a second mechanism
    * running alongside the ladder — one ladder.
    */
+  const workedLensRequestId = useRef(0);
   const generateWorkedLens = useCallback(
     async (problemIndex: number) => {
       const problem = VARIABLES_BOTH_SIDES_PROBLEMS[problemIndex];
       const fallback = `Let's walk through ${problem.text} one step at a time: first get all the x-terms onto one side by subtracting the smaller one from both sides, then handle the leftover constant the same way you would in a two-step equation, then divide to get x alone. Try it again from the start with that order.`;
+      const requestId = ++workedLensRequestId.current;
       patch({ workedLensLoading: true, workedLensText: "" });
       const text = await callAi({ task: "worked_lens", problemIndex });
+      if (requestId !== workedLensRequestId.current) return;
       patch({ workedLensLoading: false, workedLensText: text || fallback });
     },
     [callAi, patch],
@@ -359,7 +414,10 @@ function PracticeSessionInner() {
       return () => clearTimeout(timer);
     }
     enterSession();
-  }, [directOpenDemo, enterSession, notificationPreviewDemo, patch]);
+    // enterSession is intentionally omitted: including it re-runs Entry whenever
+    // conn / generateIntro identity shifts and can kick off a second intro call.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [directOpenDemo, notificationPreviewDemo, patch]);
 
   // ---- Connectivity: auto-recovery and queue sync ----
 
@@ -397,7 +455,10 @@ function PracticeSessionInner() {
               : "active",
         ),
       });
-      if (variant === "first_exposure") void generateIntro();
+      if (variant === "first_exposure") {
+        restartIntroGeneration();
+        void generateIntro();
+      }
       return;
     }
     if (state.pendingSyncQueue.length > 0 && !state.isSyncingQueue) syncQueue();
@@ -405,6 +466,7 @@ function PracticeSessionInner() {
     conn,
     generateIntro,
     isVariablesSkill,
+    restartIntroGeneration,
     state.isSyncingQueue,
     state.offlineBlockedVariant,
     state.pendingSyncQueue.length,
