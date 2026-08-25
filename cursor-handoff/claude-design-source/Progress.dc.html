@@ -133,11 +133,12 @@ class Component extends DCLogic {
 
   componentDidMount() {
     this.masteredVariables = false;
-    try {
-      if (localStorage.getItem('variablesOnBothSides') === 'mastered') this.masteredVariables = true;
-    } catch (e) {}
-    if (!this.masteredVariables && window.EscolentDemo) {
-      this.masteredVariables = window.EscolentDemo.isMastered();
+    if (window.EscolentDemo) {
+      this.masteredVariables = window.EscolentDemo.isVariablesCompleted();
+    } else {
+      try {
+        this.masteredVariables = localStorage.getItem('variables_completed') === 'true' || localStorage.getItem('variablesOnBothSides') === 'mastered';
+      } catch (e) {}
     }
     this.forceUpdate();
   }
@@ -145,6 +146,11 @@ class Component extends DCLogic {
   effectiveTier = (sk) => {
     if (sk.id === 's5' && this.masteredVariables) return 'durable';
     return sk.tier;
+  };
+
+  effectiveLabel = (sk, tierKey) => {
+    if (sk.id === 's5' && this.masteredVariables) return 'Durable (85%)';
+    return this.tierStyle[tierKey].label;
   };
 
   skillDefs = [
@@ -185,7 +191,10 @@ class Component extends DCLogic {
 
   handleAskSubmit = async () => {
     if (this.state.askText.trim() === '') return;
-    const skillLines = this.skillDefs.map((sk) => `- ${sk.name}: ${this.tierStyle[sk.tier].label}${sk.flagged ? ' (flagged prerequisite gap)' : ''}`).join('\n');
+    const skillLines = this.skillDefs.map((sk) => {
+      const tierKey = this.effectiveTier(sk);
+      return `- ${sk.name}: ${this.effectiveLabel(sk, tierKey)}${sk.flagged ? ' (flagged prerequisite gap)' : ''}`;
+    }).join('\n');
     const sessionLines = this.sessions.map((s) => `- ${s.date}: ${s.title} \u2014 ${s.result}`).join('\n');
     this.setState({ askLoading: true, askAnswer: '' });
     try {
@@ -211,7 +220,7 @@ class Component extends DCLogic {
         expanded: isExpanded,
         chevron: isExpanded ? '\u2304' : '\u203a', toggle: () => this.toggleSkill(sk.id),
         practiceHref: 'Practice Session.dc.html?skill=' + sk.slug,
-        dotBg: ts.dotBg, dotBorder: ts.dotBorder, badgeBg: ts.badgeBg, badgeColor: ts.badgeColor, label: ts.label,
+        dotBg: ts.dotBg, dotBorder: ts.dotBorder, badgeBg: ts.badgeBg, badgeColor: ts.badgeColor, label: this.effectiveLabel(sk, tierKey),
       };
     });
     const sessions = this.sessions.map((sess, i) => ({ ...sess, borderBottom: i === this.sessions.length - 1 ? 'none' : '1px solid oklch(93% 0.008 55)' }));

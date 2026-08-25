@@ -26,6 +26,7 @@
     80%{transform:translateX(2px);}
   }
   .pss-input-invalid{border-color:oklch(52% 0.14 18) !important;animation:pss-shake 380ms ease;}
+  .pss-input-error-msg{margin-top:8px;font-size:13px;color:oklch(52% 0.14 18);}
   .pss-input-wrong{border-color:oklch(72% 0.10 18) !important;box-shadow:0 0 0 1px oklch(72% 0.10 18 / 0.35);}
   .pss-input-success{border-color:oklch(55% 0.14 150) !important;background:oklch(95% 0.04 150) !important;}
   .pss-socratic-hint{margin-top:12px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);}
@@ -44,6 +45,10 @@
   .pss-help-option{display:block;width:100%;text-align:left;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:14px 16px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);cursor:pointer;margin-bottom:10px;}
   .pss-help-option:hover{border-color:oklch(78% 0.09 264.4);background:oklch(97% 0.010 55);}
   .pss-help-response{margin-top:16px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);}
+  .pss-ended-mastery{margin-top:20px;background:oklch(95% 0.03 150);border:1px solid oklch(82% 0.06 150);border-radius:18px;padding:16px 18px;}
+  .pss-ended-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;}
+  .pss-btn-primary{font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;text-decoration:none;display:inline-block;}
+  .pss-btn-secondary{font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:10px 20px;border-radius:14px;border:1.5px solid oklch(78% 0.09 264.4);background:transparent;color:oklch(48.8% 0.217 264.4);cursor:pointer;text-decoration:none;display:inline-block;}
   #app-rail{display:none;}
   #app-bottomnav{display:flex;}
   @media (min-width:760px){
@@ -143,14 +148,19 @@
   <sc-if value="{{ isOfflineBlocked }}">
     <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
       <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">You're offline</div>
-      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">This is new content, so it needs a connection to load. It'll pick up on its own as soon as you're back online.</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;margin-bottom:24px;">This is new content, so it needs a connection to load. It'll pick up on its own as soon as you're back online.</div>
+      <a href="Today.dc.html" class="pss-btn-primary">Return to Dashboard</a>
     </div>
   </sc-if>
 
   <sc-if value="{{ isSkillUnavailable }}">
     <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
       <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Not part of the demo yet</div>
-      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">{{ unavailableSkillLabel }} isn't wired up in this prototype \u2014 only two-step equations and variables on both sides have real practice content right now.</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;margin-bottom:24px;">{{ unavailableSkillLabel }} isn't wired up in this prototype \u2014 only two-step equations and variables on both sides have real practice content right now.</div>
+      <div class="pss-ended-actions">
+        <a href="Today.dc.html" class="pss-btn-primary">Return to Dashboard</a>
+        <a href="Progress.dc.html" class="pss-btn-secondary">View Progress Graph</a>
+      </div>
     </div>
   </sc-if>
 
@@ -193,7 +203,10 @@
 
   <sc-if value="{{ isClosed }}">
     <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(93% 0.008 55);border-radius:22px;padding:36px 32px;">
-      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">Okay — nothing else scheduled right now. Check back later.</div>
+      <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;margin-bottom:24px;">Okay — nothing else scheduled right now. Check back later.</div>
+      <div class="pss-ended-actions">
+        <a href="Today.dc.html" class="pss-btn-primary">Return to Dashboard</a>
+      </div>
     </div>
   </sc-if>
 
@@ -201,6 +214,21 @@
     <div class="pss-card" style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:22px;padding:36px 32px;">
       <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Nice work today.</div>
       <div style="font-size:15px;color:oklch(49% 0.018 55);line-height:1.6;">{{ endedMessage }}</div>
+      <sc-if value="{{ showEndedMastery }}" hint-placeholder-val="{{ false }}">
+        <div class="pss-ended-mastery">
+          <div style="font-size:12px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(38% 0.10 150);margin-bottom:8px;">Mastery growth</div>
+          <div style="font-size:14px;color:oklch(24% 0.014 55);margin-bottom:10px;">Variables on both sides &middot; BKT mastery</div>
+          <div class="pss-bkt-track"><div class="pss-bkt-fill {{ endedBktBarClass }}"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:oklch(64% 0.016 55);margin-top:8px;">
+            <span>42%</span>
+            <span>{{ endedBktLabel }}</span>
+          </div>
+        </div>
+      </sc-if>
+      <div class="pss-ended-actions">
+        <a href="Today.dc.html" class="pss-btn-primary">Return to Dashboard</a>
+        <a href="Progress.dc.html" class="pss-btn-secondary">View Progress Graph</a>
+      </div>
     </div>
   </sc-if>
 
@@ -331,6 +359,12 @@
             </sc-if>
             <button onClick="{{ handleSubmit }}" disabled="{{ submitDisabled }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 22px;border-radius:14px;border:none;background:{{ submitButtonBg }};color:oklch(99% 0.007 55);cursor:pointer;flex-shrink:0;">{{ submitButtonLabel }}</button>
           </div>
+          <sc-if value="{{ inputErrorMessage }}" hint-placeholder-val="{{ false }}">
+            <div class="pss-input-error-msg">{{ inputErrorMessage }}</div>
+          </sc-if>
+          <sc-for list="{{ pageHelpNotes }}" as="note" hint-placeholder-count="0">
+            <div class="pss-help-response" style="margin-top:12px;">{{ note.content }}</div>
+          </sc-for>
           <sc-if value="{{ socraticHintLoading }}" hint-placeholder-val="{{ false }}">
             <div class="pss-ai-thinking"><div class="pss-ai-spinner"></div>AI Thinking&#8230;</div>
           </sc-if>
@@ -358,7 +392,10 @@
         <span>BKT Mastery</span>
         <span>{{ bktMasteryLabel }}</span>
       </div>
-      <button onClick="{{ handleReturnToDashboard }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;width:100%;">Return to Dashboard</button>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
+        <button onClick="{{ handleReturnToDashboard }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;flex:1;">Return to Dashboard</button>
+        <a href="Progress.dc.html" onClick="{{ handleViewProgress }}" class="pss-btn-secondary" style="flex:1;text-align:center;padding:12px 24px;">View Progress Graph</a>
+      </div>
     </div>
   </div>
 </sc-if>
@@ -437,16 +474,20 @@ class Component extends DCLogic {
     rubricFeedback: '',
     inputInvalid: false,
     inputWrong: false,
+    inputErrorMessage: '',
     socraticHintLoading: false,
     socraticHintText: '',
     showVictoryModal: false,
     bktAnimating: false,
+    endedBktAnimating: false,
+    endedWithMastery: false,
     helpDrawerOpen: false,
     helpDrawerLoading: false,
     helpDrawerContent: '',
+    pageHelpNotes: [],
   };
 
-  SOCRATIC_FALLBACK = 'Not quite! Remember to move the 2x term to the left side by subtracting 2x from both sides.';
+  SOCRATIC_FALLBACK = 'Not quite! Try moving 2x to the left side first by subtracting 2x from both sides.';
   NUMERIC_ANSWER_RE = /^-?\d+(\.\d+)?$/;
 
   isInvestorDemoProblem = () => this.isVariablesSkill() && !this.isRubricDemo() && this.getProblems().length === 1;
@@ -650,20 +691,27 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
     });
   };
 
-  handleInputChange = (e) => this.setState({ answerInput: e.target.value, inputInvalid: false, inputWrong: false });
+  handleInputChange = (e) => this.setState({ answerInput: e.target.value, inputInvalid: false, inputWrong: false, inputErrorMessage: '' });
   handleKeyDown = (e) => { if (e.key === 'Enter') this.handleSubmit(); };
 
-  handleReturnToDashboard = () => {
+  persistVictoryState = () => {
     if (window.EscolentDemo) window.EscolentDemo.completeVictoryLoop();
     else {
       try {
+        localStorage.setItem('variables_completed', 'true');
         localStorage.setItem('variablesOnBothSides', 'mastered');
-        localStorage.setItem('demoDailyTaskComplete', 'true');
-        var streak = parseInt(localStorage.getItem('demoStreak') || '4', 10);
-        localStorage.setItem('demoStreak', String(streak + 1));
+        localStorage.setItem('streak', '4');
       } catch (e) {}
     }
+  };
+
+  handleReturnToDashboard = () => {
+    this.persistVictoryState();
     window.location.href = 'Today.dc.html';
+  };
+
+  handleViewProgress = () => {
+    this.persistVictoryState();
   };
 
   openHelpDrawer = () => this.setState({ helpDrawerOpen: true, helpDrawerLoading: false, helpDrawerContent: '' });
@@ -672,7 +720,11 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
   simulateHelpResponse = (content) => {
     this.setState({ helpDrawerLoading: true, helpDrawerContent: '' });
     setTimeout(() => {
-      this.setState({ helpDrawerLoading: false, helpDrawerContent: content });
+      this.setState((s) => ({
+        helpDrawerLoading: false,
+        helpDrawerContent: content,
+        pageHelpNotes: [...s.pageHelpNotes, { content }],
+      }));
     }, 800);
   };
 
@@ -686,22 +738,24 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
     if (this.isInvestorDemoProblem() && this.state.phase === 'active') {
       const raw = this.state.answerInput.trim();
       if (raw === '') {
-        this.setState({ inputInvalid: true });
-        setTimeout(() => this.setState({ inputInvalid: false }), 600);
+        this.setState({ inputInvalid: true, inputErrorMessage: 'Please enter a number.' });
+        setTimeout(() => this.setState({ inputInvalid: false, inputErrorMessage: '' }), 1200);
         return;
       }
       if (!this.NUMERIC_ANSWER_RE.test(raw)) {
-        this.setState({ inputInvalid: true });
-        setTimeout(() => this.setState({ inputInvalid: false }), 600);
+        this.setState({ inputInvalid: true, inputErrorMessage: 'Please enter a number.' });
+        setTimeout(() => this.setState({ inputInvalid: false, inputErrorMessage: '' }), 1200);
         return;
       }
       const val = parseFloat(raw);
       if (Math.abs(val - 5) < 1e-9) {
+        this.persistVictoryState();
         this.setState({
           showVictoryModal: true,
           bktAnimating: false,
           inputInvalid: false,
           inputWrong: false,
+          inputErrorMessage: '',
           socraticHintLoading: false,
           socraticHintText: '',
           answerInput: '5',
@@ -875,6 +929,14 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
     }));
   };
 
+  finalizeEnded = (extra) => {
+    const withMastery = this.isInvestorDemoProblem() && this.state.sessionCompleted >= 1;
+    if (withMastery) this.persistVictoryState();
+    this.setState({ phase: 'ended', endedWithMastery: withMastery, endedBktAnimating: false, ...extra }, () => {
+      if (withMastery) setTimeout(() => this.setState({ endedBktAnimating: true }), 120);
+    });
+  };
+
   advanceOrEnd = (extra) => {
     const hasMore = this.state.problemIndex + 1 < this.getProblems().length;
     if (hasMore) {
@@ -884,13 +946,13 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
         answerInput: '', ...extra,
       });
     } else {
-      this.setState({ phase: 'ended', endReason: 'finished' });
+      this.finalizeEnded({ endReason: 'finished' });
     }
   };
 
   handleNext = () => this.advanceOrEnd({});
   handleContinueAfterExhausted = () => this.advanceOrEnd({ streak: 0, exhaustedCount: this.state.exhaustedCount + 1 });
-  handleStop = () => this.setState({ phase: 'ended', endReason: 'stopped' });
+  handleStop = () => this.finalizeEnded({ endReason: 'stopped' });
   acceptGate = () => this.setState({ phase: 'active' });
   declineGate = () => this.setState({ phase: 'closed' });
 
@@ -992,14 +1054,20 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
       bktBarClass: s.bktAnimating ? 'pss-bkt-animate' : '',
       bktMasteryLabel: s.bktAnimating ? '85%' : '42%',
       handleReturnToDashboard: this.handleReturnToDashboard,
+      handleViewProgress: this.handleViewProgress,
       helpDrawerOpen: s.helpDrawerOpen,
       helpDrawerLoading: s.helpDrawerLoading,
       helpDrawerReady: !s.helpDrawerLoading && !!s.helpDrawerContent,
       helpDrawerContent: s.helpDrawerContent,
+      pageHelpNotes: s.pageHelpNotes,
       closeHelpDrawer: this.closeHelpDrawer,
       helpOptionSocratic: this.helpOptionSocratic,
       helpOptionSteps: this.helpOptionSteps,
       helpOptionConcept: this.helpOptionConcept,
+      inputErrorMessage: s.inputErrorMessage,
+      showEndedMastery: s.endedWithMastery,
+      endedBktBarClass: s.endedBktAnimating ? 'pss-bkt-animate' : '',
+      endedBktLabel: s.endedBktAnimating ? '85%' : '42%',
       isTextAnswer: this.getEvaluationStrategy() !== 'rubric_llm', isTextareaAnswer: this.getEvaluationStrategy() === 'rubric_llm',
       answerInput: s.answerInput, handleInputChange: this.handleInputChange, handleKeyDown: this.handleKeyDown,
       handleSubmit: this.handleSubmit,

@@ -94,6 +94,9 @@
           <div style="flex:1;">
             <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:18px;margin-bottom:4px;">{{ item.title }}</div>
             <div style="font-size:13px;color:oklch(49% 0.018 55);">{{ item.subjectLine }}</div>
+            <sc-if value="{{ item.isComplete }}">
+              <div style="font-size:12px;font-weight:600;color:oklch(38% 0.10 150);margin-top:4px;">Completed</div>
+            </sc-if>
           </div>
           <sc-if value="{{ item.isComplete }}">
             <div class="tdy-check" aria-label="Completed">&#10003;</div>
@@ -186,17 +189,17 @@
 class Component extends DCLogic {
   state = { view: 'today', askText: '', askLoading: false, askAnswer: '', toastId: null };
 
-  streak = 4;
+  streak = 3;
   dailyTaskComplete = false;
 
   componentDidMount() {
     if (window.EscolentDemo) {
       this.streak = window.EscolentDemo.getStreak();
-      this.dailyTaskComplete = window.EscolentDemo.isDailyTaskComplete();
+      this.dailyTaskComplete = window.EscolentDemo.isVariablesCompleted();
     } else {
       try {
-        this.streak = parseInt(localStorage.getItem('demoStreak') || '4', 10);
-        this.dailyTaskComplete = localStorage.getItem('demoDailyTaskComplete') === 'true';
+        this.streak = parseInt(localStorage.getItem('streak') || localStorage.getItem('demoStreak') || '3', 10);
+        this.dailyTaskComplete = localStorage.getItem('variables_completed') === 'true' || localStorage.getItem('variablesOnBothSides') === 'mastered';
       } catch (e) {}
     }
     this.forceUpdate();

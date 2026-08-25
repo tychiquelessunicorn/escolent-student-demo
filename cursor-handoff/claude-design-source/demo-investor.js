@@ -3,16 +3,44 @@
  * Loaded after support.js. Do not edit support.js (generated dc-runtime bundle).
  */
 (function () {
-  var STORAGE_KEY = "variablesOnBothSides";
-  var STREAK_KEY = "demoStreak";
-  var TASK_COMPLETE_KEY = "demoDailyTaskComplete";
-  var OFFLINE_LABEL = "Offline - Saved Locally";
+  var COMPLETED_KEY = "variables_completed";
+  var STREAK_KEY = "streak";
+  var LEGACY_MASTERED_KEY = "variablesOnBothSides";
+  var LEGACY_STREAK_KEY = "demoStreak";
+  var OFFLINE_SESSION_KEY = "esc_demo_offline";
+  var OFFLINE_LABEL = "Offline - Edge Saved";
   var ONLINE_LABEL = "Synced";
   var ONLINE_DOT = "oklch(55% 0.14 150)";
   var ONLINE_LABEL_COLOR = "oklch(49% 0.018 55)";
   var OFFLINE_DOT = "oklch(52% 0.14 18)";
+  var DEFAULT_STREAK = 3;
+  var COMPLETED_STREAK = 4;
 
   var demoOffline = false;
+
+  function readSessionOffline() {
+    try {
+      return sessionStorage.getItem(OFFLINE_SESSION_KEY) === "true";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function writeSessionOffline(value) {
+    try {
+      sessionStorage.setItem(OFFLINE_SESSION_KEY, value ? "true" : "false");
+    } catch (e) {}
+  }
+
+  function isCompletedRaw() {
+    try {
+      if (localStorage.getItem(COMPLETED_KEY) === "true") return true;
+      if (localStorage.getItem(LEGACY_MASTERED_KEY) === "mastered") return true;
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
 
   function isEffectivelyOffline() {
     return demoOffline || (typeof navigator !== "undefined" && !navigator.onLine);
@@ -46,35 +74,33 @@
       e.preventDefault();
       e.stopPropagation();
       demoOffline = !demoOffline;
+      writeSessionOffline(demoOffline);
       paintConnectivity();
     });
   }
 
-  window.addEventListener("offline", function () {
-    paintConnectivity();
-  });
-
-  window.addEventListener("online", function () {
-    paintConnectivity();
-  });
-
   function readStreak() {
     try {
       var n = parseInt(localStorage.getItem(STREAK_KEY), 10);
-      return Number.isFinite(n) ? n : 4;
+      if (Number.isFinite(n)) return n;
+      n = parseInt(localStorage.getItem(LEGACY_STREAK_KEY), 10);
+      if (Number.isFinite(n)) return n;
+      return isCompletedRaw() ? COMPLETED_STREAK : DEFAULT_STREAK;
     } catch (e) {
-      return 4;
+      return DEFAULT_STREAK;
     }
   }
 
   function writeStreak(n) {
     try {
       localStorage.setItem(STREAK_KEY, String(n));
+      localStorage.setItem(LEGACY_STREAK_KEY, String(n));
     } catch (e) {}
   }
 
   if (typeof document !== "undefined") {
     document.addEventListener("DOMContentLoaded", function () {
+      demoOffline = readSessionOffline();
       paintConnectivity();
       bindConnectivityToggle();
     });
@@ -85,48 +111,52 @@
     });
   }
 
+  window.addEventListener("offline", paintConnectivity);
+  window.addEventListener("online", paintConnectivity);
+
   window.EscolentDemo = {
-    storageKey: STORAGE_KEY,
+    completedKey: COMPLETED_KEY,
+    streakKey: STREAK_KEY,
+    isVariablesCompleted: function () {
+      return isCompletedRaw();
+    },
     isMastered: function () {
+      return this.isVariablesCompleted();
+    },
+    markVariablesCompleted: function () {
       try {
-        return localStorage.getItem(STORAGE_KEY) === "mastered";
-      } catch (e) {
-        return false;
-      }
+        localStorage.setItem(COMPLETED_KEY, "true");
+        localStorage.setItem(LEGACY_MASTERED_KEY, "mastered");
+      } catch (e) {}
     },
     markMastered: function () {
-      try {
-        localStorage.setItem(STORAGE_KEY, "mastered");
-      } catch (e) {}
+      this.markVariablesCompleted();
     },
     getStreak: function () {
       return readStreak();
+    },
+    setStreak: function (n) {
+      writeStreak(n);
     },
     incrementStreak: function () {
       writeStreak(readStreak() + 1);
     },
     isDailyTaskComplete: function () {
-      try {
-        return localStorage.getItem(TASK_COMPLETE_KEY) === "true";
-      } catch (e) {
-        return false;
-      }
+      return this.isVariablesCompleted();
     },
     markDailyTaskComplete: function () {
-      try {
-        localStorage.setItem(TASK_COMPLETE_KEY, "true");
-      } catch (e) {}
+      this.markVariablesCompleted();
     },
     completeVictoryLoop: function () {
-      this.markMastered();
-      this.markDailyTaskComplete();
-      this.incrementStreak();
+      this.markVariablesCompleted();
+      writeStreak(COMPLETED_STREAK);
     },
     isOffline: function () {
       return isEffectivelyOffline();
     },
     toggleOffline: function () {
       demoOffline = !demoOffline;
+      writeSessionOffline(demoOffline);
       paintConnectivity();
     },
   };
