@@ -1,113 +1,163 @@
 @import "tailwindcss";
 
 /*
-  Design tokens extracted verbatim from claude-design-source/Foundation.dc.html
-  (Phase 2 visual refresh). Values are not re-derived or re-tuned here.
+  Visual foundation — Phase 3 direction reset.
 
-  Deliberately absent, and it should stay that way:
-  - content-status colors (draft / pending_approval / validated). Requirement 32.6
-    forbids showing Content_Status to Students, and the UI blueprint is explicit
-    that the badge should not exist in any Student-facing variant rather than be
-    hidden behind a flag. There is no token to reach for.
-  - coverage colors, and the reserved escalation red oklch(54% 0.22 27). Both are
-    staff-facing only. The Student distress notice is deliberately the calm blue
-    below, never the alarm red.
+  The previous pass was deliberately restrained (one muted interactive blue,
+  one rare achievement teal, warm paper neutrals). This pass is the opposite
+  lever: confident brand colour, a small functional accent family, bolder
+  type, and motion that makes the UI feel alive — still for a 13–14-year-old,
+  not a younger children's aesthetic, and still without gamification.
+
+  Deliberately unchanged / still absent:
+  - content-status and coverage tokens (staff-facing / Student-forbidden).
+  - reserved escalation red oklch(54% 0.22 27) — staff only.
+  - Student distress notice tokens below — calm presentation, never restyled
+    by this reset. Do not point motion or area accents at that surface.
 */
 
 @theme {
-  /* Surfaces and text — warm neutral base, hue 55 */
-  --color-surface: oklch(97% 0.01 55);
-  --color-surface-raised: oklch(99% 0.007 55);
-  --color-surface-sunken: oklch(93% 0.008 55);
-  --color-content-primary: oklch(24% 0.014 55);
-  --color-content-secondary: oklch(49% 0.018 55);
-  --color-content-muted: oklch(64% 0.016 55);
-  --color-border: oklch(88% 0.014 55);
-  --color-border-subtle: oklch(93% 0.008 55);
-  --color-disabled-surface: oklch(92% 0.01 55);
-
-  /* Brand accent — the one interactive color */
-  --color-accent: oklch(48.8% 0.217 264.4);
-  --color-accent-hover: oklch(42% 0.217 264.4);
-  --color-accent-subtle: oklch(94% 0.03 264.4);
-  --color-accent-subtle-border: oklch(78% 0.09 264.4);
-  --color-accent-strong: oklch(38% 0.15 264.4);
-
   /*
-    Achievement accent. Scoped to exactly two moments, product-wide:
-    crossing a mastery tier, and a first-exposure skill resolving correctly.
-    Not a general highlight color. If you are reaching for this token for a
-    third reason, that is the bug.
+    Surfaces — still warm (hue ~55), but with enough chroma to read as a
+    designed ground rather than near-white SaaS chrome.
   */
-  --color-achievement: oklch(58% 0.16 215);
-  --color-achievement-subtle: oklch(95% 0.045 215);
-  --color-achievement-border: oklch(80% 0.1 215);
-  --color-achievement-heading: oklch(28% 0.1 215);
-  --color-achievement-body: oklch(36% 0.11 215);
-
-  /* Mastery — one ordered progression, five steps */
-  --color-mastery-not-attempted: oklch(88% 0.014 55);
-  --color-mastery-struggling: oklch(58% 0.11 25);
-  --color-mastery-emerging: oklch(63% 0.1 60);
-  --color-mastery-tentative: oklch(68% 0.09 100);
-  --color-mastery-durable: oklch(60% 0.1 150);
-
-  --color-mastery-not-attempted-bg: oklch(92% 0.01 55);
-  --color-mastery-not-attempted-fg: oklch(49% 0.018 55);
-  --color-mastery-struggling-bg: oklch(95% 0.03 25);
-  --color-mastery-struggling-fg: oklch(45% 0.11 25);
-  --color-mastery-emerging-bg: oklch(95% 0.03 60);
-  --color-mastery-emerging-fg: oklch(45% 0.1 60);
-  --color-mastery-tentative-bg: oklch(95% 0.025 100);
-  --color-mastery-tentative-fg: oklch(42% 0.09 100);
-  --color-mastery-durable-bg: oklch(93% 0.03 150);
-  --color-mastery-durable-fg: oklch(38% 0.1 150);
-  --color-mastery-achievement-fg: oklch(36% 0.13 215);
-
-  /* Item tiers — different in kind, not intensity */
-  --color-urgent: oklch(56% 0.15 45);
-  --color-urgent-bg: oklch(95% 0.035 45);
-  --color-urgent-fg: oklch(45% 0.13 45);
-  --color-informational: oklch(53% 0.09 230);
-  --color-informational-bg: oklch(95% 0.02 230);
-  --color-informational-fg: oklch(40% 0.08 230);
+  --color-surface: oklch(96% 0.028 55);
+  --color-surface-raised: oklch(99% 0.012 55);
+  --color-surface-sunken: oklch(92% 0.035 55);
+  --color-content-primary: oklch(22% 0.03 55);
+  --color-content-secondary: oklch(42% 0.04 55);
+  --color-content-muted: oklch(55% 0.035 55);
+  --color-border: oklch(84% 0.04 55);
+  --color-border-subtle: oklch(90% 0.03 55);
+  --color-disabled-surface: oklch(90% 0.02 55);
 
   /*
-    Student-facing distress notice. Deliberately calm — this tells a student
-    their teacher is coming, it is not an alarm aimed at them.
+    Brand accent — logo blue, used with confidence: solid fills, tinted fields,
+    strong hover. Same hue family as the mark; saturation stays high.
+  */
+  --color-accent: oklch(48.8% 0.217 264.4);
+  --color-accent-hover: oklch(40% 0.22 264.4);
+  --color-accent-subtle: oklch(92% 0.055 264.4);
+  --color-accent-subtle-border: oklch(72% 0.12 264.4);
+  --color-accent-strong: oklch(34% 0.18 264.4);
+  --color-accent-field: oklch(88% 0.08 264.4);
+
+  /*
+    Functional area accents — one identity per Student nav area. Not decoration:
+    Today = schedule/time, Learn = exploration, Practice = active work (brand),
+    Progress = growth over time. Components pick these deliberately.
+  */
+  --color-area-today: oklch(62% 0.17 55);
+  --color-area-today-subtle: oklch(94% 0.06 55);
+  --color-area-today-border: oklch(78% 0.12 55);
+  --color-area-today-fg: oklch(38% 0.12 55);
+
+  --color-area-learn: oklch(58% 0.19 35);
+  --color-area-learn-subtle: oklch(95% 0.06 35);
+  --color-area-learn-border: oklch(78% 0.12 35);
+  --color-area-learn-fg: oklch(38% 0.14 35);
+
+  --color-area-practice: var(--color-accent);
+  --color-area-practice-subtle: var(--color-accent-subtle);
+  --color-area-practice-border: var(--color-accent-subtle-border);
+  --color-area-practice-fg: var(--color-accent-strong);
+
+  --color-area-progress: oklch(55% 0.15 175);
+  --color-area-progress-subtle: oklch(94% 0.05 175);
+  --color-area-progress-border: oklch(72% 0.1 175);
+  --color-area-progress-fg: oklch(32% 0.1 175);
+
+  /*
+    Achievement — still reserved for the two product moments (tier cross,
+    first-exposure resolve), but louder so the moment actually lands.
+  */
+  --color-achievement: oklch(58% 0.18 215);
+  --color-achievement-subtle: oklch(93% 0.07 215);
+  --color-achievement-border: oklch(72% 0.12 215);
+  --color-achievement-heading: oklch(28% 0.12 215);
+  --color-achievement-body: oklch(34% 0.12 215);
+
+  /* Mastery — same ordered hue ladder, chroma stepped up */
+  --color-mastery-not-attempted: oklch(82% 0.03 55);
+  --color-mastery-struggling: oklch(56% 0.16 25);
+  --color-mastery-emerging: oklch(62% 0.15 60);
+  --color-mastery-tentative: oklch(66% 0.13 100);
+  --color-mastery-durable: oklch(55% 0.14 150);
+
+  --color-mastery-not-attempted-bg: oklch(92% 0.025 55);
+  --color-mastery-not-attempted-fg: oklch(42% 0.04 55);
+  --color-mastery-struggling-bg: oklch(95% 0.05 25);
+  --color-mastery-struggling-fg: oklch(42% 0.14 25);
+  --color-mastery-emerging-bg: oklch(95% 0.05 60);
+  --color-mastery-emerging-fg: oklch(42% 0.12 60);
+  --color-mastery-tentative-bg: oklch(95% 0.045 100);
+  --color-mastery-tentative-fg: oklch(40% 0.11 100);
+  --color-mastery-durable-bg: oklch(92% 0.05 150);
+  --color-mastery-durable-fg: oklch(34% 0.12 150);
+  --color-mastery-achievement-fg: oklch(32% 0.14 215);
+
+  --color-urgent: oklch(58% 0.18 45);
+  --color-urgent-bg: oklch(95% 0.055 45);
+  --color-urgent-fg: oklch(42% 0.15 45);
+  --color-informational: oklch(52% 0.12 230);
+  --color-informational-bg: oklch(94% 0.04 230);
+  --color-informational-fg: oklch(36% 0.1 230);
+
+  /*
+    Student-facing distress notice — LOCKED. Calm, non-alarming. This reset
+    does not restyle or animate this surface.
   */
   --color-notice-bg: oklch(96% 0.02 250);
   --color-notice-border: oklch(85% 0.05 250);
   --color-notice-fg: oklch(35% 0.08 250);
 
-  /* Ordinary form-validation red — never the reserved escalation color */
   --color-error: oklch(52% 0.14 18);
 
-  /* Radius — 8 / 14 / 18 / 22 / 26 */
-  --radius-xs: 8px;
-  --radius-control: 14px;
-  --radius-shell: 18px;
-  --radius-card: 22px;
-  --radius-modal: 26px;
+  /* Radius — same roles, nudged rounder for energy */
+  --radius-xs: 10px;
+  --radius-control: 16px;
+  --radius-shell: 20px;
+  --radius-card: 24px;
+  --radius-modal: 28px;
 
-  /* Type scale */
+  /*
+    Type — bigger display steps. Pairing is Outfit (display) + Plus Jakarta
+    Sans (body): Crimson Pro / Geist read as adult editorial SaaS and capped
+    how far a bold pass could go without fighting the fonts.
+  */
   --text-xs: 13px;
   --text-sm: 15px;
   --text-base: 16px;
-  --text-lg: 22px;
-  --text-xl: 32px;
+  --text-lg: 28px;
+  --text-xl: 40px;
+  --text-2xl: 48px;
 
-  --font-body: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-crimson), ui-serif, Georgia, serif;
+  --font-body: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
 
-  /* Focused, narrow screens run at 720px */
   --container-focused: 720px;
+
+  --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 140ms;
+  --duration-med: 280ms;
 }
 
 @layer base {
   body {
     margin: 0;
-    background: var(--color-surface);
+    background:
+      radial-gradient(
+        1200px 600px at 10% -10%,
+        oklch(92% 0.06 264.4 / 0.55),
+        transparent 55%
+      ),
+      radial-gradient(
+        900px 500px at 100% 0%,
+        oklch(94% 0.07 55 / 0.7),
+        transparent 50%
+      ),
+      var(--color-surface);
+    background-attachment: fixed;
     color: var(--color-content-primary);
     font-family: var(--font-body);
   }
@@ -174,6 +224,61 @@
   }
 }
 
+@keyframes esc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes esc-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes esc-press {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(0.97);
+  }
+}
+
+.esc-rise {
+  animation: esc-rise var(--duration-med) var(--ease-snap) both;
+}
+
+.esc-pop {
+  animation: esc-pop var(--duration-med) var(--ease-snap) both;
+}
+
+.esc-pressable {
+  transition:
+    transform var(--duration-fast) var(--ease-snap),
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
+}
+
+.esc-pressable:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.esc-pressable:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -181,5 +286,10 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .esc-pressable:hover:not(:disabled),
+  .esc-pressable:active:not(:disabled) {
+    transform: none;
   }
 }

@@ -1,18 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Crimson_Pro, Geist } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({
+/*
+  Crimson Pro + Geist capped the previous pass at "trusted adult SaaS."
+  Outfit (display) + Plus Jakarta Sans (body) carry bold geometric energy
+  without tipping into a younger children's look.
+*/
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-geist",
+  weight: ["500", "600", "700", "800"],
+  variable: "--font-outfit",
   display: "swap",
 });
 
-const crimson = Crimson_Pro({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-crimson",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-jakarta",
   display: "swap",
 });
 
@@ -32,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geist.variable} ${crimson.variable}`}>
+    <html lang="en" className={`${outfit.variable} ${jakarta.variable}`}>
       <body>{children}</body>
     </html>
   );
