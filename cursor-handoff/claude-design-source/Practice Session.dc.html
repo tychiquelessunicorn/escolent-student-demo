@@ -29,7 +29,13 @@
   .pss-input-error-msg{margin-top:8px;font-size:13px;color:oklch(52% 0.14 18);}
   .pss-input-wrong{border-color:oklch(72% 0.10 18) !important;box-shadow:0 0 0 1px oklch(72% 0.10 18 / 0.35);}
   .pss-input-success{border-color:oklch(55% 0.14 150) !important;background:oklch(95% 0.04 150) !important;}
-  .pss-socratic-hint{margin-top:12px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);}
+  .pss-socratic-hint{margin-top:12px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);white-space:pre-line;}
+  .pss-mini-step{margin-top:12px;background:oklch(97% 0.010 55);border:1.5px dashed oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;}
+  .pss-mini-step-eq{font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;letter-spacing:0.01em;margin:6px 0 4px;}
+  .pss-remediation-overlay{position:fixed;inset:0;background:oklch(24% 0.014 55 / 0.45);display:flex;align-items:center;justify-content:center;padding:24px;z-index:110;box-sizing:border-box;}
+  .pss-remediation-modal{background:oklch(99% 0.007 55);border-radius:22px;padding:28px 24px;max-width:420px;width:100%;box-shadow:0 24px 48px oklch(24% 0.014 55 / 0.18);}
+  .pss-demo-tools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+  .pss-demo-chip{font-family:'Geist',sans-serif;font-size:11px;font-weight:600;padding:6px 10px;border-radius:999px;border:1px dashed oklch(78% 0.09 264.4);background:oklch(97% 0.010 55);color:oklch(48.8% 0.217 264.4);cursor:pointer;}
   .pss-ai-thinking{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:oklch(64% 0.016 55);}
   .pss-ai-spinner{width:14px;height:14px;border:2px solid oklch(88% 0.014 55);border-top-color:oklch(48.8% 0.217 264.4);border-radius:50%;animation:pss-spin 0.8s linear infinite;flex-shrink:0;}
   .esc-conn-toggle{cursor:pointer;border:none;background:transparent;padding:0;display:flex;align-items:center;gap:6px;font:inherit;}
@@ -44,7 +50,7 @@
   .pss-help-drawer.pss-help-open{transform:translateX(0);}
   .pss-help-option{display:block;width:100%;text-align:left;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;padding:14px 16px;border-radius:14px;border:1px solid oklch(88% 0.014 55);background:oklch(99% 0.007 55);color:oklch(24% 0.014 55);cursor:pointer;margin-bottom:10px;}
   .pss-help-option:hover{border-color:oklch(78% 0.09 264.4);background:oklch(97% 0.010 55);}
-  .pss-help-response{margin-top:16px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);}
+  .pss-help-response{margin-top:16px;background:oklch(94% 0.03 264.4);border:1px solid oklch(78% 0.09 264.4);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.55;color:oklch(38% 0.15 264.4);white-space:pre-line;}
   .pss-ended-mastery{margin-top:20px;background:oklch(95% 0.03 150);border:1px solid oklch(82% 0.06 150);border-radius:18px;padding:16px 18px;}
   .pss-ended-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;}
   .pss-btn-primary{font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:11px 20px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;text-decoration:none;display:inline-block;}
@@ -91,6 +97,10 @@
   <sc-if value="{{ showQueueBanner }}" hint-placeholder-val="{{ false }}">
     <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:oklch(49% 0.018 55);background:oklch(96% 0.005 264.4);border-radius:999px;padding:5px 12px;margin-bottom:20px;">{{ queueBannerText }}</div>
   </sc-if>
+
+  <div class="pss-demo-tools">
+    <button type="button" class="pss-demo-chip" onClick="{{ simulateDiagnosticGap }}">Simulate Diagnostic Gap</button>
+  </div>
 
   <sc-if value="{{ showGlobalDistress }}" hint-placeholder-val="{{ false }}">
     <div style="background:oklch(96% 0.02 250);border:1px solid oklch(85% 0.05 250);border-radius:18px;padding:14px 16px;font-size:14px;line-height:1.5;color:oklch(35% 0.08 250);margin-bottom:20px;">Your teacher has been notified and will follow up with you.</div>
@@ -228,6 +238,9 @@
       <div class="pss-ended-actions">
         <a href="Today.dc.html" class="pss-btn-primary">Return to Dashboard</a>
         <a href="Progress.dc.html" class="pss-btn-secondary">View Progress Graph</a>
+        <sc-if value="{{ isOneStepRemediation }}" hint-placeholder-val="{{ false }}">
+          <a href="Practice Session.dc.html?skill=variables_both_sides" class="pss-btn-secondary">Return to variables practice</a>
+        </sc-if>
       </div>
     </div>
   </sc-if>
@@ -362,11 +375,21 @@
           <sc-if value="{{ inputErrorMessage }}" hint-placeholder-val="{{ false }}">
             <div class="pss-input-error-msg">{{ inputErrorMessage }}</div>
           </sc-if>
+          <sc-if value="{{ helpDrawerLoading }}" hint-placeholder-val="{{ false }}">
+            <div class="pss-ai-thinking" style="margin-top:12px;"><div class="pss-ai-spinner"></div>AI Thinking&#8230;</div>
+          </sc-if>
           <sc-for list="{{ pageHelpNotes }}" as="note" hint-placeholder-count="0">
-            <div class="pss-help-response" style="margin-top:12px;">{{ note.content }}</div>
+            <div class="pss-help-response" style="margin-top:12px;white-space:pre-line;">{{ note.content }}</div>
           </sc-for>
           <sc-if value="{{ socraticHintLoading }}" hint-placeholder-val="{{ false }}">
             <div class="pss-ai-thinking"><div class="pss-ai-spinner"></div>AI Thinking&#8230;</div>
+          </sc-if>
+          <sc-if value="{{ showMiniStep }}" hint-placeholder-val="{{ false }}">
+            <div class="pss-mini-step">
+              <div style="font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:oklch(48.8% 0.217 264.4);">Mini-step</div>
+              <div class="pss-mini-step-eq">5x &#8722; 2x = ?</div>
+              <div style="font-size:13px;color:oklch(49% 0.018 55);">Combine the x terms first, then finish the equation.</div>
+            </div>
           </sc-if>
           <sc-if value="{{ socraticHintReady }}" hint-placeholder-val="{{ false }}">
             <div class="pss-socratic-hint">{{ socraticHintText }}</div>
@@ -385,16 +408,33 @@
   <div class="pss-victory-overlay">
     <div class="pss-victory-modal">
       <div style="width:52px;height:52px;border-radius:50%;background:oklch(93% 0.03 150);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px;">&#10003;</div>
-      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin-bottom:6px;">Skill Mastered!</div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:24px;margin-bottom:6px;">Session Complete</div>
       <div style="font-size:14px;color:oklch(49% 0.018 55);margin-bottom:4px;">Variables on both sides</div>
+      <div style="font-size:12px;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;color:oklch(38% 0.10 150);margin-top:16px;">Mastery growth</div>
       <div class="pss-bkt-track"><div class="pss-bkt-fill {{ bktBarClass }}"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:oklch(64% 0.016 55);margin-bottom:24px;">
-        <span>BKT Mastery</span>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:oklch(64% 0.016 55);margin-bottom:8px;">
+        <span>42%</span>
         <span>{{ bktMasteryLabel }}</span>
       </div>
+      <div style="font-size:13px;color:oklch(49% 0.018 55);margin-bottom:20px;">Today&#8217;s task counter will update when you return to the dashboard.</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:4px;">
         <button onClick="{{ handleReturnToDashboard }}" style="font-family:'Geist',sans-serif;font-size:15px;font-weight:600;padding:12px 24px;border-radius:14px;border:none;background:oklch(48.8% 0.217 264.4);color:oklch(99% 0.007 55);cursor:pointer;flex:1;">Return to Dashboard</button>
         <a href="Progress.dc.html" onClick="{{ handleViewProgress }}" class="pss-btn-secondary" style="flex:1;text-align:center;padding:12px 24px;">View Progress Graph</a>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ showRemediationModal }}" hint-placeholder-val="{{ false }}">
+  <div class="pss-remediation-overlay">
+    <div class="pss-remediation-modal">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:oklch(48% 0.12 25);margin-bottom:10px;">AI diagnostic</div>
+      <div style="font-family:'Crimson Pro',serif;font-weight:700;font-size:22px;margin-bottom:10px;">Prerequisite Gap Detected</div>
+      <div style="font-size:14px;line-height:1.55;color:oklch(35% 0.04 55);margin-bottom:18px;">Prerequisite Gap Detected in Integer Operations. Routing to foundational review&#8230;</div>
+      <div style="background:oklch(96% 0.02 250);border:1px solid oklch(85% 0.05 250);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.5;margin-bottom:20px;">Recommended next: a 1-step equation practice to rebuild the missing foundation before returning to variables on both sides.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <a href="Practice Session.dc.html?skill=one_step" class="pss-btn-primary">Open 1-step practice</a>
+        <button type="button" class="pss-btn-secondary" onClick="{{ closeRemediationModal }}">Stay on this problem</button>
       </div>
     </div>
   </div>
@@ -404,10 +444,10 @@
   <div class="pss-help-backdrop" onClick="{{ closeHelpDrawer }}"></div>
   <div class="pss-help-drawer pss-help-open">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-      <div style="font-size:16px;font-weight:700;">Need help?</div>
+      <div style="font-size:16px;font-weight:700;">Socratic AI guidance</div>
       <button onClick="{{ closeHelpDrawer }}" style="background:none;border:none;font-size:22px;color:oklch(64% 0.016 55);cursor:pointer;line-height:1;">&times;</button>
     </div>
-    <div style="font-size:13px;color:oklch(64% 0.016 55);margin-bottom:16px;">Choose how you'd like support — AI responses are simulated for this demo.</div>
+    <div style="font-size:13px;color:oklch(64% 0.016 55);margin-bottom:16px;">Progressive hints match your attempt count — simulated AI for this demo.</div>
     <button onClick="{{ helpOptionSocratic }}" class="pss-help-option">Get a Socratic Hint</button>
     <button onClick="{{ helpOptionSteps }}" class="pss-help-option">Break down the steps</button>
     <button onClick="{{ helpOptionConcept }}" class="pss-help-option">Explain the concept</button>
@@ -485,12 +525,24 @@ class Component extends DCLogic {
     helpDrawerLoading: false,
     helpDrawerContent: '',
     pageHelpNotes: [],
+    showRemediationModal: false,
   };
 
-  SOCRATIC_FALLBACK = 'Not quite! Try moving 2x to the left side first by subtracting 2x from both sides.';
+  HINT_CHAIN = [
+    'Not quite — start by collecting the x terms. What happens if you subtract 2x from both sides?\n\nUpdate your answer and submit again.',
+    'Mini-step next: simplify 5x \u2212 2x = ? That should give you 3x. Then finish 3x + 3 = 18.\n\nUpdate your answer and submit again.',
+    'Worked path:\n1. 5x \u2212 2x = 3x \u2192 3x + 3 = 18\n2. 3x = 15\n3. x = 5\n\nUpdate your answer and submit again.',
+  ];
   NUMERIC_ANSWER_RE = /^-?\d+(\.\d+)?$/;
+  SOCRATIC_FALLBACK = 'Not quite! Try moving 2x to the left side first by subtracting 2x from both sides.';
 
   isInvestorDemoProblem = () => this.isVariablesSkill() && !this.isRubricDemo() && this.getProblems().length === 1;
+
+  hintForAttempt = (attempt) => {
+    const chain = (window.EscolentDemo && window.EscolentDemo.HINT_CHAIN) || this.HINT_CHAIN;
+    const idx = Math.min(Math.max(attempt, 1), chain.length) - 1;
+    return chain[idx];
+  };
 
   // Demo fixture for the "genuinely interrupted" scenario: partway into two-step equations, 2 wrong tries in.
   // interruptionDemo is the test harness for the 24h expiry rule (Requirement 30.4): 'recent' simulates a save
@@ -506,6 +558,18 @@ class Component extends DCLogic {
 
   variablesBothSidesProblems = [
     { text: "5x + 3 = 2x + 18", answer: 5, partialStep: "Subtract 2x from both sides: 3x + 3 = 18" },
+  ];
+
+  // Demo-only foundational review used by the prerequisite remediation modal.
+  oneStepProblems = [
+    {
+      text: "x + 7 = 12",
+      answer: 5,
+      similarText: "x + 4 = 9",
+      similarStep1: "Subtract 4 from both sides: x = 5",
+      similarStep2: "Check: 5 + 4 = 9",
+      partialStep: "Subtract 7 from both sides: x = 5",
+    },
   ];
 
   // Rubric-graded demo problem: this equation has no solution \u2014 the x-terms cancel, leaving 3 = 7, a false
@@ -533,13 +597,18 @@ class Component extends DCLogic {
   skillParam = (() => { try { return new URLSearchParams(window.location.search).get('skill'); } catch (e) { return null; } })();
   unsupportedSkillLabels = {
     equation_basics: 'Equation basics & balancing', integer_operations: 'Integer operations',
-    one_step: 'One-step equations', multi_step: 'Multi-step equations', inequalities: 'Inequalities',
+    multi_step: 'Multi-step equations', inequalities: 'Inequalities',
   };
-  isVariablesSkill = () => this.entryVariant === 'first_exposure' || this.skillParam === 'variables_both_sides';
+  isOneStepRemediation = () => this.skillParam === 'one_step';
+  // Explicit ?skill= always wins over the default first_exposure entry used for the investor loop.
+  isVariablesSkill = () =>
+    this.skillParam === 'variables_both_sides' ||
+    (!this.skillParam && this.entryVariant === 'first_exposure');
   isUnsupportedSkill = () => !!this.unsupportedSkillLabels[this.skillParam];
 
   getProblems = () => {
     if (this.isRubricDemo()) return [this.noSolutionProblem];
+    if (this.isOneStepRemediation()) return this.oneStepProblems;
     return this.isVariablesSkill() ? this.variablesBothSidesProblems : this.problems;
   };
   isFirstExposure = () => this.isVariablesSkill();
@@ -589,6 +658,10 @@ class Component extends DCLogic {
     // 'expired' behaves identically to 'none' here \u2014 the saved state is simply never surfaced.
     if (this.hasPendingInterruption()) { this.setState({ phase: 'resumePrompt' }); return; }
     if (this.entryVariant === 'nothing_due') { this.setState({ phase: 'gate' }); return; }
+    if (this.isOneStepRemediation()) {
+      this.setState({ phase: 'active', problemIndex: 0, wrongAnswers: [], answerInput: '' });
+      return;
+    }
     if (this.isVariablesSkill()) {
       if (this.getConn() === 'unavailable') { this.setState({ phase: 'offlineBlocked', offlineBlockedVariant: 'first_exposure' }); return; }
       this.setState({ phase: 'intro' }); this.generateIntro(); return;
@@ -692,7 +765,11 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
   };
 
   handleInputChange = (e) => this.setState({ answerInput: e.target.value, inputInvalid: false, inputWrong: false, inputErrorMessage: '' });
-  handleKeyDown = (e) => { if (e.key === 'Enter') this.handleSubmit(); };
+  handleKeyDown = (e) => {
+    if (e.key !== 'Enter') return;
+    if (this.isInvestorDemoProblem() && (this.state.socraticHintLoading || this.state.showVictoryModal)) return;
+    this.handleSubmit();
+  };
 
   persistVictoryState = () => {
     if (window.EscolentDemo) window.EscolentDemo.completeVictoryLoop();
@@ -718,19 +795,31 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
   closeHelpDrawer = () => this.setState({ helpDrawerOpen: false, helpDrawerLoading: false, helpDrawerContent: '' });
 
   simulateHelpResponse = (content) => {
-    this.setState({ helpDrawerLoading: true, helpDrawerContent: '' });
+    this.setState({
+      helpDrawerOpen: false,
+      helpDrawerLoading: true,
+      helpDrawerContent: '',
+    });
     setTimeout(() => {
       this.setState((s) => ({
         helpDrawerLoading: false,
         helpDrawerContent: content,
         pageHelpNotes: [...s.pageHelpNotes, { content }],
+        socraticHintText: content,
+        socraticHintLoading: false,
       }));
     }, 800);
   };
 
-  helpOptionSocratic = () => this.simulateHelpResponse('What happens to the equation if you subtract 2x from both sides? Try naming what stays on each side before you solve for x.');
+  helpOptionSocratic = () => {
+    const attempt = Math.max(1, this.state.wrongAnswers.length || 1);
+    this.simulateHelpResponse(this.hintForAttempt(attempt));
+  };
   helpOptionSteps = () => this.simulateHelpResponse('Step 1: Subtract 2x from both sides \u2192 3x + 3 = 18\nStep 2: Subtract 3 from both sides \u2192 3x = 15\nStep 3: Divide both sides by 3 \u2192 x = 5');
   helpOptionConcept = () => this.simulateHelpResponse('When x appears on both sides, the goal is to collect all variable terms on one side \u2014 just like balancing a scale. Once they\u2019re together, you\u2019re back to a two-step equation you already know how to finish.');
+
+  simulateDiagnosticGap = () => this.setState({ showRemediationModal: true });
+  closeRemediationModal = () => this.setState({ showRemediationModal: false });
 
   handleSubmit = () => {
     if (this.isRubricDemo()) { this.handleRubricSubmit(); return; }
@@ -753,6 +842,7 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
         this.setState({
           showVictoryModal: true,
           bktAnimating: false,
+          sessionCompleted: Math.max(1, this.state.sessionCompleted + 1),
           inputInvalid: false,
           inputWrong: false,
           inputErrorMessage: '',
@@ -764,16 +854,21 @@ Ground it in the real steps for solving "${problem.text}". 3-5 sentences or shor
         setTimeout(() => this.setState({ bktAnimating: true }), 120);
         return;
       }
+      const nextWrong = [...this.state.wrongAnswers, val];
+      const attempt = nextWrong.length;
       this.setState({
         socraticHintLoading: true,
         socraticHintText: '',
         inputWrong: true,
         inputInvalid: false,
+        wrongAnswers: nextWrong,
+        answerInput: '',
       });
       setTimeout(() => {
         this.setState({
           socraticHintLoading: false,
-          socraticHintText: this.SOCRATIC_FALLBACK,
+          socraticHintText: this.hintForAttempt(attempt),
+          inputWrong: false,
         });
       }, 800);
       return;
@@ -961,7 +1056,9 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
     const problem = this.getProblems()[s.problemIndex];
     const wrongCount = s.wrongAnswers.length;
     const entryVariant = this.entryVariant || 'returning';
-    const skillDisplayName = this.isVariablesSkill() ? 'variables on both sides' : 'two-step equations';
+    const skillDisplayName = this.isVariablesSkill()
+      ? 'variables on both sides'
+      : (this.isOneStepRemediation() ? 'one-step equations' : 'two-step equations');
     const conn = this.getConn();
     const connLabels = { fresh: 'Synced', stale: 'Last synced a while ago', syncing: 'Syncing\u2026', unavailable: 'Offline \u2014 saved on this device' };
     const queueCount = s.pendingSyncQueue.length;
@@ -972,6 +1069,8 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
     if (entryVariant === 'first_time') reasonLine = "Let's start with two-step equations.";
     if (entryVariant === 'nothing_due') reasonLine = "Since you're here \u2014 a two-step equations problem, just for practice.";
     if (this.isVariablesSkill()) reasonLine = "Give this one a try.";
+    if (this.isOneStepRemediation())
+      reasonLine = "Foundational review — rebuild this one-step move, then return to variables on both sides.";
     if (this.isRubricDemo()) reasonLine = "This one asks you to explain your thinking \u2014 not just give a number.";
 
     const tierStates = ['done', 'done', 'done', 'done'].map((_, i) => {
@@ -1064,6 +1163,11 @@ Respond with ONLY strict JSON, no markdown, no prose: {"distress": true or false
       helpOptionSocratic: this.helpOptionSocratic,
       helpOptionSteps: this.helpOptionSteps,
       helpOptionConcept: this.helpOptionConcept,
+      simulateDiagnosticGap: this.simulateDiagnosticGap,
+      closeRemediationModal: this.closeRemediationModal,
+      showRemediationModal: s.showRemediationModal,
+      showMiniStep: this.isInvestorDemoProblem() && s.phase === 'active' && s.wrongAnswers.length >= 2 && !s.socraticHintLoading,
+      isOneStepRemediation: this.isOneStepRemediation(),
       inputErrorMessage: s.inputErrorMessage,
       showEndedMastery: s.endedWithMastery,
       endedBktBarClass: s.endedBktAnimating ? 'pss-bkt-animate' : '',

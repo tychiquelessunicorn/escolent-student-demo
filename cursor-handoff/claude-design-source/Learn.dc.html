@@ -20,6 +20,7 @@
   @keyframes lrn-fade{0%{opacity:0;}15%{opacity:1;}85%{opacity:1;}100%{opacity:0;}}
   .esc-conn-toggle{cursor:pointer;border:none;background:transparent;padding:0;display:flex;align-items:center;gap:6px;font:inherit;}
   .esc-conn-toggle:hover [data-esc-connectivity-label]{color:oklch(48.8% 0.217 264.4) !important;}
+  .esc-offline-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:oklch(38% 0.08 150);background:oklch(95% 0.025 150);border:1px solid oklch(82% 0.05 150);padding:3px 8px;border-radius:999px;white-space:nowrap;}
   #app-rail{display:none;}
   #app-bottomnav{display:flex;}
   @media (min-width:760px){
@@ -62,7 +63,14 @@
       <div style="background:oklch(99% 0.007 55);border:1px solid oklch(88% 0.014 55);border-radius:18px;overflow:hidden;">
         <div onClick="{{ skill.toggle }}" style="display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;">
           <div style="width:11px;height:11px;border-radius:50%;background:{{ skill.dotBg }};border:{{ skill.dotBorder }};flex-shrink:0;"></div>
-          <div style="flex:1;font-size:15px;font-weight:600;">{{ skill.name }}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <div style="font-size:15px;font-weight:600;">{{ skill.name }}</div>
+              <sc-if value="{{ skill.showOfflineBadge }}">
+                <span class="esc-offline-badge">Available Offline</span>
+              </sc-if>
+            </div>
+          </div>
           <span style="font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:{{ skill.badgeBg }};color:{{ skill.badgeColor }};">{{ skill.label }}</span>
           <div style="font-size:13px;color:oklch(64% 0.016 55);width:14px;text-align:center;">{{ skill.chevron }}</div>
         </div>
@@ -206,6 +214,7 @@ class Component extends DCLogic {
         name: sk.name, expanded: isExpanded,
         chevron: isExpanded ? '\u2304' : '\u203a', toggle: () => this.toggleSkill(sk.id),
         dotBg: ts.dotBg, dotBorder: ts.dotBorder, badgeBg: ts.badgeBg, badgeColor: ts.badgeColor, label: ts.label,
+        showOfflineBadge: sk.tier !== 'not_attempted',
         contentLoading: !!(c && c.loading), contentReady: !!(c && !c.loading && c.text), contentText: c ? c.text : '',
         sourceLabel: sk.source, openSource: () => this.openSource(sk.id), showToast: s.toastId === sk.id,
       };
