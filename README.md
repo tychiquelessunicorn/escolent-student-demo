@@ -12,10 +12,12 @@ Learn, and Progress, plus the global nav shell.
 
 ## Pitch walkthrough (recommended)
 
-1. Open `/student/today?seed=fresh` (clean pre-mastery state).
+1. Open `/` or `/student/today?pitch=1` (guided path: clean seed, non-Variables Today rows locked).
 2. Start **Variables on both sides** → wrong answers show escalating hints → submit `5`.
-3. **Session Complete** → Return to Dashboard → Today/Progress update.
-4. Optional: open `?demo=1` only if you need harness controls.
+3. **Session Complete** → Return to Today → Progress updates (Durable 85%).
+4. Optional free-roam: drop `pitch` and open `?demo=1` only if you need harness controls.
+
+Canonical investor URL: `/student/today?pitch=1`
 
 ## Running locally
 
@@ -33,7 +35,7 @@ warning; in production it refuses traffic rather than running unmetered.
 
 | Route | Screen |
 | --- | --- |
-| `/` | Redirects to `/practice` — Requirement 7.1's no-menu Entry |
+| `/` | Redirects to `/student/today?pitch=1` — guided investor entry |
 | `/practice` | Practice Session |
 | `/student/today`, `/student/week` | Today / Week |
 | `/student/learn` | Learn / Course Map |
@@ -59,6 +61,7 @@ controls are enabled.
 | `aiHintsEnabled` | `true` (default), `false` |
 | `skill` | Any skill slug, e.g. `two_step`, `variables_both_sides`, `one_step` |
 | `seed` | `fresh` or `mastered` — resets local demo persistence for a clean pitch |
+| `pitch` | `1` — guided investor mode (auto-seeds fresh, locks non-Variables Today CTAs) |
 
 ## Distress detection
 

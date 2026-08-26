@@ -16,7 +16,7 @@ import {
 } from "@/lib/demo-persistence";
 
 export function LearnScreen() {
-  const { currentSpace } = useShellState();
+  const { currentSpace, setCurrentSpaceId } = useShellState();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [toastId, setToastId] = useState<string | null>(null);
   const [mastered, setMastered] = useState(false);
@@ -26,6 +26,15 @@ export function LearnScreen() {
     refresh();
     return subscribeDemoPersist(refresh);
   }, []);
+
+  useEffect(() => {
+    try {
+      const space = new URLSearchParams(window.location.search).get("space");
+      if (space) setCurrentSpaceId(space);
+    } catch {
+      /* ignore */
+    }
+  }, [setCurrentSpaceId]);
 
   // Reset expand state when switching Spaces so rows don't feel "stuck open".
   useEffect(() => {

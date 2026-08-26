@@ -109,15 +109,47 @@ export const INVESTOR_HINT_CHAIN = [
 ] as const;
 
 /**
+ * Skills with a real live problem set in this demo. Everything else soft-lands.
+ * Bare `/practice` (no skill) uses the Variables first-exposure path.
+ */
+export const PLAYABLE_PRACTICE_SKILLS = new Set([
+  "variables_both_sides",
+  "two_step",
+  "one_step",
+]);
+
+export function isPlayablePracticeSkill(
+  skill: string | null | undefined,
+): boolean {
+  if (!skill) return true;
+  return PLAYABLE_PRACTICE_SKILLS.has(skill);
+}
+
+/**
  * Skills without dedicated live problems get a pitch-safe soft landing instead
- * of a dead end. `one_step` and `variables_both_sides` / two-step are playable.
+ * of a dead end or a silent swap onto the wrong problem set.
  */
 export const UNSUPPORTED_SKILL_LABELS: Record<string, string> = {
   equation_basics: "Equation basics & balancing",
   integer_operations: "Integer operations",
   multi_step: "Multi-step equations",
   inequalities: "Inequalities",
+  map_scale: "Map reading & scale",
+  climate_zones: "Climate zones",
+  population_density: "Population density",
+  thesis_statements: "Thesis statements",
+  evidence_citations: "Evidence & citations",
+  paragraph_structure: "Paragraph structure",
+  two_step: "Two-step equations",
+  one_step: "One-step equations",
 };
+
+export function labelForPracticeSkill(skill: string): string {
+  return (
+    UNSUPPORTED_SKILL_LABELS[skill] ??
+    skill.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+  );
+}
 
 /** Demo fixture for the "genuinely interrupted" scenario (Requirement 30). */
 export const SAVED_INTERRUPTION = {

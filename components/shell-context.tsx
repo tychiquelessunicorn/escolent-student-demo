@@ -19,10 +19,12 @@ import {
   readDemoControlsEnabled,
   readDemoOffline,
   readDemoSpaceId,
+  readPitchMode,
   seedDemoState,
   writeDemoControlsEnabled,
   writeDemoOffline,
   writeDemoSpaceId,
+  writePitchMode,
   type DemoSeed,
 } from "@/lib/demo-persistence";
 
@@ -36,6 +38,7 @@ interface ShellStateValue {
   demoControls: boolean;
   enableDemoControls: () => void;
   applyDemoSeed: (seed: DemoSeed) => void;
+  pitchMode: boolean;
   currentSpaceId: string;
   currentSpace: DemoSpace;
   spaces: DemoSpace[];
@@ -51,6 +54,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const [headerNote, setHeaderNote] = useState("");
   const [demoOffline, setDemoOffline] = useState(false);
   const [demoControls, setDemoControls] = useState(false);
+  const [pitchMode, setPitchMode] = useState(false);
   const [currentSpaceId, setCurrentSpaceIdState] = useState(DEFAULT_SPACE_ID);
   const [practiceHelpHandler, setPracticeHelpHandler] = useState<(() => void) | null>(
     null,
@@ -58,39 +62,52 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     let fromUrl = false;
+    let pitchFromUrl = false;
     let seed: string | null = null;
     let spaceParam: string | null = null;
     try {
       const params = new URLSearchParams(window.location.search);
       fromUrl = params.get("demo") === "1";
+      pitchFromUrl = params.get("pitch") === "1";
       seed = params.get("seed");
       spaceParam = params.get("space");
     } catch {
       /* ignore */
     }
 
-    if (seed === "mastered" || seed === "fresh") {
-      seedDemoState(seed);
-      if (seed === "fresh" && !fromUrl) {
-        writeDemoControlsEnabled(false);
+    if (pitchFromUrl) {
+      seedDemoState("fresh");
+      writePitchMode(true);
+      writeDemoControlsEnabled(false);
+      writeDemoSpaceId("math");
+      setPitchMode(true);
+      setCurrentSpaceIdState("math");
+      setDemoControls(false);
+    } else {
+      if (seed === "mastered" || seed === "fresh") {
+        seedDemoState(seed);
+        if (seed === "fresh" && !fromUrl) {
+          writeDemoControlsEnabled(false);
+        }
+      }
+      setPitchMode(readPitchMode());
+
+      const enabled = fromUrl || readDemoControlsEnabled();
+      setDemoControls(enabled);
+      if (fromUrl) writeDemoControlsEnabled(true);
+
+      if (
+        spaceParam &&
+        DEMO_SPACES.some((space) => space.id === spaceParam)
+      ) {
+        writeDemoSpaceId(spaceParam);
+        setCurrentSpaceIdState(spaceParam);
+      } else {
+        setCurrentSpaceIdState(readDemoSpaceId());
       }
     }
 
     setDemoOffline(readDemoOffline());
-
-    const enabled = fromUrl || readDemoControlsEnabled();
-    setDemoControls(enabled);
-    if (fromUrl) writeDemoControlsEnabled(true);
-
-    if (
-      spaceParam &&
-      DEMO_SPACES.some((space) => space.id === spaceParam)
-    ) {
-      writeDemoSpaceId(spaceParam);
-      setCurrentSpaceIdState(spaceParam);
-    } else {
-      setCurrentSpaceIdState(readDemoSpaceId());
-    }
   }, []);
 
   const toggleDemoOffline = useCallback(() => {
@@ -144,6 +161,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       demoControls,
       enableDemoControls,
       applyDemoSeed,
+      pitchMode,
       currentSpaceId,
       currentSpace,
       spaces: DEMO_SPACES,
@@ -159,6 +177,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       demoControls,
       enableDemoControls,
       applyDemoSeed,
+      pitchMode,
       currentSpaceId,
       currentSpace,
       setCurrentSpaceId,

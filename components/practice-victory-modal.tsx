@@ -35,18 +35,18 @@ export function PracticeVictoryModal({
             lineHeight: 1.5,
           }}
         >
-          Today&apos;s task counter will update when you return to the dashboard.
+          Today&apos;s task counter will update when you return to Today.
         </p>
         <div className="esc-ended-actions" style={{ marginTop: 20 }}>
           <button type="button" className="esc-btn-primary esc-pressable" onClick={onReturn}>
-            Return to Dashboard
+            Return to Today
           </button>
           <Link
             href="/student/progress"
             className="esc-btn-secondary esc-pressable"
             onClick={persist}
           >
-            View Progress Graph
+            View Progress
           </Link>
         </div>
       </div>

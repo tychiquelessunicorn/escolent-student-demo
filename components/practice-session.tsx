@@ -36,8 +36,9 @@ import {
   RUBRIC_TIER_LABELS,
   SAVED_INTERRUPTION,
   TWO_STEP_PROBLEMS,
-  UNSUPPORTED_SKILL_LABELS,
   VARIABLES_BOTH_SIDES_PROBLEMS,
+  isPlayablePracticeSkill,
+  labelForPracticeSkill,
   type PracticeProblem,
   type SyncFreshness,
 } from "@/lib/demo-data";
@@ -213,6 +214,7 @@ function PracticeSessionInner() {
     registerPracticeHelp,
     demoOffline,
     demoControls,
+    pitchMode,
   } = useShellState();
   const { checkFreeText } = useDistress();
 
@@ -234,14 +236,18 @@ function PracticeSessionInner() {
   const aiHintsEnabled = params.get("aiHintsEnabled") !== "false";
 
   const isRubricDemo = problemDemo === "no_solution_rubric";
-  const isOneStepRemediation = skillParam === "one_step";
+  const isOneStepRemediation = skillParam === "one_step" && !pitchMode;
   const isVariablesSkill =
     skillParam === "variables_both_sides" ||
-    (!skillParam && entryVariant === "first_exposure");
+    (!skillParam && entryVariant === "first_exposure") ||
+    (pitchMode && !skillParam);
   const [alreadyMastered, setAlreadyMastered] = useState(false);
   const isFirstExposure = isVariablesSkill && !alreadyMastered;
+  // Soft-land any non-playable skill. In pitch mode, only Variables is live.
   const isUnsupportedSkill = Boolean(
-    skillParam && UNSUPPORTED_SKILL_LABELS[skillParam],
+    skillParam &&
+      (!isPlayablePracticeSkill(skillParam) ||
+        (pitchMode && skillParam !== "variables_both_sides")),
   );
 
   const getProblems = useCallback((): PracticeProblem[] => {
@@ -1196,10 +1202,10 @@ function PracticeSessionInner() {
           <CardTitle>Coming up next in this Space</CardTitle>
           <CardBody style={{ marginBottom: 16 }}>
             <strong>
-              {(skillParam && UNSUPPORTED_SKILL_LABELS[skillParam]) || "This skill"}
+              {(skillParam && labelForPracticeSkill(skillParam)) || "This skill"}
             </strong>{" "}
             isn&rsquo;t in today&rsquo;s live practice set. Keep the session moving with
-            what&rsquo;s due now — or a closely related foundation skill.
+            what&rsquo;s due now — or open the lesson on Learn.
           </CardBody>
           {skillParam && RELATED_PRACTICE_FOR_SKILL[skillParam] ? (
             <CardBody style={{ marginBottom: 20, fontSize: 14 }}>
@@ -1218,11 +1224,13 @@ function PracticeSessionInner() {
                 href={RELATED_PRACTICE_FOR_SKILL[skillParam].href}
                 className="esc-btn-secondary esc-pressable"
               >
-                Try {RELATED_PRACTICE_FOR_SKILL[skillParam].label}
+                {RELATED_PRACTICE_FOR_SKILL[skillParam].href.includes("/learn")
+                  ? RELATED_PRACTICE_FOR_SKILL[skillParam].label
+                  : `Try ${RELATED_PRACTICE_FOR_SKILL[skillParam].label}`}
               </Link>
             ) : (
-              <Link href="/practice?skill=two_step" className="esc-btn-secondary esc-pressable">
-                Try two-step equations
+              <Link href="/student/today" className="esc-btn-secondary esc-pressable">
+                Back to Today
               </Link>
             )}
           </div>

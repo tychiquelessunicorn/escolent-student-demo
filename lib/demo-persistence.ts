@@ -9,6 +9,7 @@ const LEGACY_STREAK_KEY = "demoStreak";
 const OFFLINE_SESSION_KEY = "esc_demo_offline";
 const DEMO_CONTROLS_KEY = "esc_demo_controls";
 const CURRENT_SPACE_KEY = "esc_demo_space";
+const PITCH_MODE_KEY = "esc_demo_pitch";
 const MIRROR_PREFIX = "esc_mirror_";
 
 export const DEMO_DEFAULT_STREAK = 3;
@@ -171,6 +172,24 @@ export function writeDemoControlsEnabled(value: boolean): void {
   if (typeof window === "undefined") return;
   try {
     sessionStorage.setItem(DEMO_CONTROLS_KEY, value ? "true" : "false");
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readPitchMode(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(PITCH_MODE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function writePitchMode(value: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(PITCH_MODE_KEY, value ? "true" : "false");
   } catch {
     /* ignore */
   }

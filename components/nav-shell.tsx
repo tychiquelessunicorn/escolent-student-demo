@@ -105,7 +105,7 @@ function HelpButton() {
         whiteSpace: "nowrap",
       }}
     >
-      I need help
+      {onPractice ? "Need a hint?" : "I need help"}
     </button>
   );
 }

@@ -921,6 +921,21 @@
   font-size: 10px;
 }
 
+.esc-pitch-banner {
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  border-radius: var(--radius-control);
+  border: 1.5px solid var(--color-area-today-border);
+  background: var(--color-area-today-subtle);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-area-today-fg);
+}
+
+.esc-pitch-locked {
+  cursor: default;
+}
+
 .esc-completed-chip {
   display: inline-flex;
   align-items: center;

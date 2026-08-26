@@ -6,6 +6,7 @@ import { AskBox } from "@/components/ask-box";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { ResumeIllustration } from "@/components/illustrations";
 import { PageHeading, SectionLabel } from "@/components/ui";
+import { useShellState } from "@/components/shell-context";
 import {
   FRESHNESS_LABELS,
   SCHEDULE_DAYS,
@@ -159,13 +160,68 @@ function EscolentItem({
   item,
   compact,
   complete,
+  pitchLocked = false,
 }: {
   item: ScheduleItem;
   compact?: boolean;
   complete?: boolean;
+  /** Guided pitch: non-Variables rows stay visible but not actionable. */
+  pitchLocked?: boolean;
 }) {
   const href = item.actionRoute ?? "/practice";
-  const accent = complete ? "oklch(55% 0.14 150)" : "var(--color-area-today)";
+  const accent = complete
+    ? "oklch(55% 0.14 150)"
+    : pitchLocked
+      ? "var(--color-border)"
+      : "var(--color-area-today)";
+
+  if (pitchLocked && !complete) {
+    return (
+      <div
+        className="esc-schedule-item esc-pitch-locked"
+        aria-disabled="true"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          background: "var(--color-surface)",
+          border: "1.5px solid var(--color-border)",
+          borderLeft: `4px solid ${accent}`,
+          borderRadius: "6px 20px 20px 6px",
+          padding: compact ? "10px 14px" : "18px 20px",
+          opacity: 0.72,
+        }}
+      >
+        <div style={{ flex: 1 }}>
+          <div
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 800,
+              fontSize: compact ? 14 : 18,
+              letterSpacing: "-0.02em",
+              marginBottom: 4,
+            }}
+          >
+            {item.title}
+          </div>
+          <div style={{ fontSize: 13, color: "var(--color-content-secondary)" }}>
+            {item.subjectLine}
+          </div>
+          <div className="esc-space-tag">{item.spaceTag}</div>
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "var(--color-content-muted)",
+              marginTop: 6,
+            }}
+          >
+            Guided pitch — start with Variables on both sides
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (compact) {
     return (
@@ -313,6 +369,7 @@ function ViewTabs({ view }: { view: "today" | "week" }) {
 }
 
 export function TodayWeek({ view }: { view: "today" | "week" }) {
+  const { pitchMode } = useShellState();
   const [streak, setStreak] = useState(3);
   const [taskComplete, setTaskComplete] = useState(false);
 
@@ -347,6 +404,13 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
           <ViewTabs view={view} />
         </div>
       </div>
+
+      {pitchMode ? (
+        <div className="esc-pitch-banner" role="status">
+          Guided pitch — start with <strong>Variables on both sides</strong>. Other
+          due items stay visible but locked for this walkthrough.
+        </div>
+      ) : null}
 
       <div style={{ marginBottom: 32 }}>
         <AskBox
@@ -387,6 +451,7 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
                 key={item.id}
                 item={item}
                 complete={Boolean(item.demoTask && taskComplete)}
+                pitchLocked={Boolean(pitchMode && !item.demoTask)}
               />
             ))}
           </div>
@@ -435,6 +500,7 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
                       item={item}
                       compact
                       complete={Boolean(item.demoTask && taskComplete)}
+                      pitchLocked={Boolean(pitchMode && !item.demoTask)}
                     />
                   ) : (
                     <LmsItem key={item.id} item={item} compact />

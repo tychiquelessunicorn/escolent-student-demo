@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 
-// Requirement 7.1: opening the Platform begins a Session directly. There is no
-// landing menu for a Student to choose from.
+/**
+ * Investor / school demo entry: guided Today path, not bare Practice.
+ * `?pitch=1` seeds a clean state and dims non-Variables CTAs.
+ */
 export default function Home() {
-  redirect("/practice");
+  redirect("/student/today?pitch=1");
 }
