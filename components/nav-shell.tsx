@@ -116,10 +116,14 @@ export function NavShell({ children }: { children: React.ReactNode }) {
   const area = activeArea(pathname);
   const tone = AREA_ACTIVE[area];
   const headerBorder = `1.5px solid color-mix(in oklch, ${tone.border} 55%, transparent)`;
-  const connectivityLabel = demoOffline
-    ? "Offline - Edge Saved"
+  // Trust shell connectivity (practice harness can override the offline toggle).
+  const offlineDisplay = connectivity === "unavailable";
+  const connectivityLabel = offlineDisplay
+    ? demoOffline
+      ? "Offline - Edge Saved"
+      : CONNECTIVITY_LABELS.unavailable
     : CONNECTIVITY_LABELS[connectivity];
-  const connectivityColor = demoOffline
+  const connectivityColor = offlineDisplay
     ? "oklch(52% 0.14 18)"
     : "var(--color-content-secondary)";
 
@@ -180,7 +184,10 @@ export function NavShell({ children }: { children: React.ReactNode }) {
               font: "inherit",
             }}
           >
-            <ConnectivityGlyph state={connectivity} demoOffline={demoOffline} />
+            <ConnectivityGlyph
+              state={connectivity}
+              demoOffline={offlineDisplay && demoOffline}
+            />
             <span
               className="esc-shell-connectivity-label"
               style={{

@@ -12,21 +12,8 @@ import {
   SKILLS,
   STUDENT,
   TIER_STYLE,
-  type MasteryTier,
-  type Skill,
 } from "@/lib/demo-data";
-import { isVariablesCompleted } from "@/lib/demo-persistence";
-
-function resolveSkill(skill: Skill, mastered: boolean): Skill {
-  if (skill.id === "s5" && mastered) {
-    return {
-      ...skill,
-      tier: "durable" as MasteryTier,
-      progressDetail: "Just clicked — this one is sticking now.",
-    };
-  }
-  return skill;
-}
+import { isVariablesCompleted, resolveDemoSkill, subscribeDemoPersist } from "@/lib/demo-persistence";
 
 export function ProgressScreen() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -35,14 +22,10 @@ export function ProgressScreen() {
   useEffect(() => {
     const refresh = () => setMastered(isVariablesCompleted());
     refresh();
-    const onVisible = () => {
-      if (document.visibilityState === "visible") refresh();
-    };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    return subscribeDemoPersist(refresh);
   }, []);
 
-  const skills = SKILLS.map((skill) => resolveSkill(skill, mastered));
+  const skills = SKILLS.map((skill) => resolveDemoSkill(skill, mastered));
 
   return (
     <div className="esc-screen">

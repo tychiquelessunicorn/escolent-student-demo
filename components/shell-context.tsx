@@ -40,6 +40,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     setDemoOffline((current) => {
       const next = !current;
       writeDemoOffline(next);
+      setConnectivity(next ? "unavailable" : "fresh");
       return next;
     });
   }, []);

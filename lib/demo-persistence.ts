@@ -1,5 +1,7 @@
 /** Investor-demo persistence shared across Student shell screens. */
 
+import type { MasteryTier, Skill } from "@/lib/demo-data/types";
+
 const COMPLETED_KEY = "variables_completed";
 const STREAK_KEY = "streak";
 const LEGACY_MASTERED_KEY = "variablesOnBothSides";
@@ -8,6 +10,7 @@ const OFFLINE_SESSION_KEY = "esc_demo_offline";
 
 export const DEMO_DEFAULT_STREAK = 3;
 export const DEMO_COMPLETED_STREAK = 4;
+export const DEMO_PERSIST_EVENT = "esc-demo-persist";
 
 export function isVariablesCompleted(): boolean {
   if (typeof window === "undefined") return false;
@@ -34,6 +37,11 @@ export function getDemoStreak(): number {
   }
 }
 
+function notifyPersist(): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(DEMO_PERSIST_EVENT));
+}
+
 export function completeVictoryLoop(): void {
   if (typeof window === "undefined") return;
   try {
@@ -44,6 +52,7 @@ export function completeVictoryLoop(): void {
   } catch {
     /* demo storage unavailable */
   }
+  notifyPersist();
 }
 
 export function readDemoOffline(): boolean {
@@ -62,4 +71,29 @@ export function writeDemoOffline(value: boolean): void {
   } catch {
     /* demo storage unavailable */
   }
+}
+
+/** Apply victory mastery overlay to the shared skill list (Progress + Learn). */
+export function resolveDemoSkill(skill: Skill, mastered: boolean): Skill {
+  if (skill.id === "s5" && mastered) {
+    return {
+      ...skill,
+      tier: "durable" as MasteryTier,
+      progressDetail: "Just clicked — this one is sticking now.",
+    };
+  }
+  return skill;
+}
+
+export function subscribeDemoPersist(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => undefined;
+  const onVisible = () => {
+    if (document.visibilityState === "visible") listener();
+  };
+  window.addEventListener(DEMO_PERSIST_EVENT, listener);
+  document.addEventListener("visibilitychange", onVisible);
+  return () => {
+    window.removeEventListener(DEMO_PERSIST_EVENT, listener);
+    document.removeEventListener("visibilitychange", onVisible);
+  };
 }

@@ -1,15 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { PathIllustration } from "@/components/illustrations";
 import { SkillRow } from "@/components/skill-row";
 import { PageHeading, SectionLabel } from "@/components/ui";
-import { SKILLS, STUDENT } from "@/lib/demo-data";
+import { SKILLS, STUDENT, TIER_STYLE } from "@/lib/demo-data";
+import {
+  isVariablesCompleted,
+  resolveDemoSkill,
+  subscribeDemoPersist,
+} from "@/lib/demo-persistence";
 
 export function LearnScreen() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [toastId, setToastId] = useState<string | null>(null);
+  const [mastered, setMastered] = useState(false);
+
+  useEffect(() => {
+    const refresh = () => setMastered(isVariablesCompleted());
+    refresh();
+    return subscribeDemoPersist(refresh);
+  }, []);
+
+  const skills = SKILLS.map((skill) => resolveDemoSkill(skill, mastered));
 
   const openSource = (id: string) => {
     setToastId(id);
@@ -33,11 +47,16 @@ export function LearnScreen() {
       <div
         style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 32 }}
       >
-        {SKILLS.map((skill) => (
+        {skills.map((skill) => (
           <SkillRow
             key={skill.id}
             skill={skill}
             area="learn"
+            badgeLabel={
+              skill.id === "s5" && mastered
+                ? "Durable (85%)"
+                : TIER_STYLE[skill.tier].label
+            }
             expanded={Boolean(expanded[skill.id])}
             onToggle={() =>
               setExpanded((current) => ({

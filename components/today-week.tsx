@@ -15,7 +15,7 @@ import {
   TODAY_KEY,
   type ScheduleItem,
 } from "@/lib/demo-data";
-import { getDemoStreak, isVariablesCompleted } from "@/lib/demo-persistence";
+import { getDemoStreak, isVariablesCompleted, subscribeDemoPersist } from "@/lib/demo-persistence";
 import { hapticTap } from "@/lib/haptics";
 
 /**
@@ -312,11 +312,7 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
       setTaskComplete(isVariablesCompleted());
     };
     refresh();
-    const onVisible = () => {
-      if (document.visibilityState === "visible") refresh();
-    };
-    document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    return subscribeDemoPersist(refresh);
   }, [view]);
 
   const todayItems = SCHEDULE_ITEMS.filter((item) => item.day === TODAY_KEY);

@@ -17,7 +17,11 @@ import { PracticeHelpDrawer } from "@/components/practice-help-drawer";
 import { PracticeVictoryModal } from "@/components/practice-victory-modal";
 import { SessionEndActions } from "@/components/session-end-actions";
 import { Button, Card, CardBody, CardTitle, InsetPanel } from "@/components/ui";
-import { completeVictoryLoop } from "@/lib/demo-persistence";
+import {
+  completeVictoryLoop,
+  isVariablesCompleted,
+  readDemoOffline,
+} from "@/lib/demo-persistence";
 import {
   FALLBACK_HINT,
   FEEDBACK_LINES,
@@ -119,8 +123,14 @@ const ASK_FALLBACK =
   "Couldn't reach the hint helper right now — try tapping through to the next step instead.";
 
 const NUMERIC_ANSWER_RE = /^-?\d+(\.\d+)?$/;
-const SOCRATIC_FALLBACK =
-  "Not quite! Try moving 2x to the left side first by subtracting 2x from both sides.";
+const SOCRATIC_HINTS = [
+  "Not quite! Try moving 2x to the left side first by subtracting 2x from both sides.",
+  "Keep going — after subtracting 2x you should have 3x + 3 = 18. What do you do next?",
+  "Almost there: subtract 3 from both sides to get 3x = 15, then divide by 3. What is x?",
+] as const;
+const WORKED_STEPS_HINT =
+  "Here's the path:\n1. Subtract 2x from both sides → 3x + 3 = 18\n2. Subtract 3 from both sides → 3x = 15\n3. Divide both sides by 3 → x = 5\n\nUpdate your answer and submit again.";
+const TRY_AGAIN_PROMPT = "Update your answer and submit again.";
 
 const TIER_NAMES = ["Worked example", "Guided steps", "Hint", "On your own"];
 
@@ -203,8 +213,13 @@ function PracticeSessionInner() {
 
   // Test-harness variants. Query params are the mechanism, the demo panel is
   // the discoverable way to drive them.
+  // Bare /practice defaults to first-exposure variables. An explicit ?skill=
+  // always wins so Progress / schedule links don't get overridden.
+  const skillParam = params.get("skill");
   const entryVariant = (params.get("entryVariant") ??
-    "first_exposure") as EntryVariant;
+    (skillParam && skillParam !== "variables_both_sides"
+      ? "returning"
+      : "first_exposure")) as EntryVariant;
   const connectivityDemo = params.get("connectivityDemo") ?? "auto";
   const interruptionDemo = params.get("interruptionDemo") ?? "none";
   const directOpenDemo = params.get("directOpenDemo") ?? "not_applicable";
@@ -212,12 +227,13 @@ function PracticeSessionInner() {
   const notificationPreviewDemo =
     params.get("notificationPreviewDemo") ?? "not_applicable";
   const aiHintsEnabled = params.get("aiHintsEnabled") !== "false";
-  const skillParam = params.get("skill");
 
   const isRubricDemo = problemDemo === "no_solution_rubric";
   const isVariablesSkill =
-    entryVariant === "first_exposure" || skillParam === "variables_both_sides";
-  const isFirstExposure = isVariablesSkill;
+    skillParam === "variables_both_sides" ||
+    (!skillParam && entryVariant === "first_exposure");
+  const [alreadyMastered, setAlreadyMastered] = useState(false);
+  const isFirstExposure = isVariablesSkill && !alreadyMastered;
   const isUnsupportedSkill = Boolean(
     skillParam && UNSUPPORTED_SKILL_LABELS[skillParam],
   );
@@ -398,7 +414,12 @@ function PracticeSessionInner() {
       return;
     }
     // 'expired' behaves identically to 'none' — the saved state is never surfaced.
-    if (interruptionDemo === "recent" && entryVariant !== "first_exposure") {
+    // Resume fixture is two-step only; variables never restores a mismatched index.
+    if (
+      interruptionDemo === "recent" &&
+      entryVariant !== "first_exposure" &&
+      !isVariablesSkill
+    ) {
       patch({ phase: "resumePrompt" });
       return;
     }
@@ -409,6 +430,18 @@ function PracticeSessionInner() {
     if (isVariablesSkill) {
       if (conn === "unavailable") {
         patch({ phase: "offlineBlocked", offlineBlockedVariant: "first_exposure" });
+        return;
+      }
+      // After victory, skip the "New skill" intro so Today/Practice agree.
+      if (isVariablesCompleted()) {
+        patch({
+          phase: "active",
+          problemIndex: 0,
+          wrongAnswers: [],
+          answerInput: "",
+          introText: "",
+          introLoading: false,
+        });
         return;
       }
       patch({ phase: "intro" });
@@ -528,7 +561,12 @@ function PracticeSessionInner() {
 
   const simulateHelpResponse = useCallback(
     (content: string) => {
-      patch({ helpDrawerLoading: true, helpDrawerContent: "" });
+      // Close the drawer immediately so the backdrop doesn't trap the session.
+      patch({
+        helpDrawerOpen: false,
+        helpDrawerLoading: true,
+        helpDrawerContent: "",
+      });
       setTimeout(() => {
         patch((s) => ({
           helpDrawerLoading: false,
@@ -575,10 +613,13 @@ function PracticeSessionInner() {
       hapticTap();
       checkFreeText("practice_answer", raw);
 
+      const problem = getProblems()[0];
+      const expected = problem?.answer ?? 5;
       const val = Number.parseFloat(raw);
-      if (Math.abs(val - 5) < 1e-9) {
+      if (Math.abs(val - expected) < 1e-9) {
         completeVictoryLoop();
         hapticConfirm();
+        triggerFlash("ok");
         patch({
           showVictoryModal: true,
           phase: "ended",
@@ -590,11 +631,19 @@ function PracticeSessionInner() {
           inputErrorMessage: "",
           socraticHintLoading: false,
           socraticHintText: "",
-          answerInput: "5",
+          answerInput: String(expected),
           connectivity: "fresh",
         });
         return;
       }
+
+      const nextWrong = [...state.wrongAnswers, val];
+      const attempt = nextWrong.length;
+      const hintIndex = Math.min(attempt - 1, SOCRATIC_HINTS.length - 1);
+      const hintText =
+        attempt >= 3
+          ? WORKED_STEPS_HINT
+          : `${SOCRATIC_HINTS[hintIndex]}\n\n${TRY_AGAIN_PROMPT}`;
 
       patch({
         socraticHintLoading: true,
@@ -602,12 +651,16 @@ function PracticeSessionInner() {
         inputWrong: true,
         inputInvalid: false,
         inputErrorMessage: "",
+        wrongAnswers: nextWrong,
+        answerInput: "",
       });
       hapticSoft();
+      triggerFlash("miss");
       setTimeout(() => {
         patch({
           socraticHintLoading: false,
-          socraticHintText: SOCRATIC_FALLBACK,
+          socraticHintText: hintText,
+          inputWrong: false,
         });
       }, 800);
       return;
@@ -811,8 +864,18 @@ function PracticeSessionInner() {
         : `${state.sessionCompleted} problems this session`;
 
   useEffect(() => {
+    setAlreadyMastered(isVariablesCompleted());
+  }, []);
+
+  useEffect(() => {
     setConnectivity(conn);
   }, [conn, setConnectivity]);
+
+  useEffect(() => {
+    return () => {
+      setConnectivity(readDemoOffline() ? "unavailable" : "fresh");
+    };
+  }, [setConnectivity]);
 
   useEffect(() => {
     setHeaderNote(sessionLabel);
@@ -823,7 +886,10 @@ function PracticeSessionInner() {
   if (entryVariant === "first_time") reasonLine = "Let's start with two-step equations.";
   if (entryVariant === "nothing_due")
     reasonLine = "Since you're here — a two-step equations problem, just for practice.";
-  if (isVariablesSkill) reasonLine = "Give this one a try.";
+  if (isVariablesSkill)
+    reasonLine = alreadyMastered
+      ? "You've got this skill — one more clean solve to keep it sharp."
+      : "Give this one a try.";
   if (isRubricDemo)
     reasonLine = "This one asks you to explain your thinking — not just give a number.";
 
@@ -991,6 +1057,7 @@ function PracticeSessionInner() {
             We couldn&rsquo;t find an active session for you here. Open Escolent from
             Canvas to get started — that&rsquo;s where your practice is launched from.
           </CardBody>
+          <SessionEndActions />
         </Card>
       ) : null}
 
@@ -1131,7 +1198,7 @@ function PracticeSessionInner() {
                 Try again
               </Button>
             ) : (
-              <Button onClick={() => finalizeEnded("stopped")}>
+              <Button onClick={() => finalizeEnded("finished")}>
                 Finish for today
               </Button>
             )}
@@ -1158,15 +1225,38 @@ function PracticeSessionInner() {
             New skill: Variables on both sides
           </div>
           {state.introLoading ? (
-            <div
-              style={{
-                fontSize: 15,
-                color: "var(--color-content-muted)",
-                animation: "esc-pulse 1.3s ease-in-out infinite",
-              }}
-            >
-              Getting this ready…
-            </div>
+            <>
+              <div
+                style={{
+                  fontSize: 15,
+                  color: "var(--color-content-muted)",
+                  animation: "esc-pulse 1.3s ease-in-out infinite",
+                  marginBottom: 20,
+                }}
+              >
+                Getting this ready…
+              </div>
+              <Button
+                variant="secondary"
+                onClick={() =>
+                  patch({
+                    phase: "active",
+                    problemIndex: 0,
+                    wrongAnswers: [],
+                    answerInput: "",
+                    introLoading: false,
+                    introText: "",
+                    askOpen: false,
+                    askText: "",
+                    askResponse: "",
+                    hintText: "",
+                    ladderExhausted: false,
+                  })
+                }
+              >
+                Skip intro — try a problem
+              </Button>
+            </>
           ) : null}
           {!state.introLoading && state.introText ? (
             <>
@@ -1605,9 +1695,16 @@ function PracticeSessionInner() {
                           })
                         }
                         onKeyDown={(event) => {
-                          if (event.key === "Enter") handleSubmit();
+                          if (event.key !== "Enter") return;
+                          if (
+                            isInvestorDemo &&
+                            (state.socraticHintLoading || state.showVictoryModal)
+                          ) {
+                            return;
+                          }
+                          handleSubmit();
                         }}
-                        disabled={state.showVictoryModal}
+                        disabled={state.showVictoryModal || state.socraticHintLoading}
                         className={
                           state.inputInvalid
                             ? "esc-input-invalid"
@@ -1664,6 +1761,12 @@ function PracticeSessionInner() {
               {state.inputErrorMessage ? (
                 <div className="esc-input-error-msg">{state.inputErrorMessage}</div>
               ) : null}
+              {state.helpDrawerLoading ? (
+                <div className="esc-ai-thinking" style={{ marginTop: 12 }}>
+                  <div className="esc-ai-spinner" />
+                  AI Thinking…
+                </div>
+              ) : null}
               {state.pageHelpNotes.map((note, index) => (
                 <div key={`help-${index}`} className="esc-help-response" style={{ marginTop: 12 }}>
                   {note.content}
@@ -1676,8 +1779,8 @@ function PracticeSessionInner() {
                 </div>
               ) : null}
               {!state.socraticHintLoading && state.socraticHintText ? (
-                <div className="esc-help-response" style={{ marginTop: 12 }}>
-                  {state.socraticHintText}
+                <div className="esc-help-response esc-socratic-hint" style={{ marginTop: 12 }}>
+                  <div style={{ whiteSpace: "pre-line" }}>{state.socraticHintText}</div>
                 </div>
               ) : null}
             </>
