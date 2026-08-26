@@ -1,86 +1,58 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
 import { useShellState } from "@/components/shell-context";
+import { AREA_VARS, type AreaTone } from "@/components/ui";
 import { hapticTap } from "@/lib/haptics";
 
-/** Quiet current-Space control for Learn / Progress — not a management page. */
-export function SpaceSwitcher() {
+/**
+ * Visible current-Space control for Learn / Progress.
+ * All enrolled Spaces stay on-screen as chips — no hidden dropdown.
+ */
+export function SpaceSwitcher({ area = "learn" }: { area?: AreaTone }) {
   const { currentSpace, spaces, setCurrentSpaceId } = useShellState();
-  const [open, setOpen] = useState(false);
-  const rootRef = useRef<HTMLDivElement>(null);
-  const listId = useId();
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (event: MouseEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onPointer);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onPointer);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const tone = AREA_VARS[area];
 
   return (
-    <div className="esc-space-switcher" ref={rootRef}>
-      <button
-        type="button"
-        className="esc-space-switcher-trigger esc-pressable"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={listId}
-        onClick={() => {
-          hapticTap();
-          setOpen((value) => !value);
-        }}
+    <div className="esc-space-switcher">
+      <div className="esc-space-switcher-label">Your Spaces</div>
+      <div
+        className="esc-space-switcher-chips"
+        role="listbox"
+        aria-label="Your Spaces"
       >
-        <span>
-          {currentSpace.grade} · {currentSpace.name}
-        </span>
-        <span className="esc-space-switcher-caret" aria-hidden>
-          ▾
-        </span>
-      </button>
-      {open ? (
-        <ul
-          id={listId}
-          className="esc-space-switcher-menu"
-          role="listbox"
-          aria-label="Your Spaces"
-        >
-          {spaces.map((space) => {
-            const active = space.id === currentSpace.id;
-            return (
-              <li key={space.id} role="option" aria-selected={active}>
-                <button
-                  type="button"
-                  className={
-                    active
-                      ? "esc-space-switcher-option esc-space-switcher-option-active"
-                      : "esc-space-switcher-option"
-                  }
-                  onClick={() => {
-                    hapticTap();
-                    setCurrentSpaceId(space.id);
-                    setOpen(false);
-                  }}
-                >
-                  <span className="esc-space-switcher-option-name">{space.name}</span>
-                  <span className="esc-space-switcher-option-meta">
-                    {space.subject} · {space.teacher}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+        {spaces.map((space) => {
+          const active = space.id === currentSpace.id;
+          return (
+            <button
+              key={space.id}
+              type="button"
+              role="option"
+              aria-selected={active}
+              className={
+                active
+                  ? "esc-space-chip esc-space-chip-active esc-pressable"
+                  : "esc-space-chip esc-pressable"
+              }
+              style={
+                active
+                  ? {
+                      borderColor: tone.border,
+                      background: tone.subtle,
+                    }
+                  : undefined
+              }
+              onClick={() => {
+                if (active) return;
+                hapticTap();
+                setCurrentSpaceId(space.id);
+              }}
+            >
+              <span className="esc-space-chip-name">{space.name}</span>
+              <span className="esc-space-chip-meta">{space.subject}</span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

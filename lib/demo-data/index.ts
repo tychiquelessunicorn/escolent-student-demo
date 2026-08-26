@@ -19,7 +19,8 @@ export const STUDENT = {
   firstName: "Mia",
   fullName: "Mia Ndlovu",
   grade: "Grade 8",
-  spaceName: "Algebra: equations",
+  /** Default Space label only — Learn/Progress use the live current Space. */
+  spaceName: "Equations",
   teacher: "Ms. Mokoena",
   lms: "Canvas",
 } as const;

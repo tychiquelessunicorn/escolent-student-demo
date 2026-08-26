@@ -1,9 +1,8 @@
 import type { MasteryTier, Skill, TierStyle } from "./types";
 
 /**
- * Mia Ndlovu's skill progression, Teneo Grade 8 Algebra: equations, week 6 of
- * the pilot. Progress and Learn both rendered this same list independently in
- * the prototype; it lives here once so the two can no longer drift apart.
+ * Sample Math Space skill progression (playable practice loop). Other Spaces
+ * live in spaces.ts — Escolent is subject-agnostic; this is one enrolled Space.
  */
 export const SKILLS: Skill[] = [
   {

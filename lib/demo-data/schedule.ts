@@ -14,11 +14,8 @@ export const SCHEDULE_DAYS: ScheduleDay[] = [
 ];
 
 /**
- * Requirement 7a.2: every LMS due item appears regardless of subject, but only
- * Escolent-native items are actionable. An `lms` item carries actionRoute null
- * and links back to its source instead.
- *
- * Today spans all enrolled Spaces; each item carries a quiet spaceTag.
+ * Today spans all enrolled Spaces (subject-agnostic). Each item carries a
+ * quiet spaceTag so Math, Geography, and English sit in one list.
  */
 export const SCHEDULE_ITEMS: ScheduleItem[] = [
   {
@@ -26,34 +23,34 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     day: "wed",
     source: "escolent",
     title: "Variables on both sides",
-    subjectLine: "Math · New skill, due today",
+    subjectLine: "Equations · New skill, due today",
     dueMeta: "Due today",
     actionRoute: "/practice?skill=variables_both_sides",
     demoTask: true,
-    spaceId: "algebra",
-    spaceTag: "Algebra: equations",
+    spaceId: "math",
+    spaceTag: "Equations",
   },
   {
-    id: "e2",
+    id: "e-geo1",
     day: "wed",
     source: "escolent",
-    title: "Integer operations refresher",
-    subjectLine: "Math · Assigned by Ms. Mokoena",
+    title: "Climate zones check-in",
+    subjectLine: "Geography · Assigned by Ms. Naidoo",
     dueMeta: "Due today",
-    actionRoute: "/practice?skill=integer_operations",
-    spaceId: "algebra",
-    spaceTag: "Algebra: equations",
+    actionRoute: "/practice?skill=climate_zones",
+    spaceId: "geography",
+    spaceTag: "Geography",
   },
   {
-    id: "e-sci1",
+    id: "e-eng1",
     day: "wed",
     source: "escolent",
-    title: "Food chains check-in",
-    subjectLine: "Science · Assigned by Mr. Dlamini",
+    title: "Thesis statements draft",
+    subjectLine: "English · Assigned by Mr. Botha",
     dueMeta: "Due today",
-    actionRoute: "/practice?skill=food_chains",
-    spaceId: "life_sciences",
-    spaceTag: "Life sciences",
+    actionRoute: "/practice?skill=thesis_statements",
+    spaceId: "english",
+    spaceTag: "English",
   },
   {
     id: "c1",
@@ -82,11 +79,11 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     day: "fri",
     source: "escolent",
     title: "One-step equations",
-    subjectLine: "Math · Spaced review",
+    subjectLine: "Equations · Spaced review",
     dueMeta: "Due Fri",
     actionRoute: "/practice?skill=one_step",
-    spaceId: "algebra",
-    spaceTag: "Algebra: equations",
+    spaceId: "math",
+    spaceTag: "Equations",
   },
   {
     id: "c3",
@@ -115,11 +112,11 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     day: "tue",
     source: "escolent",
     title: "Two-step equations",
-    subjectLine: "Math · Spaced review",
+    subjectLine: "Equations · Spaced review",
     dueMeta: "Due Tue",
     actionRoute: "/practice?skill=two_step",
-    spaceId: "algebra",
-    spaceTag: "Algebra: equations",
+    spaceId: "math",
+    spaceTag: "Equations",
   },
 ];
 
@@ -130,9 +127,8 @@ export const FRESHNESS_LABELS: Record<string, string> = {
 };
 
 /**
- * Recent session history. These entries explain Progress's current tier badges:
- * Aug 15 is why One-step reads tentative, Aug 12 is why Integer operations is
- * flagged, and Aug 18 matches Practice Session's own four-problem set.
+ * Recent session history for the Math Space. These entries explain Progress
+ * tier badges when Equations is the current Space.
  */
 export const RECENT_SESSIONS: SessionRecord[] = [
   {

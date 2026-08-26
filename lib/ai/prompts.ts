@@ -133,7 +133,7 @@ export function todayAskPrompt(question: string): string {
 }
 
 export function learnAskPrompt(question: string, spaceId?: string): string {
-  const space = getDemoSpace(spaceId ?? "algebra");
+  const space = getDemoSpace(spaceId ?? "math");
   const skillLines = space.skills
     .map((sk) => `- ${sk.name}: ${TIER_STYLE[sk.tier].label}`)
     .join("\n");
@@ -142,7 +142,7 @@ export function learnAskPrompt(question: string, spaceId?: string): string {
 }
 
 export function progressAskPrompt(question: string, spaceId?: string): string {
-  const space = getDemoSpace(spaceId ?? "algebra");
+  const space = getDemoSpace(spaceId ?? "math");
   const skillLines = space.skills
     .map(
       (sk) =>

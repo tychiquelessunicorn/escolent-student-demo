@@ -45,6 +45,8 @@ export interface DemoSpace {
   grade: string;
   teacher: string;
   skills: Skill[];
+  /** Example question for the Space-scoped ask box. */
+  askExample: string;
   nextReview: { skillName: string; whenLabel: string; note: string };
   recentSessions: SessionRecord[];
 }

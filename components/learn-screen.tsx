@@ -48,7 +48,7 @@ export function LearnScreen() {
         <PageHeading
           area="learn"
           title="Learn"
-          subtitle={<SpaceSwitcher />}
+          subtitle={<SpaceSwitcher area="learn" />}
         />
         <div className="esc-illust esc-illust-header">
           <PathIllustration size={88} style={{ marginBottom: 0 }} />
@@ -144,9 +144,7 @@ export function LearnScreen() {
         surface="learn_ask"
         area="learn"
         spaceId={currentSpace.id}
-        placeholder={
-          'Ask about any skill… e.g. "why do we flip the sign in inequalities"'
-        }
+        placeholder={`Ask about any skill… e.g. "${currentSpace.askExample}"`}
         loadingLabel="Thinking…"
       />
     </div>

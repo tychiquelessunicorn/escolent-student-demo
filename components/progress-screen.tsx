@@ -42,7 +42,7 @@ export function ProgressScreen() {
         <PageHeading
           area="progress"
           title="My progress"
-          subtitle={<SpaceSwitcher />}
+          subtitle={<SpaceSwitcher area="progress" />}
         />
         <div className="esc-illust esc-illust-header">
           <BeginningIllustration size={88} style={{ marginBottom: 0 }} />
@@ -55,7 +55,7 @@ export function ProgressScreen() {
           surface="progress_ask"
           area="progress"
           spaceId={currentSpace.id}
-          placeholder={'Ask about your progress… e.g. "how am I doing on fractions"'}
+          placeholder={`Ask about your progress… e.g. "${currentSpace.askExample}"`}
           loadingLabel="Checking your progress…"
         />
       </div>

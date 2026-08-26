@@ -17,7 +17,18 @@ export const DEMO_TOTAL_DAILY_TASKS = 3;
 export const DEMO_PERSIST_EVENT = "esc-demo-persist";
 
 export type DemoSeed = "fresh" | "mastered";
-export const DEMO_DEFAULT_SPACE_ID = "algebra";
+export const DEMO_DEFAULT_SPACE_ID = "math";
+
+const KNOWN_SPACE_IDS = new Set(["math", "geography", "english", "algebra", "life_sciences"]);
+
+function normalizeSpaceId(value: string | null): string {
+  if (value === "algebra") return "math";
+  if (value === "life_sciences") return "geography";
+  if (value === "math" || value === "geography" || value === "english") {
+    return value;
+  }
+  return DEMO_DEFAULT_SPACE_ID;
+}
 
 function mirrorSet(key: string, value: string): void {
   try {
@@ -168,8 +179,7 @@ export function writeDemoControlsEnabled(value: boolean): void {
 export function readDemoSpaceId(): string {
   if (typeof window === "undefined") return DEMO_DEFAULT_SPACE_ID;
   try {
-    const value = sessionStorage.getItem(CURRENT_SPACE_KEY);
-    if (value === "algebra" || value === "life_sciences") return value;
+    return normalizeSpaceId(sessionStorage.getItem(CURRENT_SPACE_KEY));
   } catch {
     /* ignore */
   }
@@ -178,8 +188,12 @@ export function readDemoSpaceId(): string {
 
 export function writeDemoSpaceId(spaceId: string): void {
   if (typeof window === "undefined") return;
+  const normalized = normalizeSpaceId(spaceId);
+  if (!KNOWN_SPACE_IDS.has(spaceId) && !KNOWN_SPACE_IDS.has(normalized)) {
+    return;
+  }
   try {
-    sessionStorage.setItem(CURRENT_SPACE_KEY, spaceId);
+    sessionStorage.setItem(CURRENT_SPACE_KEY, normalized);
   } catch {
     /* ignore */
   }
@@ -234,21 +248,51 @@ export const RELATED_PRACTICE_FOR_SKILL: Record<
   inequalities: {
     href: "/practice?skill=variables_both_sides",
     label: "Variables on both sides",
-    blurb: "Inequalities come after variables on both sides in this Space.",
+    blurb: "Inequalities come after variables on both sides in Equations.",
+  },
+  map_scale: {
+    href: "/student/learn?space=geography",
+    label: "Geography on Learn",
+    blurb: "Open the Geography Space for this skill's lesson beat.",
+  },
+  climate_zones: {
+    href: "/student/learn?space=geography",
+    label: "Geography on Learn",
+    blurb: "Open the Geography Space for this skill's lesson beat.",
+  },
+  population_density: {
+    href: "/student/learn?space=geography",
+    label: "Geography on Learn",
+    blurb: "Open the Geography Space for this skill's lesson beat.",
+  },
+  thesis_statements: {
+    href: "/student/learn?space=english",
+    label: "English on Learn",
+    blurb: "Open the English Space for this skill's lesson beat.",
+  },
+  evidence_citations: {
+    href: "/student/learn?space=english",
+    label: "English on Learn",
+    blurb: "Open the English Space for this skill's lesson beat.",
+  },
+  paragraph_structure: {
+    href: "/student/learn?space=english",
+    label: "English on Learn",
+    blurb: "Open the English Space for this skill's lesson beat.",
   },
   food_chains: {
-    href: "/student/learn?space=life_sciences",
-    label: "Life sciences on Learn",
-    blurb: "Open the Life sciences Space for this skill's lesson beat.",
+    href: "/student/learn?space=geography",
+    label: "Geography on Learn",
+    blurb: "Open Geography for related lesson beats in this demo.",
   },
   cells_basics: {
-    href: "/student/learn?space=life_sciences",
-    label: "Life sciences on Learn",
-    blurb: "Open the Life sciences Space for this skill's lesson beat.",
+    href: "/student/learn?space=geography",
+    label: "Geography on Learn",
+    blurb: "Open Geography for related lesson beats in this demo.",
   },
   photosynthesis_intro: {
-    href: "/student/learn?space=life_sciences",
-    label: "Life sciences on Learn",
-    blurb: "Open the Life sciences Space for this skill's lesson beat.",
+    href: "/student/learn?space=geography",
+    label: "Geography on Learn",
+    blurb: "Open Geography for related lesson beats in this demo.",
   },
 };
