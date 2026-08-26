@@ -8,6 +8,6 @@ static Design Canvas files.
 
 The live shell is the single coherent Student demo:
 - Practice, Today/Week, Learn, Progress
-- Investor loop, LMS framing, persistence, soft landings for free-roam
+- Investor loop, persistence, soft landings for free-roam
 
 Open `../README.md` in the repo root for pitch URLs and harness notes.
