@@ -160,68 +160,13 @@ function EscolentItem({
   item,
   compact,
   complete,
-  pitchLocked = false,
 }: {
   item: ScheduleItem;
   compact?: boolean;
   complete?: boolean;
-  /** Guided pitch: non-Variables rows stay visible but not actionable. */
-  pitchLocked?: boolean;
 }) {
   const href = item.actionRoute ?? "/practice";
-  const accent = complete
-    ? "oklch(55% 0.14 150)"
-    : pitchLocked
-      ? "var(--color-border)"
-      : "var(--color-area-today)";
-
-  if (pitchLocked && !complete) {
-    return (
-      <div
-        className="esc-schedule-item esc-pitch-locked"
-        aria-disabled="true"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          background: "var(--color-surface)",
-          border: "1.5px solid var(--color-border)",
-          borderLeft: `4px solid ${accent}`,
-          borderRadius: "6px 20px 20px 6px",
-          padding: compact ? "10px 14px" : "18px 20px",
-          opacity: 0.72,
-        }}
-      >
-        <div style={{ flex: 1 }}>
-          <div
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 800,
-              fontSize: compact ? 14 : 18,
-              letterSpacing: "-0.02em",
-              marginBottom: 4,
-            }}
-          >
-            {item.title}
-          </div>
-          <div style={{ fontSize: 13, color: "var(--color-content-secondary)" }}>
-            {item.subjectLine}
-          </div>
-          <div className="esc-space-tag">{item.spaceTag}</div>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "var(--color-content-muted)",
-              marginTop: 6,
-            }}
-          >
-            Guided pitch — start with Variables on both sides
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const accent = complete ? "oklch(55% 0.14 150)" : "var(--color-area-today)";
 
   if (compact) {
     return (
@@ -369,7 +314,7 @@ function ViewTabs({ view }: { view: "today" | "week" }) {
 }
 
 export function TodayWeek({ view }: { view: "today" | "week" }) {
-  const { pitchMode } = useShellState();
+  const { tourMode } = useShellState();
   const [streak, setStreak] = useState(3);
   const [taskComplete, setTaskComplete] = useState(false);
 
@@ -383,7 +328,9 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
   }, [view]);
 
   const todayItems = SCHEDULE_ITEMS.filter((item) => item.day === TODAY_KEY);
-  const nativeToday = todayItems.filter((item) => item.source === "escolent");
+  const nativeToday = todayItems
+    .filter((item) => item.source === "escolent")
+    .filter((item) => (tourMode ? item.demoTask : true));
   const lmsToday = todayItems.filter((item) => item.source === "lms");
 
   return (
@@ -405,39 +352,40 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
         </div>
       </div>
 
-      {pitchMode ? (
-        <div className="esc-pitch-banner" role="status">
-          Guided pitch — start with <strong>Variables on both sides</strong>. Other
-          due items stay visible but locked for this walkthrough.
+      {!tourMode ? (
+        <div style={{ marginBottom: 32 }}>
+          <AskBox
+            task="today_ask"
+            surface="today_ask"
+            area="today"
+            placeholder={'Ask what\u2019s due… e.g. "what do I have due Thursday"'}
+            loadingLabel="Checking what's due…"
+          />
         </div>
       ) : null}
 
-      <div style={{ marginBottom: 32 }}>
-        <AskBox
-          task="today_ask"
-          surface="today_ask"
-          area="today"
-          placeholder={'Ask what\u2019s due… e.g. "what do I have due Thursday"'}
-          loadingLabel="Checking what's due…"
-        />
-      </div>
-
       {view === "today" ? (
         <>
-          <SectionLabel area="today">From Escolent</SectionLabel>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-              marginTop: -8,
-              marginBottom: 14,
-              flexWrap: "wrap",
-            }}
-          >
-            <div className="esc-completed-chip">{getDailyProgressLabel()}</div>
-          </div>
+          <SectionLabel area="today">
+            {tourMode ? "Your Demo task" : "From Escolent"}
+          </SectionLabel>
+          {!tourMode ? (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                marginTop: -8,
+                marginBottom: 14,
+                flexWrap: "wrap",
+              }}
+            >
+              <div className="esc-completed-chip">{getDailyProgressLabel()}</div>
+            </div>
+          ) : (
+            <div style={{ marginTop: -8, marginBottom: 14 }} />
+          )}
           <div
             style={{
               display: "flex",
@@ -451,21 +399,29 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
                 key={item.id}
                 item={item}
                 complete={Boolean(item.demoTask && taskComplete)}
-                pitchLocked={Boolean(pitchMode && !item.demoTask)}
               />
             ))}
           </div>
 
-          <SectionLabel>Also due — from {STUDENT.lms}</SectionLabel>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {lmsToday.map((item) => (
-              <LmsItem key={item.id} item={item} />
-            ))}
-          </div>
+          {!tourMode ? (
+            <>
+              <SectionLabel>Also due — from {STUDENT.lms}</SectionLabel>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {lmsToday.map((item) => (
+                  <LmsItem key={item.id} item={item} />
+                ))}
+              </div>
+            </>
+          ) : null}
         </>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          {SCHEDULE_DAYS.map((day) => (
+          {SCHEDULE_DAYS.map((day) => {
+            const dayItems = SCHEDULE_ITEMS.filter((item) => item.day === day.key).filter(
+              (item) => (tourMode ? item.source === "escolent" : true),
+            );
+            if (tourMode && dayItems.length === 0) return null;
+            return (
             <div key={day.key}>
               <div
                 style={{
@@ -493,14 +449,13 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {SCHEDULE_ITEMS.filter((item) => item.day === day.key).map((item) =>
+                {dayItems.map((item) =>
                   item.source === "escolent" ? (
                     <EscolentItem
                       key={item.id}
                       item={item}
                       compact
                       complete={Boolean(item.demoTask && taskComplete)}
-                      pitchLocked={Boolean(pitchMode && !item.demoTask)}
                     />
                   ) : (
                     <LmsItem key={item.id} item={item} compact />
@@ -508,7 +463,8 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

@@ -9,7 +9,9 @@ const LEGACY_STREAK_KEY = "demoStreak";
 const OFFLINE_SESSION_KEY = "esc_demo_offline";
 const DEMO_CONTROLS_KEY = "esc_demo_controls";
 const CURRENT_SPACE_KEY = "esc_demo_space";
-const PITCH_MODE_KEY = "esc_demo_pitch";
+const TOUR_MODE_KEY = "esc_demo_tour";
+/** @deprecated Migrated to TOUR_MODE_KEY */
+const LEGACY_PITCH_MODE_KEY = "esc_demo_pitch";
 const MIRROR_PREFIX = "esc_mirror_";
 
 export const DEMO_DEFAULT_STREAK = 3;
@@ -177,19 +179,27 @@ export function writeDemoControlsEnabled(value: boolean): void {
   }
 }
 
-export function readPitchMode(): boolean {
+export function readTourMode(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    return sessionStorage.getItem(PITCH_MODE_KEY) === "true";
+    if (sessionStorage.getItem(TOUR_MODE_KEY) === "true") return true;
+    // Migrate leftover pitch flag from earlier builds.
+    if (sessionStorage.getItem(LEGACY_PITCH_MODE_KEY) === "true") {
+      sessionStorage.setItem(TOUR_MODE_KEY, "true");
+      sessionStorage.removeItem(LEGACY_PITCH_MODE_KEY);
+      return true;
+    }
   } catch {
-    return false;
+    /* ignore */
   }
+  return false;
 }
 
-export function writePitchMode(value: boolean): void {
+export function writeTourMode(value: boolean): void {
   if (typeof window === "undefined") return;
   try {
-    sessionStorage.setItem(PITCH_MODE_KEY, value ? "true" : "false");
+    sessionStorage.setItem(TOUR_MODE_KEY, value ? "true" : "false");
+    sessionStorage.removeItem(LEGACY_PITCH_MODE_KEY);
   } catch {
     /* ignore */
   }

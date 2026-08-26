@@ -10,14 +10,14 @@ files as the live demo.
 A deployed version of the four Student screens: Practice Session, Today / Week,
 Learn, and Progress, plus the global nav shell.
 
-## Pitch walkthrough (recommended)
+## Demo walkthrough (recommended)
 
-1. Open `/` or `/student/today?pitch=1` (guided path: clean seed, non-Variables Today rows locked).
-2. Start **Variables on both sides** → wrong answers show escalating hints → submit `5`.
-3. **Session Complete** → Return to Today → Progress updates (Durable 85%).
-4. Optional free-roam: drop `pitch` and open `?demo=1` only if you need harness controls.
+1. Open `/` or `/student/today?tour=1` — sticky **Demo** bar guides the full shell.
+2. Sequence: **Today → Practice → Today → Progress → Learn → Week**.
+3. On Practice: wrong answer → submit `5` → Session Complete → follow the bar.
+4. Harness tools: `?demo=1` or Ctrl/Cmd+Shift+E (separate from the guided Demo).
 
-Canonical investor URL: `/student/today?pitch=1`
+Canonical URL: `/student/today?tour=1`
 
 ## Running locally
 
@@ -35,7 +35,7 @@ warning; in production it refuses traffic rather than running unmetered.
 
 | Route | Screen |
 | --- | --- |
-| `/` | Redirects to `/student/today?pitch=1` — guided investor entry |
+| `/` | Redirects to `/student/today?tour=1` — guided Demo entry |
 | `/practice` | Practice Session |
 | `/student/today`, `/student/week` | Today / Week |
 | `/student/learn` | Learn / Course Map |
@@ -60,8 +60,9 @@ controls are enabled.
 | `notificationPreviewDemo` | `not_applicable` (default), `shown` |
 | `aiHintsEnabled` | `true` (default), `false` |
 | `skill` | Any skill slug, e.g. `two_step`, `variables_both_sides`, `one_step` |
-| `seed` | `fresh` or `mastered` — resets local demo persistence for a clean pitch |
-| `pitch` | `1` — guided investor mode (auto-seeds fresh, locks non-Variables Today CTAs) |
+| `seed` | `fresh` or `mastered` — resets local demo persistence |
+| `tour` | `1` — guided Demo across Today → Practice → Progress → Learn → Week |
+| `demo` | `1` — open harness / demo tools panel |
 
 ## Distress detection
 

@@ -214,7 +214,7 @@ function PracticeSessionInner() {
     registerPracticeHelp,
     demoOffline,
     demoControls,
-    pitchMode,
+    tourMode,
   } = useShellState();
   const { checkFreeText } = useDistress();
 
@@ -236,18 +236,18 @@ function PracticeSessionInner() {
   const aiHintsEnabled = params.get("aiHintsEnabled") !== "false";
 
   const isRubricDemo = problemDemo === "no_solution_rubric";
-  const isOneStepRemediation = skillParam === "one_step" && !pitchMode;
+  const isOneStepRemediation = skillParam === "one_step" && !tourMode;
   const isVariablesSkill =
     skillParam === "variables_both_sides" ||
     (!skillParam && entryVariant === "first_exposure") ||
-    (pitchMode && !skillParam);
+    (tourMode && !skillParam);
   const [alreadyMastered, setAlreadyMastered] = useState(false);
   const isFirstExposure = isVariablesSkill && !alreadyMastered;
-  // Soft-land any non-playable skill. In pitch mode, only Variables is live.
+  // Soft-land any non-playable skill. In Demo tour, only Variables is live.
   const isUnsupportedSkill = Boolean(
     skillParam &&
       (!isPlayablePracticeSkill(skillParam) ||
-        (pitchMode && skillParam !== "variables_both_sides")),
+        (tourMode && skillParam !== "variables_both_sides")),
   );
 
   const getProblems = useCallback((): PracticeProblem[] => {

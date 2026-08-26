@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
+import { DemoGuideBar } from "@/components/demo-guide-bar";
 import { DistressNotice, useDistress } from "@/components/distress-provider";
 import { useShellState } from "@/components/shell-context";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
@@ -129,7 +130,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
     : "var(--color-content-secondary)";
 
   return (
-    <div>
+    <div className="esc-shell-root">
       <header className="esc-shell-header" style={{ borderBottom: headerBorder }}>
         <div className="esc-shell-header-brand">
           <span
@@ -219,6 +220,8 @@ export function NavShell({ children }: { children: React.ReactNode }) {
           ) : null}
         </div>
       </header>
+
+      <DemoGuideBar />
 
       <div className="esc-shell-layout">
         <nav

@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 
 /**
- * Investor / school demo entry: guided Today path, not bare Practice.
- * `?pitch=1` seeds a clean state and dims non-Variables CTAs.
+ * Student demo entry: guided Demo tour across the full shell.
+ * `?tour=1` seeds a clean state and shows the sticky Demo guide.
  */
 export default function Home() {
-  redirect("/student/today?pitch=1");
+  redirect("/student/today?tour=1");
 }

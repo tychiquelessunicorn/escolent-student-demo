@@ -16,7 +16,7 @@ import {
 } from "@/lib/demo-persistence";
 
 export function ProgressScreen() {
-  const { currentSpace } = useShellState();
+  const { currentSpace, tourMode, setCurrentSpaceId } = useShellState();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [mastered, setMastered] = useState(false);
 
@@ -25,6 +25,10 @@ export function ProgressScreen() {
     refresh();
     return subscribeDemoPersist(refresh);
   }, []);
+
+  useEffect(() => {
+    if (tourMode) setCurrentSpaceId("math");
+  }, [tourMode, setCurrentSpaceId]);
 
   useEffect(() => {
     setExpanded({});
@@ -49,16 +53,18 @@ export function ProgressScreen() {
         </div>
       </div>
 
-      <div style={{ marginBottom: 28 }}>
-        <AskBox
-          task="progress_ask"
-          surface="progress_ask"
-          area="progress"
-          spaceId={currentSpace.id}
-          placeholder={`Ask about your progress… e.g. "${currentSpace.askExample}"`}
-          loadingLabel="Checking your progress…"
-        />
-      </div>
+      {!tourMode ? (
+        <div style={{ marginBottom: 28 }}>
+          <AskBox
+            task="progress_ask"
+            surface="progress_ask"
+            area="progress"
+            spaceId={currentSpace.id}
+            placeholder={`Ask about your progress… e.g. "${currentSpace.askExample}"`}
+            loadingLabel="Checking your progress…"
+          />
+        </div>
+      ) : null}
 
       <Card area="progress" style={{ padding: "24px 28px", marginBottom: 36 }}>
         <SectionLabel area="progress" style={{ marginBottom: 10 }}>

@@ -304,7 +304,7 @@ export function DemoPanel() {
           color: "var(--color-content-muted)",
         }}
       >
-        Pitch URL: start at /student/today?seed=fresh. Open this panel with
+        Pitch URL: start at /student/today?tour=1. Open this panel with
         ?demo=1 or Ctrl/Cmd + Shift + E. Live app is the canonical investor demo.
       </div>
     </aside>

@@ -16,7 +16,7 @@ import {
 } from "@/lib/demo-persistence";
 
 export function LearnScreen() {
-  const { currentSpace, setCurrentSpaceId } = useShellState();
+  const { currentSpace, setCurrentSpaceId, tourMode } = useShellState();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [toastId, setToastId] = useState<string | null>(null);
   const [mastered, setMastered] = useState(false);
@@ -148,14 +148,16 @@ export function LearnScreen() {
         ))}
       </div>
 
-      <AskBox
-        task="learn_ask"
-        surface="learn_ask"
-        area="learn"
-        spaceId={currentSpace.id}
-        placeholder={`Ask about any skill… e.g. "${currentSpace.askExample}"`}
-        loadingLabel="Thinking…"
-      />
+      {!tourMode ? (
+        <AskBox
+          task="learn_ask"
+          surface="learn_ask"
+          area="learn"
+          spaceId={currentSpace.id}
+          placeholder={`Ask about any skill… e.g. "${currentSpace.askExample}"`}
+          loadingLabel="Thinking…"
+        />
+      ) : null}
     </div>
   );
 }

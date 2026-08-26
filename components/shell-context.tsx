@@ -19,12 +19,12 @@ import {
   readDemoControlsEnabled,
   readDemoOffline,
   readDemoSpaceId,
-  readPitchMode,
+  readTourMode,
   seedDemoState,
   writeDemoControlsEnabled,
   writeDemoOffline,
   writeDemoSpaceId,
-  writePitchMode,
+  writeTourMode,
   type DemoSeed,
 } from "@/lib/demo-persistence";
 
@@ -38,7 +38,9 @@ interface ShellStateValue {
   demoControls: boolean;
   enableDemoControls: () => void;
   applyDemoSeed: (seed: DemoSeed) => void;
-  pitchMode: boolean;
+  /** Guided Demo walkthrough across the Student shell. */
+  tourMode: boolean;
+  exitTour: () => void;
   currentSpaceId: string;
   currentSpace: DemoSpace;
   spaces: DemoSpace[];
@@ -54,7 +56,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const [headerNote, setHeaderNote] = useState("");
   const [demoOffline, setDemoOffline] = useState(false);
   const [demoControls, setDemoControls] = useState(false);
-  const [pitchMode, setPitchMode] = useState(false);
+  const [tourMode, setTourMode] = useState(false);
   const [currentSpaceId, setCurrentSpaceIdState] = useState(DEFAULT_SPACE_ID);
   const [practiceHelpHandler, setPracticeHelpHandler] = useState<(() => void) | null>(
     null,
@@ -62,25 +64,26 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     let fromUrl = false;
-    let pitchFromUrl = false;
+    let tourFromUrl = false;
     let seed: string | null = null;
     let spaceParam: string | null = null;
     try {
       const params = new URLSearchParams(window.location.search);
       fromUrl = params.get("demo") === "1";
-      pitchFromUrl = params.get("pitch") === "1";
+      // tour=1 is canonical; pitch=1 kept as alias for old links.
+      tourFromUrl = params.get("tour") === "1" || params.get("pitch") === "1";
       seed = params.get("seed");
       spaceParam = params.get("space");
     } catch {
       /* ignore */
     }
 
-    if (pitchFromUrl) {
+    if (tourFromUrl) {
       seedDemoState("fresh");
-      writePitchMode(true);
+      writeTourMode(true);
       writeDemoControlsEnabled(false);
       writeDemoSpaceId("math");
-      setPitchMode(true);
+      setTourMode(true);
       setCurrentSpaceIdState("math");
       setDemoControls(false);
     } else {
@@ -90,7 +93,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
           writeDemoControlsEnabled(false);
         }
       }
-      setPitchMode(readPitchMode());
+      setTourMode(readTourMode());
 
       const enabled = fromUrl || readDemoControlsEnabled();
       setDemoControls(enabled);
@@ -131,6 +134,11 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     setConnectivity(offline ? "unavailable" : "fresh");
   }, []);
 
+  const exitTour = useCallback(() => {
+    writeTourMode(false);
+    setTourMode(false);
+  }, []);
+
   const setCurrentSpaceId = useCallback((spaceId: string) => {
     if (!DEMO_SPACES.some((space) => space.id === spaceId)) return;
     writeDemoSpaceId(spaceId);
@@ -161,7 +169,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       demoControls,
       enableDemoControls,
       applyDemoSeed,
-      pitchMode,
+      tourMode,
+      exitTour,
       currentSpaceId,
       currentSpace,
       spaces: DEMO_SPACES,
@@ -177,7 +186,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       demoControls,
       enableDemoControls,
       applyDemoSeed,
-      pitchMode,
+      tourMode,
+      exitTour,
       currentSpaceId,
       currentSpace,
       setCurrentSpaceId,
