@@ -38,7 +38,9 @@ function readRect(target: string | null): SpotRect | null {
   );
   if (!element) return null;
   const box = element.getBoundingClientRect();
-  if (box.width < 1 && box.height < 1) return null;
+  // A collapsed dimension means the target is not laid out yet; an even dim is
+  // better than a ring with no area.
+  if (box.width < 1 || box.height < 1) return null;
   return {
     top: box.top,
     left: box.left,
@@ -188,7 +190,10 @@ export function TourOverlay() {
         exit();
         return;
       }
-      if (event.key === "ArrowRight" || event.key === "Enter") {
+      // Deliberately not Enter or Space: those already activate whichever
+      // control has focus, which after one click is Next — so binding them
+      // here would advance two steps at a time.
+      if (event.key === "ArrowRight") {
         event.preventDefault();
         advance();
       }
@@ -345,7 +350,7 @@ export function TourOverlay() {
           })}
         </div>
 
-        <div className="esc-tour-body">
+        <div className="esc-tour-body" aria-live="polite">
           <div className="esc-tour-meta">
             <span className="esc-tour-badge">
               Chapter {chapterNumber} of {chapterCount}
