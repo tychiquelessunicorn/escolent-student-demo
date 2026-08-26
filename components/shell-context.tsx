@@ -11,13 +11,10 @@ import {
 import type { SyncFreshness } from "@/lib/demo-data";
 import {
   readDemoControlsEnabled,
-  readDemoLmsMode,
   readDemoOffline,
   seedDemoState,
   writeDemoControlsEnabled,
-  writeDemoLmsMode,
   writeDemoOffline,
-  type DemoLmsMode,
   type DemoSeed,
 } from "@/lib/demo-persistence";
 
@@ -28,8 +25,6 @@ interface ShellStateValue {
   setHeaderNote: (value: string) => void;
   demoOffline: boolean;
   toggleDemoOffline: () => void;
-  lmsMode: DemoLmsMode;
-  setLmsMode: (mode: DemoLmsMode) => void;
   demoControls: boolean;
   enableDemoControls: () => void;
   applyDemoSeed: (seed: DemoSeed) => void;
@@ -43,7 +38,6 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const [connectivity, setConnectivity] = useState<SyncFreshness>("fresh");
   const [headerNote, setHeaderNote] = useState("");
   const [demoOffline, setDemoOffline] = useState(false);
-  const [lmsMode, setLmsModeState] = useState<DemoLmsMode>("standalone");
   const [demoControls, setDemoControls] = useState(false);
   const [practiceHelpHandler, setPracticeHelpHandler] = useState<(() => void) | null>(
     null,
@@ -69,7 +63,6 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     }
 
     setDemoOffline(readDemoOffline());
-    setLmsModeState(readDemoLmsMode());
 
     const enabled = fromUrl || readDemoControlsEnabled();
     setDemoControls(enabled);
@@ -85,11 +78,6 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     });
   }, []);
 
-  const setLmsMode = useCallback((mode: DemoLmsMode) => {
-    writeDemoLmsMode(mode);
-    setLmsModeState(mode);
-  }, []);
-
   const enableDemoControls = useCallback(() => {
     writeDemoControlsEnabled(true);
     setDemoControls(true);
@@ -99,7 +87,6 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     seedDemoState(seed);
     const offline = readDemoOffline();
     setDemoOffline(offline);
-    setLmsModeState(readDemoLmsMode());
     setConnectivity(offline ? "unavailable" : "fresh");
   }, []);
 
@@ -119,8 +106,6 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       setHeaderNote,
       demoOffline,
       toggleDemoOffline,
-      lmsMode,
-      setLmsMode,
       demoControls,
       enableDemoControls,
       applyDemoSeed,
@@ -132,8 +117,6 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       headerNote,
       demoOffline,
       toggleDemoOffline,
-      lmsMode,
-      setLmsMode,
       demoControls,
       enableDemoControls,
       applyDemoSeed,

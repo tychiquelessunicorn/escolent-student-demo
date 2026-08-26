@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { DistressNotice, useDistress } from "@/components/distress-provider";
-import { ClassroomFrame, LmsBanner } from "@/components/lms-banner";
 import { useShellState } from "@/components/shell-context";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
 import { hapticTap } from "@/lib/haptics";
@@ -113,7 +112,7 @@ function HelpButton() {
 
 export function NavShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { connectivity, headerNote, demoOffline, toggleDemoOffline, lmsMode } =
+  const { connectivity, headerNote, demoOffline, toggleDemoOffline } =
     useShellState();
   const area = activeArea(pathname);
   const tone = AREA_ACTIVE[area];
@@ -128,11 +127,9 @@ export function NavShell({ children }: { children: React.ReactNode }) {
   const connectivityColor = offlineDisplay
     ? "oklch(52% 0.14 18)"
     : "var(--color-content-secondary)";
-  const classroom = lmsMode === "classroom";
 
   return (
-    <div className={classroom ? "esc-lms-classroom-mode" : undefined}>
-      <LmsBanner />
+    <div>
       <header className="esc-shell-header" style={{ borderBottom: headerBorder }}>
         <div className="esc-shell-header-brand">
           <span
@@ -281,12 +278,10 @@ export function NavShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="esc-shell-main">
-          <ClassroomFrame>
-            <div className="esc-shell-inset">
-              <DistressNotice />
-            </div>
-            {children}
-          </ClassroomFrame>
+          <div className="esc-shell-inset">
+            <DistressNotice />
+          </div>
+          {children}
         </div>
       </div>
 

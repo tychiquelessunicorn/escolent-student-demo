@@ -7,7 +7,6 @@ const STREAK_KEY = "streak";
 const LEGACY_MASTERED_KEY = "variablesOnBothSides";
 const LEGACY_STREAK_KEY = "demoStreak";
 const OFFLINE_SESSION_KEY = "esc_demo_offline";
-const LMS_MODE_KEY = "esc_demo_lms_mode";
 const DEMO_CONTROLS_KEY = "esc_demo_controls";
 const MIRROR_PREFIX = "esc_mirror_";
 
@@ -16,7 +15,6 @@ export const DEMO_COMPLETED_STREAK = 4;
 export const DEMO_TOTAL_DAILY_TASKS = 2;
 export const DEMO_PERSIST_EVENT = "esc-demo-persist";
 
-export type DemoLmsMode = "standalone" | "classroom";
 export type DemoSeed = "fresh" | "mastered";
 
 function mirrorSet(key: string, value: string): void {
@@ -108,12 +106,9 @@ export function seedDemoState(seed: DemoSeed): void {
     mirrorSet(STREAK_KEY, String(DEMO_DEFAULT_STREAK));
     mirrorSet(LEGACY_STREAK_KEY, String(DEMO_DEFAULT_STREAK));
   }
-  // Pitch seeds should not inherit a leftover offline block or Classroom frame.
+  // Pitch seeds should not inherit a leftover offline block.
   try {
     sessionStorage.removeItem(OFFLINE_SESSION_KEY);
-    if (seed === "fresh") {
-      sessionStorage.setItem(LMS_MODE_KEY, "standalone");
-    }
   } catch {
     /* ignore */
   }
@@ -145,26 +140,6 @@ export function writeDemoOffline(value: boolean): void {
   if (typeof window === "undefined") return;
   try {
     sessionStorage.setItem(OFFLINE_SESSION_KEY, value ? "true" : "false");
-  } catch {
-    /* demo storage unavailable */
-  }
-}
-
-export function readDemoLmsMode(): DemoLmsMode {
-  if (typeof window === "undefined") return "standalone";
-  try {
-    return sessionStorage.getItem(LMS_MODE_KEY) === "classroom"
-      ? "classroom"
-      : "standalone";
-  } catch {
-    return "standalone";
-  }
-}
-
-export function writeDemoLmsMode(mode: DemoLmsMode): void {
-  if (typeof window === "undefined") return;
-  try {
-    sessionStorage.setItem(LMS_MODE_KEY, mode);
   } catch {
     /* demo storage unavailable */
   }

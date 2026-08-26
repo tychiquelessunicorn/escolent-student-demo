@@ -15,7 +15,7 @@ Learn, and Progress, plus the global nav shell.
 1. Open `/student/today?seed=fresh` (clean pre-mastery state).
 2. Start **Variables on both sides** → wrong answers show escalating hints → submit `5`.
 3. **Session Complete** → Return to Dashboard → Today/Progress update.
-4. Optional: toggle **Classroom** for LMS framing; open `?demo=1` only if you need harness controls.
+4. Optional: open `?demo=1` only if you need harness controls.
 
 ## Running locally
 
