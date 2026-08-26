@@ -1006,7 +1006,13 @@
     left var(--duration-med) var(--ease-snap),
     width var(--duration-med) var(--ease-snap),
     height var(--duration-med) var(--ease-snap),
-    border-radius var(--duration-med) var(--ease-snap);
+    border-radius var(--duration-med) var(--ease-snap),
+    opacity var(--duration-med) var(--ease-snap);
+}
+
+.esc-tour-ring-hidden {
+  opacity: 0;
+  box-shadow: none;
 }
 
 /*
@@ -1032,19 +1038,6 @@
   transition:
     top var(--duration-med) var(--ease-snap),
     left var(--duration-med) var(--ease-snap);
-}
-
-.esc-tour-step-content {
-  animation: esc-tour-step-in 220ms var(--ease-snap) both;
-}
-
-@keyframes esc-tour-step-in {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 /*

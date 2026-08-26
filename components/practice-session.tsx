@@ -186,6 +186,115 @@ function baseState(phase: Phase): State {
 }
 
 /**
+ * Harness variants remount PracticeSessionInner. Initial paint must already
+ * match the demo route — waiting for enterSession() in an effect flashes the
+ * wrong phase (intro before scaffold, etc.) and makes the tour flicker.
+ */
+function initialHarnessState(params: URLSearchParams): State {
+  const skillParam = params.get("skill");
+  const entryVariant = (params.get("entryVariant") ??
+    (skillParam && skillParam !== "variables_both_sides"
+      ? "returning"
+      : "first_exposure")) as EntryVariant;
+  const problemDemo = params.get("problemDemo") ?? "standard";
+  const directOpenDemo = params.get("directOpenDemo") ?? "not_applicable";
+  const notificationPreviewDemo =
+    params.get("notificationPreviewDemo") ?? "not_applicable";
+  const interruptionDemo = params.get("interruptionDemo") ?? "none";
+
+  const isRubricDemo = problemDemo === "no_solution_rubric";
+  const isScaffoldDemo = problemDemo === "wrong_answer_scaffold";
+  const isMasteryDemo = problemDemo === "mastery_moment";
+  const isOneStepRemediation = skillParam === "one_step";
+  const isVariablesSkill =
+    skillParam === "variables_both_sides" ||
+    (!skillParam && entryVariant === "first_exposure");
+  const isUnsupportedSkill = Boolean(
+    skillParam && !isPlayablePracticeSkill(skillParam),
+  );
+
+  if (notificationPreviewDemo === "shown") {
+    return baseState("notificationPreview");
+  }
+  if (directOpenDemo === "no_valid_session") {
+    return baseState("noValidSession");
+  }
+  if (directOpenDemo === "valid_session") {
+    return baseState("checkingSession");
+  }
+  if (isRubricDemo) {
+    return {
+      ...baseState("active"),
+      problemIndex: 0,
+      wrongAnswers: [],
+      answerInput: "",
+      rubricTier: null,
+      rubricFeedback: "",
+    };
+  }
+  if (isScaffoldDemo) {
+    return {
+      ...baseState("active"),
+      problemIndex: 0,
+      wrongAnswers: [8, 3],
+      answerInput: "",
+      ladderExhausted: false,
+      socraticHintLoading: false,
+      socraticHintText: hintForAttempt(2),
+    };
+  }
+  if (isMasteryDemo) {
+    return {
+      ...baseState("correct"),
+      problemIndex: 0,
+      wrongAnswers: [],
+      answerInput: "",
+      sessionCompleted: 1,
+      breakthrough: true,
+    };
+  }
+  if (isUnsupportedSkill) {
+    return baseState("skillUnavailable");
+  }
+  if (
+    interruptionDemo === "recent" &&
+    entryVariant !== "first_exposure" &&
+    !isVariablesSkill
+  ) {
+    return baseState("resumePrompt");
+  }
+  if (entryVariant === "nothing_due") {
+    return baseState("gate");
+  }
+  if (isOneStepRemediation) {
+    return {
+      ...baseState("active"),
+      problemIndex: 0,
+      wrongAnswers: [],
+      answerInput: "",
+    };
+  }
+  if (isVariablesSkill) {
+    if (isVariablesCompleted()) {
+      return {
+        ...baseState("active"),
+        problemIndex: 0,
+        wrongAnswers: [],
+        answerInput: "",
+        introText: "",
+        introLoading: false,
+      };
+    }
+    return {
+      ...baseState("intro"),
+      introLoading: false,
+      introText: INTRO_FALLBACK,
+    };
+  }
+  return baseState("active");
+}
+
+/**
  * Changing a harness variant has to restart Entry, not patch a running session,
  * so the inner component is keyed on the variant signature and remounts.
  */
@@ -265,7 +374,7 @@ function PracticeSessionInner() {
   const isInvestorDemo =
     isVariablesSkill && getProblems().length === 1 && !isRubricDemo;
 
-  const [state, setState] = useState<State>(() => baseState("intro"));
+  const [state, setState] = useState<State>(() => initialHarnessState(params));
   const [submitFlash, setSubmitFlash] = useState<"ok" | "miss" | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
