@@ -7,15 +7,16 @@ import {
 } from "@/lib/distress-labels";
 import { DEMO_SESSION_STAFF_ID, formatStaffName } from "@/lib/demo-data/staff";
 
-function rowSummary(record: EscalationRecord): string {
-  if (record.method === "student_initiated" && record.helpReason) {
-    return record.helpReason;
+function rowSummary(record: EscalationRecord): string | null {
+  if (record.method === "student_initiated") {
+    if (record.helpReason) return record.helpReason;
+    if (!record.text?.trim()) return null;
   }
   if (record.text) {
     const trimmed = record.text.trim();
     return trimmed.length > 96 ? `${trimmed.slice(0, 96)}…` : trimmed;
   }
-  return formatDetectionMethod(record.method);
+  return null;
 }
 
 function statusSummary(record: EscalationRecord): string {
@@ -36,6 +37,7 @@ function statusSummary(record: EscalationRecord): string {
 
 export function EscalationRow({ record }: { record: EscalationRecord }) {
   const urgent = !record.acknowledgedBy;
+  const summary = rowSummary(record);
 
   return (
     <Link
@@ -51,9 +53,11 @@ export function EscalationRow({ record }: { record: EscalationRecord }) {
         {formatRelativeTimestamp(record.createdAt)} · {formatDetectionMethod(record.method)} ·{" "}
         {formatDistressSurface(record.surface)}
       </div>
-      <div className="esc-escalation-row-meta" style={{ marginTop: 6 }}>
-        {rowSummary(record)}
-      </div>
+      {summary ? (
+        <div className="esc-escalation-row-meta" style={{ marginTop: 6 }}>
+          {summary}
+        </div>
+      ) : null}
       <div
         className={[
           "esc-escalation-row-status",
