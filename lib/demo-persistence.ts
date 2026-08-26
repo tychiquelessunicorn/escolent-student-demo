@@ -8,14 +8,16 @@ const LEGACY_MASTERED_KEY = "variablesOnBothSides";
 const LEGACY_STREAK_KEY = "demoStreak";
 const OFFLINE_SESSION_KEY = "esc_demo_offline";
 const DEMO_CONTROLS_KEY = "esc_demo_controls";
+const CURRENT_SPACE_KEY = "esc_demo_space";
 const MIRROR_PREFIX = "esc_mirror_";
 
 export const DEMO_DEFAULT_STREAK = 3;
 export const DEMO_COMPLETED_STREAK = 4;
-export const DEMO_TOTAL_DAILY_TASKS = 2;
+export const DEMO_TOTAL_DAILY_TASKS = 3;
 export const DEMO_PERSIST_EVENT = "esc-demo-persist";
 
 export type DemoSeed = "fresh" | "mastered";
+export const DEMO_DEFAULT_SPACE_ID = "algebra";
 
 function mirrorSet(key: string, value: string): void {
   try {
@@ -163,6 +165,27 @@ export function writeDemoControlsEnabled(value: boolean): void {
   }
 }
 
+export function readDemoSpaceId(): string {
+  if (typeof window === "undefined") return DEMO_DEFAULT_SPACE_ID;
+  try {
+    const value = sessionStorage.getItem(CURRENT_SPACE_KEY);
+    if (value === "algebra" || value === "life_sciences") return value;
+  } catch {
+    /* ignore */
+  }
+  return DEMO_DEFAULT_SPACE_ID;
+}
+
+export function writeDemoSpaceId(spaceId: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(CURRENT_SPACE_KEY, spaceId);
+  } catch {
+    /* ignore */
+  }
+  notifyPersist();
+}
+
 /** Apply victory mastery overlay to the shared skill list (Progress + Learn). */
 export function resolveDemoSkill(skill: Skill, mastered: boolean): Skill {
   if (skill.id === "s5" && mastered) {
@@ -212,5 +235,20 @@ export const RELATED_PRACTICE_FOR_SKILL: Record<
     href: "/practice?skill=variables_both_sides",
     label: "Variables on both sides",
     blurb: "Inequalities come after variables on both sides in this Space.",
+  },
+  food_chains: {
+    href: "/student/learn?space=life_sciences",
+    label: "Life sciences on Learn",
+    blurb: "Open the Life sciences Space for this skill's lesson beat.",
+  },
+  cells_basics: {
+    href: "/student/learn?space=life_sciences",
+    label: "Life sciences on Learn",
+    blurb: "Open the Life sciences Space for this skill's lesson beat.",
+  },
+  photosynthesis_intro: {
+    href: "/student/learn?space=life_sciences",
+    label: "Life sciences on Learn",
+    blurb: "Open the Life sciences Space for this skill's lesson beat.",
   },
 };

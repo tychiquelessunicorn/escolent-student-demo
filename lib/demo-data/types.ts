@@ -14,6 +14,12 @@ export type EvaluationStrategy =
   | "symbolic_equivalence"
   | "rubric_llm";
 
+/** One annotated worked example for a Learn skill beat. */
+export interface WorkedExample {
+  prompt: string;
+  steps: string[];
+}
+
 export interface Skill {
   id: string;
   slug: string;
@@ -27,6 +33,20 @@ export interface Skill {
   lesson: string;
   /** Original source material this content was synthesized from (Req 32.2). */
   source: string;
+  /** Short worked example under the concept in Learn. */
+  workedExample: WorkedExample;
+}
+
+/** An enrolled Space the student can switch into for Learn / Progress. */
+export interface DemoSpace {
+  id: string;
+  name: string;
+  subject: string;
+  grade: string;
+  teacher: string;
+  skills: Skill[];
+  nextReview: { skillName: string; whenLabel: string; note: string };
+  recentSessions: SessionRecord[];
 }
 
 export interface TierStyle {
@@ -56,6 +76,10 @@ export interface ScheduleItem {
   freshness?: SyncFreshness;
   /** Demo loop: today's task that completes when variables skill is mastered. */
   demoTask?: boolean;
+  /** Enrolled Escolent Space id when this item belongs to one. */
+  spaceId?: string;
+  /** Quiet Space / subject tag on Today (cross-space list). */
+  spaceTag: string;
 }
 
 export interface SessionRecord {

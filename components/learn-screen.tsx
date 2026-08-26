@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { PathIllustration } from "@/components/illustrations";
+import { useShellState } from "@/components/shell-context";
 import { SkillRow } from "@/components/skill-row";
+import { SpaceSwitcher } from "@/components/space-switcher";
 import { PageHeading, SectionLabel } from "@/components/ui";
-import { SKILLS, STUDENT, TIER_STYLE } from "@/lib/demo-data";
+import { TIER_STYLE } from "@/lib/demo-data";
 import {
   isVariablesCompleted,
   resolveDemoSkill,
@@ -13,6 +16,7 @@ import {
 } from "@/lib/demo-persistence";
 
 export function LearnScreen() {
+  const { currentSpace } = useShellState();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [toastId, setToastId] = useState<string | null>(null);
   const [mastered, setMastered] = useState(false);
@@ -23,7 +27,15 @@ export function LearnScreen() {
     return subscribeDemoPersist(refresh);
   }, []);
 
-  const skills = SKILLS.map((skill) => resolveDemoSkill(skill, mastered));
+  // Reset expand state when switching Spaces so rows don't feel "stuck open".
+  useEffect(() => {
+    setExpanded({});
+    setToastId(null);
+  }, [currentSpace.id]);
+
+  const skills = currentSpace.skills.map((skill) =>
+    resolveDemoSkill(skill, mastered),
+  );
 
   const openSource = (id: string) => {
     setToastId(id);
@@ -36,7 +48,7 @@ export function LearnScreen() {
         <PageHeading
           area="learn"
           title="Learn"
-          subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
+          subtitle={<SpaceSwitcher />}
         />
         <div className="esc-illust esc-illust-header">
           <PathIllustration size={88} style={{ marginBottom: 0 }} />
@@ -67,21 +79,29 @@ export function LearnScreen() {
             }
           >
             <div className="esc-skill-expanded">
-              <div
-                style={{
-                  fontSize: 14,
-                  lineHeight: 1.65,
-                  color: "var(--color-content-primary)",
-                  marginBottom: 14,
-                }}
-              >
-                {skill.lesson}
+              <div className="esc-lesson-beat">
+                <div className="esc-lesson-label">Concept</div>
+                <div className="esc-lesson-concept">{skill.lesson}</div>
+
+                <div className="esc-lesson-label">Worked example</div>
+                <div className="esc-worked-example">
+                  <div className="esc-worked-prompt">{skill.workedExample.prompt}</div>
+                  <ol className="esc-worked-steps">
+                    {skill.workedExample.steps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
+                </div>
+
+                <Link
+                  href={`/practice?skill=${skill.slug}`}
+                  className="esc-btn-primary esc-pressable esc-lesson-practice"
+                >
+                  Practice this skill
+                </Link>
               </div>
-              {/*
-                Requirement 32.2: synthesized content always shows what it was
-                derived from, and the original stays reachable.
-              */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 14 }}>
                 <div style={{ fontSize: 11, color: "var(--color-content-muted)" }}>
                   {skill.source}
                 </div>
@@ -119,17 +139,11 @@ export function LearnScreen() {
         ))}
       </div>
 
-      {/*
-        Two behaviours this ask box carries beyond answering: it says plainly
-        when a question is outside this Space rather than inventing an answer
-        (Requirement 32.5), and it redirects a request for a bare final answer
-        back to the student's own reasoning instead of handing it over (32.7).
-        Both live in the server-side prompt.
-      */}
       <AskBox
         task="learn_ask"
         surface="learn_ask"
         area="learn"
+        spaceId={currentSpace.id}
         placeholder={
           'Ask about any skill… e.g. "why do we flip the sign in inequalities"'
         }

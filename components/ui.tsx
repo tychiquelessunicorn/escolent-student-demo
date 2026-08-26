@@ -160,7 +160,7 @@ export function PageHeading({
   area,
 }: {
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   area?: AreaTone;
 }) {
   const tone = area ? AREA_VARS[area] : null;

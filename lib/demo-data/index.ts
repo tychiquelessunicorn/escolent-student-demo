@@ -13,6 +13,7 @@ export * from "./types";
 export * from "./skills";
 export * from "./schedule";
 export * from "./practice";
+export * from "./spaces";
 
 export const STUDENT = {
   firstName: "Mia",

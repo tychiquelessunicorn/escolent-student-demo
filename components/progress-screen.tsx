@@ -4,18 +4,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AskBox } from "@/components/ask-box";
 import { BeginningIllustration } from "@/components/illustrations";
+import { useShellState } from "@/components/shell-context";
 import { SkillRow } from "@/components/skill-row";
+import { SpaceSwitcher } from "@/components/space-switcher";
 import { PageHeading, SectionLabel, Card, CardBody, CardTitle } from "@/components/ui";
+import { TIER_STYLE } from "@/lib/demo-data";
 import {
-  NEXT_REVIEW,
-  RECENT_SESSIONS,
-  SKILLS,
-  STUDENT,
-  TIER_STYLE,
-} from "@/lib/demo-data";
-import { isVariablesCompleted, resolveDemoSkill, subscribeDemoPersist } from "@/lib/demo-persistence";
+  isVariablesCompleted,
+  resolveDemoSkill,
+  subscribeDemoPersist,
+} from "@/lib/demo-persistence";
 
 export function ProgressScreen() {
+  const { currentSpace } = useShellState();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [mastered, setMastered] = useState(false);
 
@@ -25,7 +26,15 @@ export function ProgressScreen() {
     return subscribeDemoPersist(refresh);
   }, []);
 
-  const skills = SKILLS.map((skill) => resolveDemoSkill(skill, mastered));
+  useEffect(() => {
+    setExpanded({});
+  }, [currentSpace.id]);
+
+  const skills = currentSpace.skills.map((skill) =>
+    resolveDemoSkill(skill, mastered),
+  );
+  const nextReview = currentSpace.nextReview;
+  const recentSessions = currentSpace.recentSessions;
 
   return (
     <div className="esc-screen">
@@ -33,7 +42,7 @@ export function ProgressScreen() {
         <PageHeading
           area="progress"
           title="My progress"
-          subtitle={`${STUDENT.grade} · ${STUDENT.spaceName}`}
+          subtitle={<SpaceSwitcher />}
         />
         <div className="esc-illust esc-illust-header">
           <BeginningIllustration size={88} style={{ marginBottom: 0 }} />
@@ -45,6 +54,7 @@ export function ProgressScreen() {
           task="progress_ask"
           surface="progress_ask"
           area="progress"
+          spaceId={currentSpace.id}
           placeholder={'Ask about your progress… e.g. "how am I doing on fractions"'}
           loadingLabel="Checking your progress…"
         />
@@ -55,9 +65,9 @@ export function ProgressScreen() {
           Next review
         </SectionLabel>
         <CardTitle style={{ fontSize: 19, marginBottom: 6 }}>
-          {NEXT_REVIEW.skillName}, {NEXT_REVIEW.whenLabel}
+          {nextReview.skillName}, {nextReview.whenLabel}
         </CardTitle>
-        <CardBody style={{ fontSize: 14 }}>{NEXT_REVIEW.note}</CardBody>
+        <CardBody style={{ fontSize: 14 }}>{nextReview.note}</CardBody>
       </Card>
 
       <SectionLabel area="progress">Skill progression</SectionLabel>
@@ -128,14 +138,14 @@ export function ProgressScreen() {
           background: "var(--color-area-progress-subtle)",
         }}
       >
-        {RECENT_SESSIONS.map((session, index) => (
+        {recentSessions.map((session, index) => (
           <div
             key={`${session.date}-${session.title}`}
             className="esc-recent-session-row"
             style={{
               padding: "12px 18px",
               borderBottom:
-                index === RECENT_SESSIONS.length - 1
+                index === recentSessions.length - 1
                   ? "none"
                   : "1px solid var(--color-area-progress-border)",
             }}

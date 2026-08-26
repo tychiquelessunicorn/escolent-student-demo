@@ -10,11 +10,19 @@ import {
 } from "react";
 import type { SyncFreshness } from "@/lib/demo-data";
 import {
+  DEMO_SPACES,
+  DEFAULT_SPACE_ID,
+  getDemoSpace,
+  type DemoSpace,
+} from "@/lib/demo-data";
+import {
   readDemoControlsEnabled,
   readDemoOffline,
+  readDemoSpaceId,
   seedDemoState,
   writeDemoControlsEnabled,
   writeDemoOffline,
+  writeDemoSpaceId,
   type DemoSeed,
 } from "@/lib/demo-persistence";
 
@@ -28,6 +36,10 @@ interface ShellStateValue {
   demoControls: boolean;
   enableDemoControls: () => void;
   applyDemoSeed: (seed: DemoSeed) => void;
+  currentSpaceId: string;
+  currentSpace: DemoSpace;
+  spaces: DemoSpace[];
+  setCurrentSpaceId: (spaceId: string) => void;
   registerPracticeHelp: (handler: (() => void) | null) => void;
   openPracticeHelp: () => void;
 }
@@ -39,6 +51,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const [headerNote, setHeaderNote] = useState("");
   const [demoOffline, setDemoOffline] = useState(false);
   const [demoControls, setDemoControls] = useState(false);
+  const [currentSpaceId, setCurrentSpaceIdState] = useState(DEFAULT_SPACE_ID);
   const [practiceHelpHandler, setPracticeHelpHandler] = useState<(() => void) | null>(
     null,
   );
@@ -46,17 +59,18 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     let fromUrl = false;
     let seed: string | null = null;
+    let spaceParam: string | null = null;
     try {
       const params = new URLSearchParams(window.location.search);
       fromUrl = params.get("demo") === "1";
       seed = params.get("seed");
+      spaceParam = params.get("space");
     } catch {
       /* ignore */
     }
 
     if (seed === "mastered" || seed === "fresh") {
       seedDemoState(seed);
-      // Clean pitch URL without ?demo=1 should not keep sticky harness chrome.
       if (seed === "fresh" && !fromUrl) {
         writeDemoControlsEnabled(false);
       }
@@ -67,6 +81,16 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     const enabled = fromUrl || readDemoControlsEnabled();
     setDemoControls(enabled);
     if (fromUrl) writeDemoControlsEnabled(true);
+
+    if (
+      spaceParam &&
+      DEMO_SPACES.some((space) => space.id === spaceParam)
+    ) {
+      writeDemoSpaceId(spaceParam);
+      setCurrentSpaceIdState(spaceParam);
+    } else {
+      setCurrentSpaceIdState(readDemoSpaceId());
+    }
   }, []);
 
   const toggleDemoOffline = useCallback(() => {
@@ -90,6 +114,12 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     setConnectivity(offline ? "unavailable" : "fresh");
   }, []);
 
+  const setCurrentSpaceId = useCallback((spaceId: string) => {
+    if (!DEMO_SPACES.some((space) => space.id === spaceId)) return;
+    writeDemoSpaceId(spaceId);
+    setCurrentSpaceIdState(spaceId);
+  }, []);
+
   const registerPracticeHelp = useCallback((handler: (() => void) | null) => {
     setPracticeHelpHandler(() => handler);
   }, []);
@@ -97,6 +127,11 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const openPracticeHelp = useCallback(() => {
     practiceHelpHandler?.();
   }, [practiceHelpHandler]);
+
+  const currentSpace = useMemo(
+    () => getDemoSpace(currentSpaceId),
+    [currentSpaceId],
+  );
 
   const value = useMemo(
     () => ({
@@ -109,6 +144,10 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       demoControls,
       enableDemoControls,
       applyDemoSeed,
+      currentSpaceId,
+      currentSpace,
+      spaces: DEMO_SPACES,
+      setCurrentSpaceId,
       registerPracticeHelp,
       openPracticeHelp,
     }),
@@ -120,6 +159,9 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       demoControls,
       enableDemoControls,
       applyDemoSeed,
+      currentSpaceId,
+      currentSpace,
+      setCurrentSpaceId,
       registerPracticeHelp,
       openPracticeHelp,
     ],

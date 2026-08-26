@@ -23,12 +23,15 @@ export function AskBox({
   placeholder,
   loadingLabel,
   area = "practice",
+  spaceId,
 }: {
   task: "today_ask" | "learn_ask" | "progress_ask";
   surface: DistressSurface;
   placeholder: string;
   loadingLabel: string;
   area?: AreaTone;
+  /** Current Space for Learn / Progress grounded answers. */
+  spaceId?: string;
 }) {
   const tone = AREA_VARS[area];
   const [text, setText] = useState("");
@@ -49,7 +52,7 @@ export function AskBox({
       const response = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ task, question }),
+        body: JSON.stringify({ task, question, spaceId }),
       });
       if (!response.ok) throw new Error(`status ${response.status}`);
       const data = (await response.json()) as { text?: string };

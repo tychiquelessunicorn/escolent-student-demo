@@ -1,14 +1,13 @@
 import {
   LENSES,
   NO_SOLUTION_PROBLEM,
-  RECENT_SESSIONS,
   SCHEDULE_DAYS,
   SCHEDULE_ITEMS,
-  SKILLS,
   TIER_STYLE,
   TODAY_SHORT_LABEL,
   TWO_STEP_PROBLEMS,
   VARIABLES_BOTH_SIDES_PROBLEMS,
+  getDemoSpace,
   prerequisiteOf,
   type PracticeProblem,
 } from "@/lib/demo-data";
@@ -133,24 +132,28 @@ export function todayAskPrompt(question: string): string {
   return `You are answering a grade 8 student's question about her own schedule, using ONLY this real due-items data (today is ${TODAY_SHORT_LABEL}):\n${dataLines}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
-export function learnAskPrompt(question: string): string {
-  const skillLines = SKILLS.map(
-    (sk) => `- ${sk.name}: ${TIER_STYLE[sk.tier].label}`,
-  ).join("\n");
+export function learnAskPrompt(question: string, spaceId?: string): string {
+  const space = getDemoSpace(spaceId ?? "algebra");
+  const skillLines = space.skills
+    .map((sk) => `- ${sk.name}: ${TIER_STYLE[sk.tier].label}`)
+    .join("\n");
 
-  return `You are answering a grade 8 student's question in the "Learn" area of her algebra equations Space, using ONLY this real skill list. She is only tracked on this algebra equations unit — nothing outside it (a different subject entirely) is tracked here.\n\nSkills in this Space:\n${skillLines}\n\nHer question: "${question}"\n\nTwo rules, both important:\n1. If the question is about a different subject entirely (not part of this algebra equations unit), say plainly that it's outside what's tracked in this Space, rather than answering it.\n2. If she is directly asking for the final answer to a specific problem (e.g. "what's the answer to 3x + 5 = 20") rather than asking to understand something, do NOT give the numeric answer. Instead, ask her to share her own thinking or work so far on that problem, so you can help her from there.\n\nOtherwise, answer directly and briefly (1-3 sentences), grounded only in the skills above. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+  return `You are answering a grade 8 student's question in the "Learn" area of her "${space.name}" Space (${space.subject}), using ONLY this real skill list. She is only tracked on this Space — nothing outside it (a different subject entirely) is tracked here.\n\nSkills in this Space:\n${skillLines}\n\nHer question: "${question}"\n\nTwo rules, both important:\n1. If the question is about a different subject entirely (not part of this Space), say plainly that it's outside what's tracked in this Space, rather than answering it.\n2. If she is directly asking for the final answer to a specific problem (e.g. "what's the answer to 3x + 5 = 20") rather than asking to understand something, do NOT give the numeric answer. Instead, ask her to share her own thinking or work so far on that problem, so you can help her from there.\n\nOtherwise, answer directly and briefly (1-3 sentences), grounded only in the skills above. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
-export function progressAskPrompt(question: string): string {
-  const skillLines = SKILLS.map(
-    (sk) =>
-      `- ${sk.name}: ${TIER_STYLE[sk.tier].label}${sk.flagged ? " (flagged prerequisite gap)" : ""}`,
-  ).join("\n");
-  const sessionLines = RECENT_SESSIONS.map(
-    (s) => `- ${s.date}: ${s.title} — ${s.result}`,
-  ).join("\n");
+export function progressAskPrompt(question: string, spaceId?: string): string {
+  const space = getDemoSpace(spaceId ?? "algebra");
+  const skillLines = space.skills
+    .map(
+      (sk) =>
+        `- ${sk.name}: ${TIER_STYLE[sk.tier].label}${sk.flagged ? " (flagged prerequisite gap)" : ""}`,
+    )
+    .join("\n");
+  const sessionLines = space.recentSessions
+    .map((s) => `- ${s.date}: ${s.title} — ${s.result}`)
+    .join("\n");
 
-  return `You are answering a grade 8 student's question about her own math progress, using ONLY this real data. She is only tracked on this algebra equations unit — nothing outside it (e.g. fractions, geometry) is tracked or assessed here.\n\nSkills tracked:\n${skillLines}\n\nRecent sessions:\n${sessionLines}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If she asks about something not in this list, say plainly that it isn't part of what's being tracked here, rather than inventing an answer. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+  return `You are answering a grade 8 student's question about her own progress in the "${space.name}" Space (${space.subject}), using ONLY this real data. She is only tracked on this Space — nothing outside it is tracked or assessed here.\n\nSkills tracked:\n${skillLines}\n\nRecent sessions:\n${sessionLines}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If she asks about something not in this list, say plainly that it isn't part of what's being tracked here, rather than inventing an answer. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
 /**

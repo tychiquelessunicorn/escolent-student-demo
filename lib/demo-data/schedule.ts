@@ -18,9 +18,7 @@ export const SCHEDULE_DAYS: ScheduleDay[] = [
  * Escolent-native items are actionable. An `lms` item carries actionRoute null
  * and links back to its source instead.
  *
- * Escolent items route to their own skill rather than to a single hardcoded
- * demo skill, so "Integer operations refresher" lands on that skill's honest
- * not-in-this-demo state instead of silently opening two-step equations.
+ * Today spans all enrolled Spaces; each item carries a quiet spaceTag.
  */
 export const SCHEDULE_ITEMS: ScheduleItem[] = [
   {
@@ -32,6 +30,8 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     dueMeta: "Due today",
     actionRoute: "/practice?skill=variables_both_sides",
     demoTask: true,
+    spaceId: "algebra",
+    spaceTag: "Algebra: equations",
   },
   {
     id: "e2",
@@ -41,6 +41,19 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     subjectLine: "Math · Assigned by Ms. Mokoena",
     dueMeta: "Due today",
     actionRoute: "/practice?skill=integer_operations",
+    spaceId: "algebra",
+    spaceTag: "Algebra: equations",
+  },
+  {
+    id: "e-sci1",
+    day: "wed",
+    source: "escolent",
+    title: "Food chains check-in",
+    subjectLine: "Science · Assigned by Mr. Dlamini",
+    dueMeta: "Due today",
+    actionRoute: "/practice?skill=food_chains",
+    spaceId: "life_sciences",
+    spaceTag: "Life sciences",
   },
   {
     id: "c1",
@@ -51,6 +64,7 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     dueMeta: "Due 3:00pm",
     actionRoute: null,
     freshness: "fresh",
+    spaceTag: "Science · Canvas",
   },
   {
     id: "c2",
@@ -61,6 +75,7 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     dueMeta: "Due 11:59pm",
     actionRoute: null,
     freshness: "stale",
+    spaceTag: "Language Arts · Canvas",
   },
   {
     id: "e3",
@@ -70,6 +85,8 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     subjectLine: "Math · Spaced review",
     dueMeta: "Due Fri",
     actionRoute: "/practice?skill=one_step",
+    spaceId: "algebra",
+    spaceTag: "Algebra: equations",
   },
   {
     id: "c3",
@@ -80,6 +97,7 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     dueMeta: "Due 11:59pm",
     actionRoute: null,
     freshness: "syncing",
+    spaceTag: "Social Studies · Canvas",
   },
   {
     id: "c4",
@@ -90,6 +108,7 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     dueMeta: "Due 9:00am",
     actionRoute: null,
     freshness: "fresh",
+    spaceTag: "Language Arts · Canvas",
   },
   {
     id: "e4",
@@ -99,6 +118,8 @@ export const SCHEDULE_ITEMS: ScheduleItem[] = [
     subjectLine: "Math · Spaced review",
     dueMeta: "Due Tue",
     actionRoute: "/practice?skill=two_step",
+    spaceId: "algebra",
+    spaceTag: "Algebra: equations",
   },
 ];
 

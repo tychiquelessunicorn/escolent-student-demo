@@ -94,6 +94,7 @@ function LmsItem({ item, compact }: { item: ScheduleItem; compact?: boolean }) {
           <div style={{ fontSize: 13, color: "var(--color-content-muted)" }}>
             {item.subjectLine}
           </div>
+          <div className="esc-space-tag">{item.spaceTag}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
           <ConnectivityGlyph state={freshness} />
@@ -242,6 +243,7 @@ function EscolentItem({
         <div style={{ fontSize: 13, color: "var(--color-content-secondary)" }}>
           {item.subjectLine}
         </div>
+        <div className="esc-space-tag">{item.spaceTag}</div>
         {complete ? (
           <div
             style={{

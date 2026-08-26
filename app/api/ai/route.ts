@@ -15,7 +15,7 @@ import {
   type SkillKey,
 } from "@/lib/ai/prompts";
 import { checkAiRateLimit, clientIp } from "@/lib/rate-limit";
-import { VARIABLES_BOTH_SIDES_PROBLEMS } from "@/lib/demo-data";
+import { DEMO_SPACES, VARIABLES_BOTH_SIDES_PROBLEMS } from "@/lib/demo-data";
 
 export const runtime = "nodejs";
 
@@ -48,6 +48,12 @@ function readProblemIndex(body: Body, length: number): number | null {
   if (typeof value !== "number" || !Number.isInteger(value)) return null;
   if (value < 0 || value >= length) return null;
   return value;
+}
+
+function readSpaceId(body: Body): string | undefined {
+  const value = body.spaceId;
+  if (typeof value !== "string") return undefined;
+  return DEMO_SPACES.some((space) => space.id === value) ? value : undefined;
 }
 
 export async function POST(request: Request) {
@@ -175,18 +181,19 @@ export async function POST(request: Request) {
       case "today_ask":
       case "learn_ask":
       case "progress_ask": {
-        // Only `task` and `question` are read. A distress verdict is never an
-        // input here — classification is a different route with no shared
-        // history. The student's literal text is the question, answered as a
-        // lookup over grounded data, as if the classifier did not exist.
+        // Only `task`, `question`, and optional `spaceId` are read. A distress
+        // verdict is never an input here — classification is a different route
+        // with no shared history. The student's literal text is the question,
+        // answered as a lookup over grounded data.
         const question = readQuestion(body);
         if (!question) return badRequest("Invalid question");
+        const spaceId = readSpaceId(body);
         const prompt =
           task === "today_ask"
             ? todayAskPrompt(question)
             : task === "learn_ask"
-              ? learnAskPrompt(question)
-              : progressAskPrompt(question);
+              ? learnAskPrompt(question, spaceId)
+              : progressAskPrompt(question, spaceId);
         const text = await complete({
           model: MODEL_DEFAULT,
           system: ASK_LOOKUP_SYSTEM,
