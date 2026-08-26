@@ -39,6 +39,7 @@ export function Card({
   subtleBorder = false,
   area,
   className,
+  dataTour,
 }: {
   children: ReactNode;
   style?: CSSProperties;
@@ -46,11 +47,14 @@ export function Card({
   /** Optional functional area wash — identity, not decoration. */
   area?: AreaTone;
   className?: string;
+  /** Spotlight anchor for the guided tour. */
+  dataTour?: string;
 }) {
   const tone = area ? AREA_VARS[area] : null;
   return (
     <div
       className={["esc-card", "esc-phase", className].filter(Boolean).join(" ")}
+      data-tour={dataTour}
       style={{
         background: tone ? tone.subtle : "var(--color-surface-raised)",
         border: `1.5px solid ${

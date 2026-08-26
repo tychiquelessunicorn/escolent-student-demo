@@ -214,7 +214,6 @@ function PracticeSessionInner() {
     registerPracticeHelp,
     demoOffline,
     demoControls,
-    tourMode,
   } = useShellState();
   const { checkFreeText } = useDistress();
 
@@ -236,18 +235,23 @@ function PracticeSessionInner() {
   const aiHintsEnabled = params.get("aiHintsEnabled") !== "false";
 
   const isRubricDemo = problemDemo === "no_solution_rubric";
-  const isOneStepRemediation = skillParam === "one_step" && !tourMode;
+  /**
+   * Two seeded mid-session states. The scaffold and the mastery moment are both
+   * things a student reaches by answering, which makes them unreachable to a
+   * guided walkthrough that never types — so each is also addressable as a
+   * route, exactly like every other demo variant.
+   */
+  const isScaffoldDemo = problemDemo === "wrong_answer_scaffold";
+  const isMasteryDemo = problemDemo === "mastery_moment";
+  const isOneStepRemediation = skillParam === "one_step";
   const isVariablesSkill =
     skillParam === "variables_both_sides" ||
-    (!skillParam && entryVariant === "first_exposure") ||
-    (tourMode && !skillParam);
+    (!skillParam && entryVariant === "first_exposure");
   const [alreadyMastered, setAlreadyMastered] = useState(false);
   const isFirstExposure = isVariablesSkill && !alreadyMastered;
-  // Soft-land any non-playable skill. In Demo tour, only Variables is live.
+  // Soft-land any non-playable skill rather than silently loading another's problems.
   const isUnsupportedSkill = Boolean(
-    skillParam &&
-      (!isPlayablePracticeSkill(skillParam) ||
-        (tourMode && skillParam !== "variables_both_sides")),
+    skillParam && !isPlayablePracticeSkill(skillParam),
   );
 
   const getProblems = useCallback((): PracticeProblem[] => {
@@ -412,6 +416,37 @@ function PracticeSessionInner() {
       });
       return;
     }
+    /**
+     * Two wrong attempts in: the ladder is showing its guided-step rung, with
+     * the mini-step and the matching hint from the same chain a real second
+     * attempt would have produced. Nothing here is faked further along than the
+     * attempt count implies.
+     */
+    if (isScaffoldDemo) {
+      patch({
+        phase: "active",
+        problemIndex: 0,
+        wrongAnswers: [8, 3],
+        answerInput: "",
+        ladderExhausted: false,
+        socraticHintLoading: false,
+        socraticHintText: hintForAttempt(2),
+      });
+      return;
+    }
+    // The first-exposure resolve, which is one of the two moments allowed to
+    // use the achievement accent.
+    if (isMasteryDemo) {
+      patch({
+        phase: "correct",
+        problemIndex: 0,
+        wrongAnswers: [],
+        answerInput: "",
+        sessionCompleted: 1,
+        breakthrough: true,
+      });
+      return;
+    }
     // A skill with no real content is an honest dead end rather than silently
     // loading the wrong skill's problems under the right label.
     if (isUnsupportedSkill) {
@@ -475,7 +510,9 @@ function PracticeSessionInner() {
     entryVariant,
     generateIntro,
     interruptionDemo,
+    isMasteryDemo,
     isRubricDemo,
+    isScaffoldDemo,
     isOneStepRemediation,
     isUnsupportedSkill,
     isVariablesSkill,
@@ -985,6 +1022,7 @@ function PracticeSessionInner() {
 
   const achievementBanner = (text: string) => (
     <div
+      data-tour="practice-achievement"
       style={{
         display: "flex",
         alignItems: "center",
@@ -1004,7 +1042,7 @@ function PracticeSessionInner() {
   );
 
   return (
-    <div className="esc-screen">
+    <div className="esc-screen" data-tour="practice-stage">
       {showQueueBanner ? (
         <div
           style={{
@@ -1036,7 +1074,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "notificationPreview" ? (
-        <Card area="practice">
+        <Card area="practice" dataTour="practice-notification">
           <div
             style={{
               fontSize: 12,
@@ -1121,7 +1159,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "resumePrompt" ? (
-        <Card key="resumePrompt" area="practice">
+        <Card key="resumePrompt" area="practice" dataTour="practice-resume">
           <Motif>
             <ResumeIllustration size={ILLUST} />
           </Motif>
@@ -1297,7 +1335,7 @@ function PracticeSessionInner() {
       ) : null}
 
       {state.phase === "intro" ? (
-        <Card key="intro" area="practice">
+        <Card key="intro" area="practice" dataTour="practice-intro">
           <Motif>
             <BeginningIllustration size={ILLUST} />
           </Motif>
@@ -1419,6 +1457,9 @@ function PracticeSessionInner() {
         <Card
           key={`${state.phase}-${state.problemIndex}-${state.sessionCompleted}`}
           area="practice"
+          // The rubric problem is the whole point of its step: the prompt and
+          // the free-text control only make sense lit together.
+          dataTour={isRubricDemo ? "practice-rubric" : undefined}
           className={
             submitFlash === "ok"
               ? "esc-flash-ok"
@@ -1540,7 +1581,7 @@ function PracticeSessionInner() {
               ) : null}
 
               {wrongCount >= 1 && !state.ladderExhausted ? (
-                <>
+                <div data-tour="practice-scaffold">
                   <div
                     className="esc-ladder-row"
                     style={{ display: "flex", gap: 22, flexWrap: "wrap", marginBottom: 20 }}
@@ -1773,7 +1814,7 @@ function PracticeSessionInner() {
                       )}
                     </div>
                   ) : null}
-                </>
+                </div>
               ) : null}
 
               {!state.ladderExhausted ? (

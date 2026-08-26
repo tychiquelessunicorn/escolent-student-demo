@@ -38,7 +38,10 @@ interface ShellStateValue {
   demoControls: boolean;
   enableDemoControls: () => void;
   applyDemoSeed: (seed: DemoSeed) => void;
-  /** Guided Demo walkthrough across the Student shell. */
+  /**
+   * Whether the guided chapter tour is running. Activation and persistence live
+   * here; the tour's own state lives in TourProvider.
+   */
   tourMode: boolean;
   exitTour: () => void;
   currentSpaceId: string;
@@ -78,6 +81,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       /* ignore */
     }
 
+    // The tour narrates a clean run from a known state, and it must never be
+    // competing with the harness panel for the same query params.
     if (tourFromUrl) {
       seedDemoState("fresh");
       writeTourMode(true);

@@ -24,6 +24,7 @@ export function AskBox({
   loadingLabel,
   area = "practice",
   spaceId,
+  scripted,
 }: {
   task: "today_ask" | "learn_ask" | "progress_ask";
   surface: DistressSurface;
@@ -32,6 +33,12 @@ export function AskBox({
   area?: AreaTone;
   /** Current Space for Learn / Progress grounded answers. */
   spaceId?: string;
+  /**
+   * A fixed question and answer to display instead of a live input. The guided
+   * tour uses this so a visitor never has to type to see the ask box work; the
+   * pair is shown as-is and nothing is sent.
+   */
+  scripted?: { question: string; answer: string };
 }) {
   const tone = AREA_VARS[area];
   const [text, setText] = useState("");
@@ -39,7 +46,12 @@ export function AskBox({
   const [answer, setAnswer] = useState("");
   const { checkFreeText } = useDistress();
 
+  const shownText = scripted ? scripted.question : text;
+  const shownAnswer = scripted ? scripted.answer : answer;
+  const shownLoading = scripted ? false : loading;
+
   const submit = async () => {
+    if (scripted) return;
     const question = text.trim();
     if (!question) return;
 
@@ -81,13 +93,14 @@ export function AskBox({
         <input
           type="text"
           placeholder={placeholder}
-          value={text}
+          value={shownText}
+          readOnly={Boolean(scripted)}
           onChange={(event) => setText(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") void submit();
           }}
         />
-        {text.trim() !== "" ? (
+        {shownText.trim() !== "" ? (
           <button
             type="button"
             className="esc-pressable"
@@ -109,7 +122,7 @@ export function AskBox({
         ) : null}
       </div>
 
-      {loading ? (
+      {shownLoading ? (
         <div
           style={{
             fontSize: 13,
@@ -122,7 +135,7 @@ export function AskBox({
         </div>
       ) : null}
 
-      {!loading && answer ? (
+      {!shownLoading && shownAnswer ? (
         <div
           className="esc-rise"
           style={{
@@ -136,7 +149,7 @@ export function AskBox({
             color: tone.fg,
           }}
         >
-          {answer}
+          {shownAnswer}
         </div>
       ) : null}
     </div>

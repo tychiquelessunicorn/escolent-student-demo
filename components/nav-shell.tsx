@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
-import { DemoGuideBar } from "@/components/demo-guide-bar";
 import { DistressNotice, useDistress } from "@/components/distress-provider";
 import { useShellState } from "@/components/shell-context";
+import { useTour } from "@/components/tour-provider";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
 import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
@@ -81,13 +81,18 @@ function activeArea(pathname: string): AreaTone {
 function HelpButton() {
   const { requestHelp } = useDistress();
   const { openPracticeHelp } = useShellState();
+  const { stage } = useTour();
   const pathname = usePathname();
-  const onPractice = pathname.startsWith("/practice");
+  // On Practice this button is the hint drawer. The tour's safety-net chapter
+  // runs on Practice and is about the other one, so it asks for the escalation
+  // form explicitly rather than the chapter pretending to be somewhere else.
+  const onPractice = pathname.startsWith("/practice") && !stage?.helpButtonEscalates;
 
   return (
     <button
       type="button"
       className="esc-pressable"
+      data-tour="help-button"
       onClick={() => {
         hapticTap();
         if (onPractice) openPracticeHelp();
@@ -169,6 +174,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             className="esc-conn-toggle esc-pressable"
+            data-tour="connectivity"
             title="Toggle offline demo"
             onClick={() => {
               hapticTap();
@@ -220,8 +226,6 @@ export function NavShell({ children }: { children: React.ReactNode }) {
           ) : null}
         </div>
       </header>
-
-      <DemoGuideBar />
 
       <div className="esc-shell-layout">
         <nav
