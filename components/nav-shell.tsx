@@ -7,6 +7,7 @@ import { DistressNotice, useDistress } from "@/components/distress-provider";
 import { useShellState } from "@/components/shell-context";
 import { useTour } from "@/components/tour-provider";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
+import { HELP_REASON_LABELS, type HelpReasonLabel } from "@/lib/distress";
 import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
 
@@ -72,47 +73,73 @@ function activeArea(pathname: string): AreaTone {
 }
 
 /**
- * The always-available help button (Requirement 18.6). It lives here, in the
- * shell, so it is present on every Student screen rather than only on Practice
- * Session. Zero friction by design: one tap, no confirmation step, no form.
- * Styled on the brand accent — same family as primary actions — so it does not
- * read as a separate muddy chrome control.
+ * Always-available student-initiated help (Requirement 18.6). Lives in the
+ * shell so it is on every Student screen. On Practice the control is the hint
+ * drawer; everywhere else it is five one-tap reason buttons — choosing one IS
+ * sending, with no confirmation step and no free-text field.
  */
-function HelpButton() {
+function HelpControls() {
   const { requestHelp } = useDistress();
   const { openPracticeHelp } = useShellState();
   const { stage } = useTour();
   const pathname = usePathname();
-  // On Practice this button is the hint drawer. The tour's safety-net chapter
-  // runs on Practice and is about the other one, so it asks for the escalation
-  // form explicitly rather than the chapter pretending to be somewhere else.
-  const onPractice = pathname.startsWith("/practice") && !stage?.helpButtonEscalates;
+  // On Practice this control is the hint drawer. The tour's safety-net chapter
+  // runs on Practice and is about the escalation path, so it asks for that form
+  // explicitly rather than the chapter pretending to be somewhere else.
+  const onPractice =
+    pathname.startsWith("/practice") && !stage?.helpButtonEscalates;
+
+  if (onPractice) {
+    return (
+      <button
+        type="button"
+        className="esc-pressable"
+        data-tour="help-button"
+        onClick={() => {
+          hapticTap();
+          openPracticeHelp();
+        }}
+        style={{
+          fontFamily: "var(--font-body)",
+          fontSize: 12,
+          fontWeight: 700,
+          padding: "8px 16px",
+          borderRadius: "var(--radius-control)",
+          border: "1.5px solid var(--color-accent-subtle-border)",
+          background: "var(--color-accent-subtle)",
+          color: "var(--color-accent-strong)",
+          cursor: "pointer",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Need a hint?
+      </button>
+    );
+  }
+
+  const sendReason = (label: HelpReasonLabel) => {
+    hapticTap();
+    requestHelp(label);
+  };
 
   return (
-    <button
-      type="button"
-      className="esc-pressable"
+    <div
+      className="esc-help-reasons"
       data-tour="help-button"
-      onClick={() => {
-        hapticTap();
-        if (onPractice) openPracticeHelp();
-        else requestHelp();
-      }}
-      style={{
-        fontFamily: "var(--font-body)",
-        fontSize: 12,
-        fontWeight: 700,
-        padding: "8px 16px",
-        borderRadius: "var(--radius-control)",
-        border: "1.5px solid var(--color-accent-subtle-border)",
-        background: "var(--color-accent-subtle)",
-        color: "var(--color-accent-strong)",
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-      }}
+      role="group"
+      aria-label="Tell your teacher you need help"
     >
-      {onPractice ? "Need a hint?" : "I need help"}
-    </button>
+      {HELP_REASON_LABELS.map((label) => (
+        <button
+          key={label}
+          type="button"
+          className="esc-help-reason esc-pressable"
+          onClick={() => sendReason(label)}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -211,7 +238,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="esc-shell-header-actions">
-          <HelpButton />
+          <HelpControls />
           {headerNote ? (
             <span
               className="esc-shell-header-note"

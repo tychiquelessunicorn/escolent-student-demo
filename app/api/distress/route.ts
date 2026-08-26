@@ -4,9 +4,11 @@ import { distressPrompt } from "@/lib/ai/prompts";
 import { STUDENT } from "@/lib/demo-data";
 import {
   DISTRESS_SURFACES,
+  isHelpReasonLabel,
   type DetectionMethod,
   type DistressSurface,
   type EscalationRecord,
+  type HelpReasonLabel,
 } from "@/lib/distress";
 import { clientIp, getRedis, shouldClassifyDistress } from "@/lib/rate-limit";
 
@@ -72,7 +74,7 @@ async function recordEscalation(record: EscalationRecord): Promise<void> {
       await redis.lpush(ESCALATION_KEY, JSON.stringify(record));
       await redis.ltrim(ESCALATION_KEY, 0, ESCALATION_CAP - 1);
       console.info(
-        `[escalation] recorded ${record.id} method=${record.method} surface=${record.surface} classifierFailed=${record.classifierFailed}`,
+        `[escalation] recorded ${record.id} method=${record.method} surface=${record.surface} helpReason=${record.helpReason ?? "none"} classifierFailed=${record.classifierFailed}`,
       );
       return;
     } catch (error) {
@@ -104,6 +106,15 @@ export async function POST(request: Request) {
   const rawText = typeof body.text === "string" ? body.text.trim() : "";
   const text = rawText ? rawText.slice(0, MAX_TEXT_LENGTH) : null;
 
+  // Student-initiated reasons are a closed set of literals — never free text.
+  let helpReason: HelpReasonLabel | null = null;
+  if (method === "student_initiated") {
+    if (!isHelpReasonLabel(body.helpReason)) {
+      return NextResponse.json({ error: "Invalid help reason" }, { status: 400 });
+    }
+    helpReason = body.helpReason;
+  }
+
   const buildRecord = (classifierFailed: boolean): EscalationRecord => ({
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
@@ -111,6 +122,7 @@ export async function POST(request: Request) {
     method,
     surface,
     text,
+    helpReason,
     classifierFailed,
   });
 
