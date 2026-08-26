@@ -20,6 +20,7 @@ import {
   readDemoOffline,
   readDemoSpaceId,
   readTourMode,
+  purgeLegacyGamificationKeys,
   seedDemoState,
   writeDemoControlsEnabled,
   writeDemoOffline,
@@ -80,6 +81,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     } catch {
       /* ignore */
     }
+
+    purgeLegacyGamificationKeys();
 
     // The tour narrates a clean run from a known state, and it must never be
     // competing with the harness panel for the same query params.

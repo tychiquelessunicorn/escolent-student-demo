@@ -78,7 +78,8 @@ interface State {
   wrongAnswers: number[];
   answerInput: string;
   sessionCompleted: number;
-  streak: number;
+  /** In-session first-try correct count for mastery crossing — not persisted. */
+  consecutiveFirstTry: number;
   showMasteryMsg: boolean;
   breakthrough: boolean;
   ladderExhausted: boolean;
@@ -145,7 +146,7 @@ function baseState(phase: Phase): State {
     wrongAnswers: [],
     answerInput: "",
     sessionCompleted: 0,
-    streak: 0,
+    consecutiveFirstTry: 0,
     showMasteryMsg: false,
     breakthrough: false,
     ladderExhausted: false,
@@ -779,13 +780,13 @@ function PracticeSessionInner() {
 
         if (correct) {
           const firstTry = s.wrongAnswers.length === 0;
-          let newStreak = firstTry ? s.streak + 1 : 0;
-          const crossedMastery = newStreak >= 3;
-          if (crossedMastery) newStreak = 0;
+          let nextFirstTry = firstTry ? s.consecutiveFirstTry + 1 : 0;
+          const crossedMastery = nextFirstTry >= 3;
+          if (crossedMastery) nextFirstTry = 0;
           return {
             connectivity: offline ? s.connectivity : "fresh",
             phase: "correct" as Phase,
-            streak: newStreak,
+            consecutiveFirstTry: nextFirstTry,
             showMasteryMsg: crossedMastery,
             breakthrough: isFirstExposure && !firstTry,
             sessionCompleted: s.sessionCompleted + 1,
@@ -1577,7 +1578,7 @@ function PracticeSessionInner() {
                   <Button
                     onClick={() =>
                       advanceOrEnd({
-                        streak: 0,
+                        consecutiveFirstTry: 0,
                         exhaustedCount: state.exhaustedCount + 1,
                       })
                     }

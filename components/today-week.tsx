@@ -16,7 +16,7 @@ import {
   TODAY_KEY,
   type ScheduleItem,
 } from "@/lib/demo-data";
-import { getDemoStreak, getDailyProgressLabel, isVariablesCompleted, subscribeDemoPersist } from "@/lib/demo-persistence";
+import { getDailyProgressLabel, isVariablesCompleted, subscribeDemoPersist } from "@/lib/demo-persistence";
 import { hapticTap } from "@/lib/haptics";
 
 /**
@@ -315,14 +315,10 @@ function ViewTabs({ view }: { view: "today" | "week" }) {
 
 export function TodayWeek({ view }: { view: "today" | "week" }) {
   const { stage } = useTour();
-  const [streak, setStreak] = useState(3);
   const [taskComplete, setTaskComplete] = useState(false);
 
   useEffect(() => {
-    const refresh = () => {
-      setStreak(getDemoStreak());
-      setTaskComplete(isVariablesCompleted());
-    };
+    const refresh = () => setTaskComplete(isVariablesCompleted());
     refresh();
     return subscribeDemoPersist(refresh);
   }, [view]);
@@ -342,9 +338,6 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
           subtitle={TODAY_DATE_LABEL}
         />
         <div className="esc-screen-top-aside">
-          <div className="esc-streak-badge" aria-label={`${streak}-day streak`}>
-            {streak}-day streak
-          </div>
           <div className="esc-illust esc-illust-header">
             <ResumeIllustration size={72} style={{ marginBottom: 0 }} />
           </div>
