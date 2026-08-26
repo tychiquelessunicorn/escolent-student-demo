@@ -48,7 +48,9 @@ export function SpaceSwitcher({ area = "learn" }: { area?: AreaTone }) {
               }}
             >
               <span className="esc-space-chip-name">{space.name}</span>
-              <span className="esc-space-chip-meta">{space.subject}</span>
+              <span className="esc-space-chip-meta">
+                {space.grade} · {space.teacher}
+              </span>
             </button>
           );
         })}
