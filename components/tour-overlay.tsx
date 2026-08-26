@@ -202,7 +202,7 @@ export function TourOverlay() {
   const { chapter, chapterNumber, stepNumber, stepCount } = position;
   // A step with its own demo card needs the width; anchoring it beside a
   // header button would squeeze the thing it exists to show.
-  const docked =
+  const mustDock =
     !rect || viewport.width < ANCHOR_MIN_WIDTH || Boolean(step.demoCard);
 
   /**
@@ -230,7 +230,7 @@ export function TourOverlay() {
     : null;
 
   let anchored: CSSProperties | undefined;
-  if (!docked && rect) {
+  if (!mustDock && rect) {
     const below = rect.top + rect.height + SPOT_PAD + CALLOUT_GAP;
     const above = rect.top - SPOT_PAD - CALLOUT_GAP - calloutSize.height;
     const top =
@@ -238,14 +238,19 @@ export function TourOverlay() {
         ? below
         : above >= CALLOUT_GAP
           ? above
-          : Math.max(CALLOUT_GAP, (viewport.height - calloutSize.height) / 2);
-    const centred = rect.left + rect.width / 2 - calloutSize.width / 2;
-    const maxLeft = Math.max(
-      CALLOUT_GAP,
-      viewport.width - calloutSize.width - CALLOUT_GAP,
-    );
-    anchored = { top, left: Math.min(Math.max(CALLOUT_GAP, centred), maxLeft) };
+          : null;
+    if (top !== null) {
+      const centred = rect.left + rect.width / 2 - calloutSize.width / 2;
+      const maxLeft = Math.max(
+        CALLOUT_GAP,
+        viewport.width - calloutSize.width - CALLOUT_GAP,
+      );
+      anchored = { top, left: Math.min(Math.max(CALLOUT_GAP, centred), maxLeft) };
+    }
   }
+  // A target taller than the viewport leaves no room either side of it, and
+  // docking clips its bottom edge rather than covering its middle.
+  const docked = !anchored;
 
   return (
     <>
@@ -346,7 +351,9 @@ export function TourOverlay() {
               Chapter {chapterNumber} of {chapterCount}
             </span>
             <span className="esc-tour-chapter-name">{chapter.title}</span>
-            <span className="esc-tour-screen">{chapter.screen}</span>
+            <span className="esc-tour-screen">
+              {step.screen ?? chapter.screen}
+            </span>
             <span className="esc-tour-substep">
               Step {stepNumber} of {stepCount}
             </span>

@@ -58,6 +58,8 @@ export interface TourStep {
   caption: string;
   /** Auto-play dwell time in ms. */
   ms: number;
+  /** Overrides the chapter's screen label where a chapter spans two screens. */
+  screen?: string;
   stage?: TourStage;
   /** A labelled simulation the tour renders itself, never the live path. */
   demoCard?: TourDemoCardKind;
@@ -297,6 +299,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
         id: "progress_week",
         href: "/student/week",
         target: "week-grid",
+        screen: "Week",
         title: "The week ahead",
         caption:
           "The same unified picture as Today, widened out: adaptive work and LMS items side by side, so a quiet week and an overloaded one are both visible before they arrive. That is the whole loop — one honest list, instruction, adaptive practice, and a safety net underneath all of it.",
