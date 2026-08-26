@@ -11,9 +11,9 @@ export async function POST(request: Request) {
 
   const form = await request.formData();
   const submitted = String(form.get("password") ?? "");
-  const next = String(form.get("next") ?? "/practice");
+  const next = String(form.get("next") ?? "/student/practice");
   // Only same-origin paths, so the gate can't be turned into an open redirect.
-  const destination = next.startsWith("/") && !next.startsWith("//") ? next : "/practice";
+  const destination = next.startsWith("/") && !next.startsWith("//") ? next : "/student/practice";
 
   if (submitted !== password) {
     const url = new URL("/gate", request.url);

@@ -250,22 +250,22 @@ export const RELATED_PRACTICE_FOR_SKILL: Record<
   { href: string; label: string; blurb: string }
 > = {
   equation_basics: {
-    href: "/practice?skill=two_step",
+    href: "/student/practice?skill=two_step",
     label: "Two-step equations",
     blurb: "Balance skills stay sharp through two-step practice.",
   },
   integer_operations: {
-    href: "/practice?skill=one_step",
+    href: "/student/practice?skill=one_step",
     label: "One-step equations",
     blurb: "Integer fluency shows up first in one-step moves.",
   },
   multi_step: {
-    href: "/practice?skill=two_step",
+    href: "/student/practice?skill=two_step",
     label: "Two-step equations",
     blurb: "Multi-step builds on the two-step ladder you're already on.",
   },
   inequalities: {
-    href: "/practice?skill=variables_both_sides",
+    href: "/student/practice?skill=variables_both_sides",
     label: "Variables on both sides",
     blurb: "Inequalities come after variables on both sides in Equations.",
   },

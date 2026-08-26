@@ -117,7 +117,7 @@ export function LearnScreen() {
                 </div>
 
                 <Link
-                  href={`/practice?skill=${skill.slug}`}
+                  href={`/student/practice?skill=${skill.slug}`}
                   className="esc-btn-primary esc-pressable esc-lesson-practice"
                 >
                   Practice this skill

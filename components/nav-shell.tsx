@@ -9,6 +9,7 @@ import { useShellState } from "@/components/shell-context";
 import { useTour } from "@/components/tour-provider";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
 import { HELP_REASON_LABELS, type HelpReasonLabel } from "@/lib/distress";
+import { STUDENT_PRACTICE_PATH } from "@/lib/routes";
 import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
 
@@ -25,7 +26,7 @@ const NAV_ITEMS: {
     area: "today",
   },
   { label: "Learn", href: "/student/learn", match: ["/student/learn"], area: "learn" },
-  { label: "Practice", href: "/practice", match: ["/practice"], area: "practice" },
+  { label: "Practice", href: STUDENT_PRACTICE_PATH, match: [STUDENT_PRACTICE_PATH], area: "practice" },
   {
     label: "Progress",
     href: "/student/progress",
@@ -88,7 +89,7 @@ function HelpControls() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const onPractice =
-    pathname.startsWith("/practice") && !stage?.helpButtonEscalates;
+    pathname.startsWith(STUDENT_PRACTICE_PATH) && !stage?.helpButtonEscalates;
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
 

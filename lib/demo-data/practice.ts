@@ -110,7 +110,7 @@ export const INVESTOR_HINT_CHAIN = [
 
 /**
  * Skills with a real live problem set in this demo. Everything else soft-lands.
- * Bare `/practice` (no skill) uses the Variables first-exposure path.
+ * Bare `/student/practice` (no skill) uses the Variables first-exposure path.
  */
 export const PLAYABLE_PRACTICE_SKILLS = new Set([
   "variables_both_sides",

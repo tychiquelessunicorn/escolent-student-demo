@@ -30,7 +30,7 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
   const teacher = getPrimaryTeacher();
 
   return (
-    <div className="esc-shell-root">
+    <div className="esc-shell-root esc-staff-shell">
       <header className="esc-shell-header">
         <div className="esc-shell-header-brand">
           <span

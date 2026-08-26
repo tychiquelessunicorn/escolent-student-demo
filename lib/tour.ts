@@ -77,8 +77,8 @@ export interface TourChapter {
   steps: TourStep[];
 }
 
-const PRACTICE_VARIABLES = "/practice?skill=variables_both_sides";
-const PRACTICE_TWO_STEP = "/practice?skill=two_step&entryVariant=returning";
+const PRACTICE_VARIABLES = "/student/practice?skill=variables_both_sides";
+const PRACTICE_TWO_STEP = "/student/practice?skill=two_step&entryVariant=returning";
 
 export const TOUR_CHAPTERS: TourChapter[] = [
   {

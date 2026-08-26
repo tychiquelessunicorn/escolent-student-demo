@@ -329,7 +329,7 @@ function PracticeSessionInner() {
 
   // Test-harness variants. Query params are the mechanism, the demo panel is
   // the discoverable way to drive them.
-  // Bare /practice defaults to first-exposure variables. An explicit ?skill=
+  // Bare /student/practice defaults to first-exposure variables. An explicit ?skill=
   // always wins so Progress / schedule links don't get overridden.
   const skillParam = params.get("skill");
   const entryVariant = (params.get("entryVariant") ??
@@ -1205,7 +1205,7 @@ function PracticeSessionInner() {
             Mockup — preview of a system notification, not a live send
           </div>
           <a
-            href="/practice?skill=variables_both_sides"
+            href="/student/practice?skill=variables_both_sides"
             style={{
               display: "block",
               textDecoration: "none",
@@ -1369,7 +1369,7 @@ function PracticeSessionInner() {
           ) : null}
           <div className="esc-ended-actions">
             <Link
-              href="/practice?skill=variables_both_sides"
+              href="/student/practice?skill=variables_both_sides"
               className="esc-btn-primary esc-pressable"
             >
               Practice today&rsquo;s skill
@@ -1559,7 +1559,7 @@ function PracticeSessionInner() {
             extra={
               isOneStepRemediation ? (
                 <Link
-                  href="/practice?skill=variables_both_sides"
+                  href="/student/practice?skill=variables_both_sides"
                   className="esc-btn-secondary esc-pressable"
                 >
                   Return to variables practice
