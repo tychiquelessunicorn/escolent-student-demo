@@ -255,7 +255,9 @@ export const TOUR_CHAPTERS: TourChapter[] = [
       {
         id: "resilience_direct_open",
         href: `${PRACTICE_TWO_STEP}&directOpenDemo=valid_session`,
-        target: "practice-stage",
+        // The session check runs first, so this target does not exist for the
+        // first moment of the step. The overlay dims evenly until it does.
+        target: "practice-session-card",
         title: "Arriving without the LMS",
         caption:
           "That brief check was a bookmark or installed-app open verifying the existing session, then dropping her into the same entry path a Canvas launch uses. There is no standalone student login by design, so when no session is found she is sent back to Canvas rather than offered a password she was never given.",

@@ -543,7 +543,14 @@ function PracticeSessionInner() {
     if (directOpenDemo === "valid_session") {
       patch({ phase: "checkingSession" });
       const timer = setTimeout(() => enterSession(), 900);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        // StrictMode tears this effect down and immediately runs it again.
+        // Without releasing the run-once guard here the second pass returns
+        // early, the cleared timer is never replaced, and Entry is stranded on
+        // "Checking your session…" forever.
+        mounted.current = false;
+      };
     }
     enterSession();
     // enterSession is intentionally omitted: including it re-runs Entry whenever
@@ -1042,7 +1049,7 @@ function PracticeSessionInner() {
   );
 
   return (
-    <div className="esc-screen" data-tour="practice-stage">
+    <div className="esc-screen">
       {showQueueBanner ? (
         <div
           style={{
@@ -1459,7 +1466,7 @@ function PracticeSessionInner() {
           area="practice"
           // The rubric problem is the whole point of its step: the prompt and
           // the free-text control only make sense lit together.
-          dataTour={isRubricDemo ? "practice-rubric" : undefined}
+          dataTour={isRubricDemo ? "practice-rubric" : "practice-session-card"}
           className={
             submitFlash === "ok"
               ? "esc-flash-ok"
