@@ -8,6 +8,8 @@ const LEGACY_MASTERED_KEY = "variablesOnBothSides";
 const LEGACY_STREAK_KEY = "demoStreak";
 const OFFLINE_SESSION_KEY = "esc_demo_offline";
 const LMS_MODE_KEY = "esc_demo_lms_mode";
+const DEMO_CONTROLS_KEY = "esc_demo_controls";
+const MIRROR_PREFIX = "esc_mirror_";
 
 export const DEMO_DEFAULT_STREAK = 3;
 export const DEMO_COMPLETED_STREAK = 4;
@@ -15,13 +17,54 @@ export const DEMO_TOTAL_DAILY_TASKS = 2;
 export const DEMO_PERSIST_EVENT = "esc-demo-persist";
 
 export type DemoLmsMode = "standalone" | "classroom";
+export type DemoSeed = "fresh" | "mastered";
+
+function mirrorSet(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    /* ignore */
+  }
+  try {
+    sessionStorage.setItem(MIRROR_PREFIX + key, value);
+  } catch {
+    /* ignore */
+  }
+}
+
+function mirrorGet(key: string): string | null {
+  try {
+    const primary = localStorage.getItem(key);
+    if (primary != null) return primary;
+  } catch {
+    /* ignore */
+  }
+  try {
+    return sessionStorage.getItem(MIRROR_PREFIX + key);
+  } catch {
+    return null;
+  }
+}
+
+function mirrorRemove(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    /* ignore */
+  }
+  try {
+    sessionStorage.removeItem(MIRROR_PREFIX + key);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function isVariablesCompleted(): boolean {
   if (typeof window === "undefined") return false;
   try {
     return (
-      localStorage.getItem(COMPLETED_KEY) === "true" ||
-      localStorage.getItem(LEGACY_MASTERED_KEY) === "mastered"
+      mirrorGet(COMPLETED_KEY) === "true" ||
+      mirrorGet(LEGACY_MASTERED_KEY) === "mastered"
     );
   } catch {
     return false;
@@ -31,9 +74,9 @@ export function isVariablesCompleted(): boolean {
 export function getDemoStreak(): number {
   if (typeof window === "undefined") return DEMO_DEFAULT_STREAK;
   try {
-    const primary = parseInt(localStorage.getItem(STREAK_KEY) ?? "", 10);
+    const primary = parseInt(mirrorGet(STREAK_KEY) ?? "", 10);
     if (Number.isFinite(primary)) return primary;
-    const legacy = parseInt(localStorage.getItem(LEGACY_STREAK_KEY) ?? "", 10);
+    const legacy = parseInt(mirrorGet(LEGACY_STREAK_KEY) ?? "", 10);
     if (Number.isFinite(legacy)) return legacy;
     return isVariablesCompleted() ? DEMO_COMPLETED_STREAK : DEMO_DEFAULT_STREAK;
   } catch {
@@ -48,15 +91,37 @@ function notifyPersist(): void {
 
 export function completeVictoryLoop(): void {
   if (typeof window === "undefined") return;
+  mirrorSet(COMPLETED_KEY, "true");
+  mirrorSet(LEGACY_MASTERED_KEY, "mastered");
+  mirrorSet(STREAK_KEY, String(DEMO_COMPLETED_STREAK));
+  mirrorSet(LEGACY_STREAK_KEY, String(DEMO_COMPLETED_STREAK));
+  notifyPersist();
+}
+
+export function seedDemoState(seed: DemoSeed): void {
+  if (typeof window === "undefined") return;
+  if (seed === "mastered") {
+    completeVictoryLoop();
+  } else {
+    mirrorRemove(COMPLETED_KEY);
+    mirrorRemove(LEGACY_MASTERED_KEY);
+    mirrorSet(STREAK_KEY, String(DEMO_DEFAULT_STREAK));
+    mirrorSet(LEGACY_STREAK_KEY, String(DEMO_DEFAULT_STREAK));
+  }
+  // Pitch seeds should not inherit a leftover offline block or Classroom frame.
   try {
-    localStorage.setItem(COMPLETED_KEY, "true");
-    localStorage.setItem(LEGACY_MASTERED_KEY, "mastered");
-    localStorage.setItem(STREAK_KEY, String(DEMO_COMPLETED_STREAK));
-    localStorage.setItem(LEGACY_STREAK_KEY, String(DEMO_COMPLETED_STREAK));
+    sessionStorage.removeItem(OFFLINE_SESSION_KEY);
+    if (seed === "fresh") {
+      sessionStorage.setItem(LMS_MODE_KEY, "standalone");
+    }
   } catch {
-    /* demo storage unavailable */
+    /* ignore */
   }
   notifyPersist();
+}
+
+export function resetDemoState(): void {
+  seedDemoState("fresh");
 }
 
 export function getCompletedDailyCount(): number {
@@ -105,6 +170,24 @@ export function writeDemoLmsMode(mode: DemoLmsMode): void {
   }
 }
 
+export function readDemoControlsEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(DEMO_CONTROLS_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
+export function writeDemoControlsEnabled(value: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(DEMO_CONTROLS_KEY, value ? "true" : "false");
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Apply victory mastery overlay to the shared skill list (Progress + Learn). */
 export function resolveDemoSkill(skill: Skill, mastered: boolean): Skill {
   if (skill.id === "s5" && mastered) {
@@ -129,3 +212,30 @@ export function subscribeDemoPersist(listener: () => void): () => void {
     document.removeEventListener("visibilitychange", onVisible);
   };
 }
+
+/** Soft-land free-roam taps on skills that aren't in today's live practice set. */
+export const RELATED_PRACTICE_FOR_SKILL: Record<
+  string,
+  { href: string; label: string; blurb: string }
+> = {
+  equation_basics: {
+    href: "/practice?skill=two_step",
+    label: "Two-step equations",
+    blurb: "Balance skills stay sharp through two-step practice.",
+  },
+  integer_operations: {
+    href: "/practice?skill=one_step",
+    label: "One-step equations",
+    blurb: "Integer fluency shows up first in one-step moves.",
+  },
+  multi_step: {
+    href: "/practice?skill=two_step",
+    label: "Two-step equations",
+    blurb: "Multi-step builds on the two-step ladder you're already on.",
+  },
+  inequalities: {
+    href: "/practice?skill=variables_both_sides",
+    label: "Variables on both sides",
+    blurb: "Inequalities come after variables on both sides in this Space.",
+  },
+};

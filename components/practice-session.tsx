@@ -23,6 +23,7 @@ import {
   completeVictoryLoop,
   isVariablesCompleted,
   readDemoOffline,
+  RELATED_PRACTICE_FOR_SKILL,
 } from "@/lib/demo-persistence";
 import {
   FALLBACK_HINT,
@@ -211,6 +212,7 @@ function PracticeSessionInner() {
     setHeaderNote,
     registerPracticeHelp,
     demoOffline,
+    demoControls,
   } = useShellState();
   const { checkFreeText } = useDistress();
 
@@ -318,8 +320,10 @@ function PracticeSessionInner() {
     if (introStarted.current) return;
     introStarted.current = true;
 
+    // Instant pitch-safe copy — never block the walkthrough on the AI call.
     const requestId = ++introRequestId.current;
-    patch({ introLoading: true });
+    introCommitted.current = true;
+    patch({ introLoading: false, introText: INTRO_FALLBACK });
 
     let pending = introInFlight.get(INTRO_SKILL_KEY);
     if (!pending) {
@@ -330,25 +334,15 @@ function PracticeSessionInner() {
       introInFlight.set(INTRO_SKILL_KEY, pending);
     }
 
-    let text: string;
     try {
-      text = await pending;
+      const text = await pending;
+      if (requestId !== introRequestId.current) return;
+      if (text && text !== INTRO_FALLBACK) {
+        patch({ introText: text });
+      }
     } catch {
       introInFlight.delete(INTRO_SKILL_KEY);
-      if (requestId !== introRequestId.current) return;
-      if (introCommitted.current) return;
-      introCommitted.current = true;
-      patch({ introLoading: false, introText: INTRO_FALLBACK });
-      return;
     }
-
-    // Stale: a newer generateIntro superseded this one, or another response
-    // already committed. Never replace what the student may be reading.
-    if (requestId !== introRequestId.current) return;
-    if (introCommitted.current) return;
-
-    introCommitted.current = true;
-    patch({ introLoading: false, introText: text });
   }, [callAi, patch]);
 
   /** Allow a deliberate re-fetch after session state was fully reset (e.g. offline recovery). */
@@ -458,7 +452,13 @@ function PracticeSessionInner() {
         });
         return;
       }
-      patch({ phase: "intro" });
+      // Commit pitch-safe copy in the same state update as the intro phase so
+      // the walkthrough never paints an empty / loading-blocked intro.
+      patch({
+        phase: "intro",
+        introLoading: false,
+        introText: INTRO_FALLBACK,
+      });
       void generateIntro();
       return;
     }
@@ -535,14 +535,17 @@ function PracticeSessionInner() {
 
     if (state.phase === "offlineBlocked" && state.offlineBlockedVariant) {
       const variant = state.offlineBlockedVariant;
+      const nextPhase =
+        variant === "nothing_due"
+          ? "gate"
+          : isVariablesSkill
+            ? "intro"
+            : "active";
       setState({
-        ...baseState(
-          variant === "nothing_due"
-            ? "gate"
-            : isVariablesSkill
-              ? "intro"
-              : "active",
-        ),
+        ...baseState(nextPhase),
+        ...(nextPhase === "intro"
+          ? { introLoading: false, introText: INTRO_FALLBACK }
+          : {}),
       });
       if (variant === "first_exposure") {
         restartIntroGeneration();
@@ -1014,15 +1017,17 @@ function PracticeSessionInner() {
         </div>
       ) : null}
 
-      <div className="esc-demo-tools">
-        <button
-          type="button"
-          className="esc-demo-chip esc-pressable"
-          onClick={() => patch({ showRemediationModal: true })}
-        >
-          Simulate Diagnostic Gap
-        </button>
-      </div>
+      {demoControls ? (
+        <div className="esc-demo-tools">
+          <button
+            type="button"
+            className="esc-demo-chip esc-pressable"
+            onClick={() => patch({ showRemediationModal: true })}
+          >
+            Simulate Diagnostic Gap
+          </button>
+        </div>
+      ) : null}
 
       {state.phase === "notificationPreview" ? (
         <Card area="practice">
@@ -1188,13 +1193,42 @@ function PracticeSessionInner() {
           <Motif>
             <OutlineIllustration size={ILLUST} />
           </Motif>
-          <CardTitle>Not part of the demo yet</CardTitle>
-          <CardBody>
-            {(skillParam && UNSUPPORTED_SKILL_LABELS[skillParam]) || "This skill"}{" "}
-            isn&rsquo;t wired up in this prototype — only two-step equations and variables
-            on both sides have real practice content right now.
+          <CardTitle>Coming up next in this Space</CardTitle>
+          <CardBody style={{ marginBottom: 16 }}>
+            <strong>
+              {(skillParam && UNSUPPORTED_SKILL_LABELS[skillParam]) || "This skill"}
+            </strong>{" "}
+            isn&rsquo;t in today&rsquo;s live practice set. Keep the session moving with
+            what&rsquo;s due now — or a closely related foundation skill.
           </CardBody>
-          <SessionEndActions />
+          {skillParam && RELATED_PRACTICE_FOR_SKILL[skillParam] ? (
+            <CardBody style={{ marginBottom: 20, fontSize: 14 }}>
+              {RELATED_PRACTICE_FOR_SKILL[skillParam].blurb}
+            </CardBody>
+          ) : null}
+          <div className="esc-ended-actions">
+            <Link
+              href="/practice?skill=variables_both_sides"
+              className="esc-btn-primary esc-pressable"
+            >
+              Practice today&rsquo;s skill
+            </Link>
+            {skillParam && RELATED_PRACTICE_FOR_SKILL[skillParam] ? (
+              <Link
+                href={RELATED_PRACTICE_FOR_SKILL[skillParam].href}
+                className="esc-btn-secondary esc-pressable"
+              >
+                Try {RELATED_PRACTICE_FOR_SKILL[skillParam].label}
+              </Link>
+            ) : (
+              <Link href="/practice?skill=two_step" className="esc-btn-secondary esc-pressable">
+                Try two-step equations
+              </Link>
+            )}
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <SessionEndActions />
+          </div>
         </Card>
       ) : null}
 

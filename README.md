@@ -1,13 +1,21 @@
 # Escolent — Student demo
 
-A deployed version of the four confirmed Claude Design Student screens: Practice
-Session, Today / Week, Learn, and Progress, plus the global nav shell.
+**Canonical investor / school demo:** the deployed Next.js app on Vercel  
+(`escolent-student-demo.vercel.app`). That is the single coherent Student shell.
 
-The reference implementation lives in `cursor-handoff/claude-design-source/`.
-That prototype's logic, copy, and visual design are load-bearing and were ported
-rather than reinterpreted. The one thing that fundamentally changed is
-transport: every `window.claude.complete()` call now goes through a server-side
-Anthropic proxy.
+`cursor-handoff/claude-design-source/` is an **archived Claude Design prototype**
+used as the visual/logic reference during porting. Do not present those `.dc.html`
+files as the live demo.
+
+A deployed version of the four Student screens: Practice Session, Today / Week,
+Learn, and Progress, plus the global nav shell.
+
+## Pitch walkthrough (recommended)
+
+1. Open `/student/today?seed=fresh` (clean pre-mastery state).
+2. Start **Variables on both sides** → wrong answers show escalating hints → submit `5`.
+3. **Session Complete** → Return to Dashboard → Today/Progress update.
+4. Optional: toggle **Classroom** for LMS framing; open `?demo=1` only if you need harness controls.
 
 ## Running locally
 
@@ -37,6 +45,8 @@ warning; in production it refuses traffic rather than running unmetered.
 Query params drive every harness variant, so any state is linkable. The control
 panel that writes them opens with `?demo=1` or <kbd>Ctrl/Cmd</kbd> +
 <kbd>Shift</kbd> + <kbd>E</kbd>, and is absent from the DOM otherwise.
+Investor-facing chrome (e.g. Simulate Diagnostic Gap) stays hidden until demo
+controls are enabled.
 
 | Param | Values |
 | --- | --- |
@@ -47,7 +57,8 @@ panel that writes them opens with `?demo=1` or <kbd>Ctrl/Cmd</kbd> +
 | `problemDemo` | `standard` (default), `no_solution_rubric` |
 | `notificationPreviewDemo` | `not_applicable` (default), `shown` |
 | `aiHintsEnabled` | `true` (default), `false` |
-| `skill` | Any skill slug, e.g. `two_step`, `variables_both_sides` |
+| `skill` | Any skill slug, e.g. `two_step`, `variables_both_sides`, `one_step` |
+| `seed` | `fresh` or `mastered` — resets local demo persistence for a clean pitch |
 
 ## Distress detection
 

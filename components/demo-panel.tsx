@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useShellState } from "@/components/shell-context";
 import { SKILLS } from "@/lib/demo-data";
 
 /**
@@ -108,11 +109,15 @@ export function DemoPanel() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+  const { enableDemoControls, applyDemoSeed } = useShellState();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (params.get("demo") === "1") setOpen(true);
-  }, [params]);
+    if (params.get("demo") === "1") {
+      setOpen(true);
+      enableDemoControls();
+    }
+  }, [params, enableDemoControls]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -125,12 +130,16 @@ export function DemoPanel() {
       if (typing) return;
       if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "e") {
         event.preventDefault();
-        setOpen((value) => !value);
+        setOpen((value) => {
+          const next = !value;
+          if (next) enableDemoControls();
+          return next;
+        });
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [enableDemoControls]);
 
   if (!open) return null;
 
@@ -218,25 +227,74 @@ export function DemoPanel() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={reset}
-        style={{
-          marginTop: 16,
-          width: "100%",
-          fontFamily: "var(--font-body)",
-          fontSize: 13,
-          fontWeight: 600,
-          padding: "8px 12px",
-          borderRadius: "var(--radius-control)",
-          border: "1.5px solid var(--color-accent-subtle-border)",
-          background: "transparent",
-          color: "var(--color-accent)",
-          cursor: "pointer",
-        }}
-      >
-        Reset to defaults
-      </button>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 16 }}>
+        <button
+          type="button"
+          className="esc-pressable"
+          onClick={() => {
+            applyDemoSeed("fresh");
+            router.replace(`${pathname}?demo=1&seed=fresh`, { scroll: false });
+          }}
+          style={{
+            width: "100%",
+            fontFamily: "var(--font-body)",
+            fontSize: 13,
+            fontWeight: 600,
+            padding: "8px 12px",
+            borderRadius: "var(--radius-control)",
+            border: "1.5px solid var(--color-border)",
+            background: "var(--color-surface)",
+            color: "var(--color-content-primary)",
+            cursor: "pointer",
+          }}
+        >
+          Seed: fresh walkthrough
+        </button>
+        <button
+          type="button"
+          className="esc-pressable"
+          onClick={() => {
+            applyDemoSeed("mastered");
+            router.replace(`${pathname}?demo=1&seed=mastered`, { scroll: false });
+          }}
+          style={{
+            width: "100%",
+            fontFamily: "var(--font-body)",
+            fontSize: 13,
+            fontWeight: 600,
+            padding: "8px 12px",
+            borderRadius: "var(--radius-control)",
+            border: "1.5px solid var(--color-border)",
+            background: "var(--color-surface)",
+            color: "var(--color-content-primary)",
+            cursor: "pointer",
+          }}
+        >
+          Seed: post-mastery state
+        </button>
+        <button
+          type="button"
+          className="esc-pressable"
+          onClick={() => {
+            applyDemoSeed("fresh");
+            reset();
+          }}
+          style={{
+            width: "100%",
+            fontFamily: "var(--font-body)",
+            fontSize: 13,
+            fontWeight: 600,
+            padding: "8px 12px",
+            borderRadius: "var(--radius-control)",
+            border: "1.5px solid var(--color-accent-subtle-border)",
+            background: "transparent",
+            color: "var(--color-accent)",
+            cursor: "pointer",
+          }}
+        >
+          Reset harness + persistence
+        </button>
+      </div>
 
       <div
         style={{
@@ -246,8 +304,8 @@ export function DemoPanel() {
           color: "var(--color-content-muted)",
         }}
       >
-        Entry, connectivity, saved-session and direct-open apply to Practice.
-        Toggle this panel with Ctrl/Cmd + Shift + E.
+        Pitch URL: start at /student/today?seed=fresh. Open this panel with
+        ?demo=1 or Ctrl/Cmd + Shift + E. Live app is the canonical investor demo.
       </div>
     </aside>
   );

@@ -10,11 +10,15 @@ import {
 } from "react";
 import type { SyncFreshness } from "@/lib/demo-data";
 import {
+  readDemoControlsEnabled,
   readDemoLmsMode,
   readDemoOffline,
+  seedDemoState,
+  writeDemoControlsEnabled,
   writeDemoLmsMode,
   writeDemoOffline,
   type DemoLmsMode,
+  type DemoSeed,
 } from "@/lib/demo-persistence";
 
 interface ShellStateValue {
@@ -26,6 +30,9 @@ interface ShellStateValue {
   toggleDemoOffline: () => void;
   lmsMode: DemoLmsMode;
   setLmsMode: (mode: DemoLmsMode) => void;
+  demoControls: boolean;
+  enableDemoControls: () => void;
+  applyDemoSeed: (seed: DemoSeed) => void;
   registerPracticeHelp: (handler: (() => void) | null) => void;
   openPracticeHelp: () => void;
 }
@@ -37,13 +44,36 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const [headerNote, setHeaderNote] = useState("");
   const [demoOffline, setDemoOffline] = useState(false);
   const [lmsMode, setLmsModeState] = useState<DemoLmsMode>("standalone");
+  const [demoControls, setDemoControls] = useState(false);
   const [practiceHelpHandler, setPracticeHelpHandler] = useState<(() => void) | null>(
     null,
   );
 
   useEffect(() => {
+    let fromUrl = false;
+    let seed: string | null = null;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      fromUrl = params.get("demo") === "1";
+      seed = params.get("seed");
+    } catch {
+      /* ignore */
+    }
+
+    if (seed === "mastered" || seed === "fresh") {
+      seedDemoState(seed);
+      // Clean pitch URL without ?demo=1 should not keep sticky harness chrome.
+      if (seed === "fresh" && !fromUrl) {
+        writeDemoControlsEnabled(false);
+      }
+    }
+
     setDemoOffline(readDemoOffline());
     setLmsModeState(readDemoLmsMode());
+
+    const enabled = fromUrl || readDemoControlsEnabled();
+    setDemoControls(enabled);
+    if (fromUrl) writeDemoControlsEnabled(true);
   }, []);
 
   const toggleDemoOffline = useCallback(() => {
@@ -58,6 +88,19 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const setLmsMode = useCallback((mode: DemoLmsMode) => {
     writeDemoLmsMode(mode);
     setLmsModeState(mode);
+  }, []);
+
+  const enableDemoControls = useCallback(() => {
+    writeDemoControlsEnabled(true);
+    setDemoControls(true);
+  }, []);
+
+  const applyDemoSeed = useCallback((seed: DemoSeed) => {
+    seedDemoState(seed);
+    const offline = readDemoOffline();
+    setDemoOffline(offline);
+    setLmsModeState(readDemoLmsMode());
+    setConnectivity(offline ? "unavailable" : "fresh");
   }, []);
 
   const registerPracticeHelp = useCallback((handler: (() => void) | null) => {
@@ -78,6 +121,9 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       toggleDemoOffline,
       lmsMode,
       setLmsMode,
+      demoControls,
+      enableDemoControls,
+      applyDemoSeed,
       registerPracticeHelp,
       openPracticeHelp,
     }),
@@ -88,6 +134,9 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       toggleDemoOffline,
       lmsMode,
       setLmsMode,
+      demoControls,
+      enableDemoControls,
+      applyDemoSeed,
       registerPracticeHelp,
       openPracticeHelp,
     ],

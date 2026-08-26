@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { DistressNotice, useDistress } from "@/components/distress-provider";
-import { LmsBanner } from "@/components/lms-banner";
+import { ClassroomFrame, LmsBanner } from "@/components/lms-banner";
 import { useShellState } from "@/components/shell-context";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
 import { hapticTap } from "@/lib/haptics";
@@ -281,10 +281,12 @@ export function NavShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className="esc-shell-main">
-          <div className="esc-shell-inset">
-            <DistressNotice />
-          </div>
-          {children}
+          <ClassroomFrame>
+            <div className="esc-shell-inset">
+              <DistressNotice />
+            </div>
+            {children}
+          </ClassroomFrame>
         </div>
       </div>
 

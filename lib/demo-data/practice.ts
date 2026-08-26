@@ -109,8 +109,8 @@ export const INVESTOR_HINT_CHAIN = [
 ] as const;
 
 /**
- * Skills without real practice content get an honest dead end. `one_step` is
- * intentionally supported for the demo remediation loop.
+ * Skills without dedicated live problems get a pitch-safe soft landing instead
+ * of a dead end. `one_step` and `variables_both_sides` / two-step are playable.
  */
 export const UNSUPPORTED_SKILL_LABELS: Record<string, string> = {
   equation_basics: "Equation basics & balancing",
