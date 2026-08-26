@@ -1746,7 +1746,7 @@
 }
 
 .esc-staff-shell .esc-shell-header {
-  border-bottom-color: var(--color-staff-border);
+  border-bottom: 1.5px solid var(--color-staff-border);
 }
 
 .esc-staff-shell #app-rail {

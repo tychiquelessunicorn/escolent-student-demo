@@ -89,7 +89,7 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
             flexShrink: 0,
             padding: "20px 16px",
             gap: 6,
-            borderRight: "1.5px solid var(--color-border)",
+            borderRight: "1.5px solid var(--color-staff-border)",
             background: "transparent",
             minHeight: "100vh",
             boxSizing: "border-box",
