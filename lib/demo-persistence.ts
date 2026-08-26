@@ -7,10 +7,14 @@ const STREAK_KEY = "streak";
 const LEGACY_MASTERED_KEY = "variablesOnBothSides";
 const LEGACY_STREAK_KEY = "demoStreak";
 const OFFLINE_SESSION_KEY = "esc_demo_offline";
+const LMS_MODE_KEY = "esc_demo_lms_mode";
 
 export const DEMO_DEFAULT_STREAK = 3;
 export const DEMO_COMPLETED_STREAK = 4;
+export const DEMO_TOTAL_DAILY_TASKS = 2;
 export const DEMO_PERSIST_EVENT = "esc-demo-persist";
+
+export type DemoLmsMode = "standalone" | "classroom";
 
 export function isVariablesCompleted(): boolean {
   if (typeof window === "undefined") return false;
@@ -55,6 +59,14 @@ export function completeVictoryLoop(): void {
   notifyPersist();
 }
 
+export function getCompletedDailyCount(): number {
+  return isVariablesCompleted() ? 1 : 0;
+}
+
+export function getDailyProgressLabel(): string {
+  return `${getCompletedDailyCount()} of ${DEMO_TOTAL_DAILY_TASKS} completed today`;
+}
+
 export function readDemoOffline(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -68,6 +80,26 @@ export function writeDemoOffline(value: boolean): void {
   if (typeof window === "undefined") return;
   try {
     sessionStorage.setItem(OFFLINE_SESSION_KEY, value ? "true" : "false");
+  } catch {
+    /* demo storage unavailable */
+  }
+}
+
+export function readDemoLmsMode(): DemoLmsMode {
+  if (typeof window === "undefined") return "standalone";
+  try {
+    return sessionStorage.getItem(LMS_MODE_KEY) === "classroom"
+      ? "classroom"
+      : "standalone";
+  } catch {
+    return "standalone";
+  }
+}
+
+export function writeDemoLmsMode(mode: DemoLmsMode): void {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(LMS_MODE_KEY, mode);
   } catch {
     /* demo storage unavailable */
   }

@@ -52,6 +52,7 @@ export function LearnScreen() {
             key={skill.id}
             skill={skill}
             area="learn"
+            showOfflineBadge={skill.tier !== "not_attempted"}
             badgeLabel={
               skill.id === "s5" && mastered
                 ? "Durable (85%)"

@@ -1,38 +1,23 @@
 "use client";
 
 const HELP_OPTIONS = [
-  {
-    id: "socratic",
-    label: "Get a Socratic Hint",
-    response:
-      "What happens to the equation if you subtract 2x from both sides? Try naming what stays on each side before you solve for x.",
-  },
-  {
-    id: "steps",
-    label: "Break down the steps",
-    response:
-      "Step 1: Subtract 2x from both sides → 3x + 3 = 18\nStep 2: Subtract 3 from both sides → 3x = 15\nStep 3: Divide both sides by 3 → x = 5",
-  },
-  {
-    id: "concept",
-    label: "Explain the concept",
-    response:
-      "When x appears on both sides, the goal is to collect all variable terms on one side — just like balancing a scale. Once they're together, you're back to a two-step equation you already know how to finish.",
-  },
-] as const;
+  { id: "socratic" as const, label: "Get a Socratic Hint" },
+  { id: "steps" as const, label: "Break down the steps" },
+  { id: "concept" as const, label: "Explain the concept" },
+];
 
 export function PracticeHelpDrawer({
   open,
   loading,
   drawerContent,
   onClose,
-  onSelect,
+  onSelectOption,
 }: {
   open: boolean;
   loading: boolean;
   drawerContent: string;
   onClose: () => void;
-  onSelect: (response: string) => void;
+  onSelectOption: (kind: "socratic" | "steps" | "concept") => void;
 }) {
   if (!open) return null;
 
@@ -46,7 +31,7 @@ export function PracticeHelpDrawer({
       />
       <aside className="esc-help-drawer esc-help-drawer-open" aria-label="Practice help">
         <div className="esc-help-drawer-header">
-          <div style={{ fontSize: 16, fontWeight: 700 }}>Need help?</div>
+          <div style={{ fontSize: 16, fontWeight: 700 }}>Socratic AI guidance</div>
           <button
             type="button"
             onClick={onClose}
@@ -71,14 +56,14 @@ export function PracticeHelpDrawer({
             lineHeight: 1.5,
           }}
         >
-          Choose how you&apos;d like support — AI responses are simulated for this demo.
+          Progressive hints match your attempt count — simulated AI for this demo.
         </p>
         {HELP_OPTIONS.map((option) => (
           <button
             key={option.id}
             type="button"
             className="esc-help-option esc-pressable"
-            onClick={() => onSelect(option.response)}
+            onClick={() => onSelectOption(option.id)}
           >
             {option.label}
           </button>

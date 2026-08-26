@@ -1,10 +1,13 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 /** Primary navigation CTAs for practice completion and dead-end recovery. */
 export function SessionEndActions({
   onBeforeNavigate,
+  extra,
 }: {
   onBeforeNavigate?: () => void;
+  extra?: ReactNode;
 }) {
   return (
     <div className="esc-ended-actions">
@@ -22,6 +25,7 @@ export function SessionEndActions({
       >
         View Progress Graph
       </Link>
+      {extra}
     </div>
   );
 }

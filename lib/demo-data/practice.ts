@@ -54,6 +54,18 @@ export const VARIABLES_BOTH_SIDES_PROBLEMS: PracticeProblem[] = [
   },
 ];
 
+/** Demo-only foundational review used by the prerequisite remediation modal. */
+export const ONE_STEP_PROBLEMS: PracticeProblem[] = [
+  {
+    text: "x + 7 = 12",
+    answer: 5,
+    similarText: "x + 4 = 9",
+    similarStep1: "Subtract 4 from both sides: x = 5",
+    similarStep2: "Check: 5 + 4 = 9",
+    partialStep: "Subtract 7 from both sides: x = 5",
+  },
+];
+
 /**
  * Rubric-graded demo problem: this equation has no solution — the x-terms
  * cancel, leaving 3 = 7, a false statement. Solving it correctly means
@@ -76,7 +88,7 @@ export const LENSES = {
   procedural_steps: {
     name: "Procedural steps",
     styleInstruction:
-      "Explain as an explicit, ordered step-by-step procedure (first do this, then this, then this). Do not use an analogy framing — this must read as genuinely different in kind from an analogy.",
+      "Explain as an explicit, ordered step-by-step procedure (first do this, then this, then this). Do not present it as an analogy framing — this must read as genuinely different in kind from an analogy.",
   },
 } as const;
 
@@ -90,15 +102,19 @@ export const FEEDBACK_LINES = [
 export const FALLBACK_HINT =
   "What's the first thing you'd need to undo before x is by itself?";
 
+export const INVESTOR_HINT_CHAIN = [
+  "Not quite — start by collecting the x terms. What happens if you subtract 2x from both sides?\n\nUpdate your answer and submit again.",
+  "Mini-step next: simplify 5x − 2x = ? That should give you 3x. Then finish 3x + 3 = 18.\n\nUpdate your answer and submit again.",
+  "Worked path:\n1. 5x − 2x = 3x → 3x + 3 = 18\n2. 3x = 15\n3. x = 5\n\nUpdate your answer and submit again.",
+] as const;
+
 /**
- * Only two skills have real practice content in this demo. Everything else gets
- * an honest dead end rather than silently loading the wrong skill's problems
- * under the right label.
+ * Skills without real practice content get an honest dead end. `one_step` is
+ * intentionally supported for the demo remediation loop.
  */
 export const UNSUPPORTED_SKILL_LABELS: Record<string, string> = {
   equation_basics: "Equation basics & balancing",
   integer_operations: "Integer operations",
-  one_step: "One-step equations",
   multi_step: "Multi-step equations",
   inequalities: "Inequalities",
 };

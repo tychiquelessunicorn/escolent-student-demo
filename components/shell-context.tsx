@@ -9,7 +9,13 @@ import {
   useState,
 } from "react";
 import type { SyncFreshness } from "@/lib/demo-data";
-import { readDemoOffline, writeDemoOffline } from "@/lib/demo-persistence";
+import {
+  readDemoLmsMode,
+  readDemoOffline,
+  writeDemoLmsMode,
+  writeDemoOffline,
+  type DemoLmsMode,
+} from "@/lib/demo-persistence";
 
 interface ShellStateValue {
   connectivity: SyncFreshness;
@@ -18,6 +24,8 @@ interface ShellStateValue {
   setHeaderNote: (value: string) => void;
   demoOffline: boolean;
   toggleDemoOffline: () => void;
+  lmsMode: DemoLmsMode;
+  setLmsMode: (mode: DemoLmsMode) => void;
   registerPracticeHelp: (handler: (() => void) | null) => void;
   openPracticeHelp: () => void;
 }
@@ -28,12 +36,14 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   const [connectivity, setConnectivity] = useState<SyncFreshness>("fresh");
   const [headerNote, setHeaderNote] = useState("");
   const [demoOffline, setDemoOffline] = useState(false);
+  const [lmsMode, setLmsModeState] = useState<DemoLmsMode>("standalone");
   const [practiceHelpHandler, setPracticeHelpHandler] = useState<(() => void) | null>(
     null,
   );
 
   useEffect(() => {
     setDemoOffline(readDemoOffline());
+    setLmsModeState(readDemoLmsMode());
   }, []);
 
   const toggleDemoOffline = useCallback(() => {
@@ -43,6 +53,11 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       setConnectivity(next ? "unavailable" : "fresh");
       return next;
     });
+  }, []);
+
+  const setLmsMode = useCallback((mode: DemoLmsMode) => {
+    writeDemoLmsMode(mode);
+    setLmsModeState(mode);
   }, []);
 
   const registerPracticeHelp = useCallback((handler: (() => void) | null) => {
@@ -61,6 +76,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       setHeaderNote,
       demoOffline,
       toggleDemoOffline,
+      lmsMode,
+      setLmsMode,
       registerPracticeHelp,
       openPracticeHelp,
     }),
@@ -69,6 +86,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       headerNote,
       demoOffline,
       toggleDemoOffline,
+      lmsMode,
+      setLmsMode,
       registerPracticeHelp,
       openPracticeHelp,
     ],

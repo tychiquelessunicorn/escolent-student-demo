@@ -14,6 +14,7 @@ export function SkillRow({
   expanded,
   onToggle,
   showFlag = false,
+  showOfflineBadge = false,
   area,
   badgeLabel,
   children,
@@ -22,6 +23,7 @@ export function SkillRow({
   expanded: boolean;
   onToggle: () => void;
   showFlag?: boolean;
+  showOfflineBadge?: boolean;
   area?: AreaTone;
   badgeLabel?: string;
   children: ReactNode;
@@ -69,8 +71,24 @@ export function SkillRow({
             flexShrink: 0,
           }}
         />
-        <div className="esc-skill-row-name" style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 700 }}>
+        <div
+          className="esc-skill-row-name"
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: 15,
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
+            flex: 1,
+            minWidth: 0,
+          }}
+        >
           {skill.name}
+          {showOfflineBadge ? (
+            <span className="esc-offline-badge">Available Offline</span>
+          ) : null}
         </div>
         <div className="esc-skill-row-meta">
         {showFlag && skill.flagged ? (

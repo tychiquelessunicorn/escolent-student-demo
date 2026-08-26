@@ -902,6 +902,219 @@
   border-radius: 999px;
 }
 
+.esc-offline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: oklch(38% 0.08 150);
+  background: oklch(95% 0.025 150);
+  border: 1px solid oklch(82% 0.05 150);
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.esc-offline-badge::before {
+  content: "✓";
+  font-size: 10px;
+}
+
+.esc-completed-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: oklch(38% 0.1 150);
+  background: oklch(95% 0.03 150);
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.esc-lms-banner {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  border-bottom: 1.5px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-content-secondary);
+}
+
+.esc-lms-banner.esc-lms-classroom {
+  background: oklch(96% 0.02 145);
+  border-bottom-color: oklch(78% 0.06 145);
+}
+
+.esc-lms-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.esc-lms-brand-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.esc-lms-brand-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+.esc-lms-classroom .esc-lms-brand-dot {
+  background: oklch(48% 0.12 145);
+}
+
+.esc-lms-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: var(--color-surface-sunken);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.esc-lms-toggle button {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  color: var(--color-content-secondary);
+  padding: 5px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.esc-lms-toggle button.esc-lms-active {
+  background: var(--color-surface-raised);
+  color: var(--color-content-primary);
+  box-shadow: 0 1px 2px oklch(24% 0.014 55 / 0.08);
+}
+
+.esc-lms-classroom-mode {
+  background: oklch(94% 0.015 145);
+  min-height: 100vh;
+}
+
+.esc-demo-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.esc-demo-chip {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px dashed var(--color-accent-subtle-border);
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.esc-mini-step {
+  margin-top: 12px;
+  background: var(--color-surface);
+  border: 1.5px dashed var(--color-accent-subtle-border);
+  border-radius: var(--radius-shell);
+  padding: 14px 16px;
+}
+
+.esc-mini-step-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+.esc-mini-step-eq {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  margin: 6px 0 4px;
+}
+
+.esc-mini-step-note {
+  font-size: 13px;
+  color: var(--color-content-secondary);
+}
+
+.esc-remediation-overlay {
+  position: fixed;
+  inset: 0;
+  background: oklch(24% 0.014 55 / 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 110;
+  box-sizing: border-box;
+}
+
+.esc-remediation-modal {
+  background: var(--color-surface-raised);
+  border-radius: 22px;
+  padding: 28px 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 24px 48px oklch(24% 0.014 55 / 0.18);
+}
+
+.esc-remediation-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: oklch(48% 0.12 25);
+  margin-bottom: 10px;
+}
+
+.esc-remediation-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.esc-remediation-body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-content-primary);
+  margin: 0 0 18px;
+}
+
+.esc-remediation-note {
+  background: oklch(96% 0.02 250);
+  border: 1px solid oklch(85% 0.05 250);
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
 .esc-phase {
   animation: esc-phase-in var(--duration-med) var(--ease-snap) both;
 }

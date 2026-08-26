@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useDistress } from "@/components/distress-provider";
 import {
@@ -14,6 +15,7 @@ import {
 import { useShellState } from "@/components/shell-context";
 import { DemoBktBanner } from "@/components/demo-bkt-banner";
 import { PracticeHelpDrawer } from "@/components/practice-help-drawer";
+import { PracticeRemediationModal } from "@/components/practice-remediation-modal";
 import { PracticeVictoryModal } from "@/components/practice-victory-modal";
 import { SessionEndActions } from "@/components/session-end-actions";
 import { Button, Card, CardBody, CardTitle, InsetPanel } from "@/components/ui";
@@ -25,7 +27,9 @@ import {
 import {
   FALLBACK_HINT,
   FEEDBACK_LINES,
+  INVESTOR_HINT_CHAIN,
   NO_SOLUTION_PROBLEM,
+  ONE_STEP_PROBLEMS,
   RUBRIC_DOT_COLORS,
   RUBRIC_FALLBACK_FEEDBACK,
   RUBRIC_TIER_LABELS,
@@ -107,6 +111,7 @@ interface State {
   helpDrawerLoading: boolean;
   helpDrawerContent: string;
   pageHelpNotes: { content: string }[];
+  showRemediationModal: boolean;
 }
 
 const INTRO_FALLBACK =
@@ -123,16 +128,13 @@ const ASK_FALLBACK =
   "Couldn't reach the hint helper right now — try tapping through to the next step instead.";
 
 const NUMERIC_ANSWER_RE = /^-?\d+(\.\d+)?$/;
-const SOCRATIC_HINTS = [
-  "Not quite! Try moving 2x to the left side first by subtracting 2x from both sides.",
-  "Keep going — after subtracting 2x you should have 3x + 3 = 18. What do you do next?",
-  "Almost there: subtract 3 from both sides to get 3x = 15, then divide by 3. What is x?",
-] as const;
-const WORKED_STEPS_HINT =
-  "Here's the path:\n1. Subtract 2x from both sides → 3x + 3 = 18\n2. Subtract 3 from both sides → 3x = 15\n3. Divide both sides by 3 → x = 5\n\nUpdate your answer and submit again.";
-const TRY_AGAIN_PROMPT = "Update your answer and submit again.";
 
 const TIER_NAMES = ["Worked example", "Guided steps", "Hint", "On your own"];
+
+function hintForAttempt(attempt: number): string {
+  const idx = Math.min(Math.max(attempt, 1), INVESTOR_HINT_CHAIN.length) - 1;
+  return INVESTOR_HINT_CHAIN[idx];
+}
 
 function baseState(phase: Phase): State {
   return {
@@ -176,6 +178,7 @@ function baseState(phase: Phase): State {
     helpDrawerLoading: false,
     helpDrawerContent: "",
     pageHelpNotes: [],
+    showRemediationModal: false,
   };
 }
 
@@ -229,6 +232,7 @@ function PracticeSessionInner() {
   const aiHintsEnabled = params.get("aiHintsEnabled") !== "false";
 
   const isRubricDemo = problemDemo === "no_solution_rubric";
+  const isOneStepRemediation = skillParam === "one_step";
   const isVariablesSkill =
     skillParam === "variables_both_sides" ||
     (!skillParam && entryVariant === "first_exposure");
@@ -240,8 +244,9 @@ function PracticeSessionInner() {
 
   const getProblems = useCallback((): PracticeProblem[] => {
     if (isRubricDemo) return [NO_SOLUTION_PROBLEM];
+    if (isOneStepRemediation) return ONE_STEP_PROBLEMS;
     return isVariablesSkill ? VARIABLES_BOTH_SIDES_PROBLEMS : TWO_STEP_PROBLEMS;
-  }, [isRubricDemo, isVariablesSkill]);
+  }, [isOneStepRemediation, isRubricDemo, isVariablesSkill]);
 
   const evaluationStrategy = isRubricDemo ? "rubric_llm" : "exact_match";
   const isInvestorDemo =
@@ -427,6 +432,15 @@ function PracticeSessionInner() {
       patch({ phase: "gate" });
       return;
     }
+    if (isOneStepRemediation) {
+      patch({
+        phase: "active",
+        problemIndex: 0,
+        wrongAnswers: [],
+        answerInput: "",
+      });
+      return;
+    }
     if (isVariablesSkill) {
       if (conn === "unavailable") {
         patch({ phase: "offlineBlocked", offlineBlockedVariant: "first_exposure" });
@@ -456,6 +470,7 @@ function PracticeSessionInner() {
     generateIntro,
     interruptionDemo,
     isRubricDemo,
+    isOneStepRemediation,
     isUnsupportedSkill,
     isVariablesSkill,
     patch,
@@ -572,10 +587,32 @@ function PracticeSessionInner() {
           helpDrawerLoading: false,
           helpDrawerContent: content,
           pageHelpNotes: [...s.pageHelpNotes, { content }],
+          socraticHintText: content,
+          socraticHintLoading: false,
         }));
       }, 800);
     },
     [patch],
+  );
+
+  const handleHelpOption = useCallback(
+    (kind: "socratic" | "steps" | "concept") => {
+      if (kind === "socratic") {
+        const attempt = Math.max(1, state.wrongAnswers.length || 1);
+        simulateHelpResponse(hintForAttempt(attempt));
+        return;
+      }
+      if (kind === "steps") {
+        simulateHelpResponse(
+          "Step 1: Subtract 2x from both sides → 3x + 3 = 18\nStep 2: Subtract 3 from both sides → 3x = 15\nStep 3: Divide both sides by 3 → x = 5",
+        );
+        return;
+      }
+      simulateHelpResponse(
+        "When x appears on both sides, the goal is to collect all variable terms on one side — just like balancing a scale. Once they're together, you're back to a two-step equation you already know how to finish.",
+      );
+    },
+    [simulateHelpResponse, state.wrongAnswers.length],
   );
 
   const finalizeEnded = useCallback(
@@ -639,11 +676,7 @@ function PracticeSessionInner() {
 
       const nextWrong = [...state.wrongAnswers, val];
       const attempt = nextWrong.length;
-      const hintIndex = Math.min(attempt - 1, SOCRATIC_HINTS.length - 1);
-      const hintText =
-        attempt >= 3
-          ? WORKED_STEPS_HINT
-          : `${SOCRATIC_HINTS[hintIndex]}\n\n${TRY_AGAIN_PROMPT}`;
+      const hintText = hintForAttempt(attempt);
 
       patch({
         socraticHintLoading: true,
@@ -854,7 +887,9 @@ function PracticeSessionInner() {
   const hasMore = state.problemIndex + 1 < problems.length;
   const skillDisplayName = isVariablesSkill
     ? "variables on both sides"
-    : "two-step equations";
+    : isOneStepRemediation
+      ? "one-step equations"
+      : "two-step equations";
 
   const sessionLabel =
     state.sessionCompleted === 0
@@ -890,6 +925,9 @@ function PracticeSessionInner() {
     reasonLine = alreadyMastered
       ? "You've got this skill — one more clean solve to keep it sharp."
       : "Give this one a try.";
+  if (isOneStepRemediation)
+    reasonLine =
+      "Foundational review — rebuild this one-step move, then return to variables on both sides.";
   if (isRubricDemo)
     reasonLine = "This one asks you to explain your thinking — not just give a number.";
 
@@ -975,6 +1013,16 @@ function PracticeSessionInner() {
           {queueBannerText}
         </div>
       ) : null}
+
+      <div className="esc-demo-tools">
+        <button
+          type="button"
+          className="esc-demo-chip esc-pressable"
+          onClick={() => patch({ showRemediationModal: true })}
+        >
+          Simulate Diagnostic Gap
+        </button>
+      </div>
 
       {state.phase === "notificationPreview" ? (
         <Card area="practice">
@@ -1310,7 +1358,18 @@ function PracticeSessionInner() {
           {state.endedWithMastery || (isVariablesSkill && state.sessionCompleted >= 1) ? (
             <DemoBktBanner />
           ) : null}
-          <SessionEndActions />
+          <SessionEndActions
+            extra={
+              isOneStepRemediation ? (
+                <Link
+                  href="/practice?skill=variables_both_sides"
+                  className="esc-btn-secondary esc-pressable"
+                >
+                  Return to variables practice
+                </Link>
+              ) : null
+            }
+          />
         </Card>
       ) : null}
 
@@ -1778,6 +1837,17 @@ function PracticeSessionInner() {
                   AI Thinking…
                 </div>
               ) : null}
+              {isInvestorDemo &&
+              state.wrongAnswers.length >= 2 &&
+              !state.socraticHintLoading ? (
+                <div className="esc-mini-step">
+                  <div className="esc-mini-step-label">Mini-step</div>
+                  <div className="esc-mini-step-eq">5x − 2x = ?</div>
+                  <div className="esc-mini-step-note">
+                    Combine the x terms first, then finish the equation.
+                  </div>
+                </div>
+              ) : null}
               {!state.socraticHintLoading && state.socraticHintText ? (
                 <div className="esc-help-response esc-socratic-hint" style={{ marginTop: 12 }}>
                   <div style={{ whiteSpace: "pre-line" }}>{state.socraticHintText}</div>
@@ -1795,7 +1865,7 @@ function PracticeSessionInner() {
         onClose={() =>
           patch({ helpDrawerOpen: false, helpDrawerLoading: false, helpDrawerContent: "" })
         }
-        onSelect={simulateHelpResponse}
+        onSelectOption={handleHelpOption}
       />
 
       {state.showVictoryModal ? (
@@ -1804,6 +1874,12 @@ function PracticeSessionInner() {
             completeVictoryLoop();
             router.push("/student/today");
           }}
+        />
+      ) : null}
+
+      {state.showRemediationModal ? (
+        <PracticeRemediationModal
+          onStay={() => patch({ showRemediationModal: false })}
         />
       ) : null}
     </div>

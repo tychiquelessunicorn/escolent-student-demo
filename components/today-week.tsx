@@ -15,7 +15,7 @@ import {
   TODAY_KEY,
   type ScheduleItem,
 } from "@/lib/demo-data";
-import { getDemoStreak, isVariablesCompleted, subscribeDemoPersist } from "@/lib/demo-persistence";
+import { getDemoStreak, getDailyProgressLabel, isVariablesCompleted, subscribeDemoPersist } from "@/lib/demo-persistence";
 import { hapticTap } from "@/lib/haptics";
 
 /**
@@ -186,7 +186,10 @@ function EscolentItem({
         }}
       >
         <div style={{ flex: 1, fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 700 }}>
-          {item.title}
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            {item.title}
+            <span className="esc-offline-badge">Available Offline</span>
+          </span>
         </div>
         {complete ? (
           <div className="esc-tdy-check" aria-label="Completed">
@@ -227,9 +230,14 @@ function EscolentItem({
             fontSize: 18,
             letterSpacing: "-0.02em",
             marginBottom: 4,
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
           }}
         >
           {item.title}
+          <span className="esc-offline-badge">Available Offline</span>
         </div>
         <div style={{ fontSize: 13, color: "var(--color-content-secondary)" }}>
           {item.subjectLine}
@@ -351,6 +359,19 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
       {view === "today" ? (
         <>
           <SectionLabel area="today">From Escolent</SectionLabel>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              marginTop: -8,
+              marginBottom: 14,
+              flexWrap: "wrap",
+            }}
+          >
+            <div className="esc-completed-chip">{getDailyProgressLabel()}</div>
+          </div>
           <div
             style={{
               display: "flex",
