@@ -955,11 +955,20 @@
     height var(--duration-med) var(--ease-snap);
 }
 
+/*
+  Only the body scrolls. The chapter bar and the actions row are flex siblings
+  outside it, so however long a caption or demo card gets, Next and Exit tour
+  are never pushed below the fold on a short viewport.
+*/
 .esc-tour-callout {
   position: fixed;
   z-index: 202;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
   width: min(420px, calc(100vw - 32px));
+  /* Capped so the spotlight it is describing is never fully covered. */
+  max-height: 78vh;
   padding: 18px 20px 16px;
   border-radius: var(--radius-card);
   background: var(--color-surface-raised);
@@ -975,12 +984,16 @@
   transform: translateX(-50%);
   bottom: 20px;
   top: auto;
-  max-height: calc(100vh - 40px);
+}
+
+.esc-tour-body {
   overflow-y: auto;
+  min-height: 0;
 }
 
 .esc-tour-chapters {
   display: flex;
+  flex-shrink: 0;
   gap: 5px;
   margin-bottom: 14px;
 }
@@ -1124,6 +1137,7 @@
 }
 
 .esc-tour-timer {
+  flex-shrink: 0;
   height: 3px;
   border-radius: 999px;
   background: var(--color-surface-sunken);
@@ -1151,6 +1165,7 @@
 
 .esc-tour-actions {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
@@ -1209,7 +1224,7 @@
 @media (max-width: 759px) {
   .esc-tour-callout-docked {
     bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 12px);
-    max-height: 62vh;
+    max-height: 66vh;
   }
 }
 

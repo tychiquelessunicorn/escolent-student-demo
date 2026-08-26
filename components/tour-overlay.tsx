@@ -340,21 +340,23 @@ export function TourOverlay() {
           })}
         </div>
 
-        <div className="esc-tour-meta">
-          <span className="esc-tour-badge">
-            Chapter {chapterNumber} of {chapterCount}
-          </span>
-          <span className="esc-tour-chapter-name">{chapter.title}</span>
-          <span className="esc-tour-screen">{chapter.screen}</span>
-          <span className="esc-tour-substep">
-            Step {stepNumber} of {stepCount}
-          </span>
+        <div className="esc-tour-body">
+          <div className="esc-tour-meta">
+            <span className="esc-tour-badge">
+              Chapter {chapterNumber} of {chapterCount}
+            </span>
+            <span className="esc-tour-chapter-name">{chapter.title}</span>
+            <span className="esc-tour-screen">{chapter.screen}</span>
+            <span className="esc-tour-substep">
+              Step {stepNumber} of {stepCount}
+            </span>
+          </div>
+
+          <h2 className="esc-tour-title">{step.title}</h2>
+          <p className="esc-tour-caption">{step.caption}</p>
+
+          {step.demoCard ? <SafetyDemoCard kind={step.demoCard} /> : null}
         </div>
-
-        <h2 className="esc-tour-title">{step.title}</h2>
-        <p className="esc-tour-caption">{step.caption}</p>
-
-        {step.demoCard ? <SafetyDemoCard kind={step.demoCard} /> : null}
 
         {autoPlay && !isLast ? (
           <div className="esc-tour-timer" aria-hidden>
