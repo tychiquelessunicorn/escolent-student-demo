@@ -99,10 +99,12 @@ export function TourOverlay() {
     position,
     chapterCount,
     index,
+    isFirst,
     isLast,
     autoPlay,
     toggleAutoPlay,
     next,
+    back,
     restart,
     exit,
   } = useTour();
@@ -110,10 +112,17 @@ export function TourOverlay() {
   const step = position?.step ?? null;
   const target = step?.target ?? null;
 
-  const [rect, setRect] = useState<SpotRect | null>(null);
+  /** Last measured spotlight — kept across step changes so the ring can animate. */
+  const [displayRect, setDisplayRect] = useState<SpotRect | null>(null);
   const [viewport, setViewport] = useState({ width: 1024, height: 768 });
   const [calloutSize, setCalloutSize] = useState({ width: 420, height: 280 });
   const calloutRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!active) {
+      setDisplayRect(null);
+    }
+  }, [active]);
 
   useEffect(() => {
     const onResize = () =>
@@ -123,8 +132,9 @@ export function TourOverlay() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Targets appear asynchronously (a route change, an AI-backed card settling),
-  // so the rect is re-read on a loop rather than measured once per step.
+  // Targets appear asynchronously (route change, expanded cards settling). Keep
+  // the previous rect until the new one is found so the spotlight never flashes
+  // to full-screen dim between steps.
   useEffect(() => {
     if (!active) return;
     let frame = 0;
@@ -133,7 +143,9 @@ export function TourOverlay() {
       if (now - last > 120) {
         last = now;
         const found = readRect(target);
-        setRect((current) => (sameRect(current, found) ? current : found));
+        if (found) {
+          setDisplayRect((current) => (sameRect(current, found) ? current : found));
+        }
       }
       frame = requestAnimationFrame(tick);
     };
@@ -141,21 +153,37 @@ export function TourOverlay() {
     return () => cancelAnimationFrame(frame);
   }, [active, target]);
 
-  // Same reason: keep trying to bring the target into view for a moment after
-  // the step starts, instead of scrolling to wherever it was at step change.
+  // Steps with no anchor fade to a full dim once the ring has had time to move.
+  useEffect(() => {
+    if (!active || target) return;
+    const timer = window.setTimeout(() => setDisplayRect(null), 320);
+    return () => window.clearTimeout(timer);
+  }, [active, index, target]);
+
+  // Same-route steps (Back) often have the target already painted — measure
+  // immediately instead of waiting for the rAF poll.
+  useLayoutEffect(() => {
+    if (!active || !target) return;
+    const found = readRect(target);
+    if (found) {
+      setDisplayRect((current) => (sameRect(current, found) ? current : found));
+    }
+  }, [active, index, target]);
+
+  // One scroll pass per step — repeated attempts were fighting the CSS transition.
   useEffect(() => {
     if (!active) return;
-    const delays = [0, 220, 600, 1200];
-    const timers = delays.map((delay) =>
-      window.setTimeout(() => {
-        const element = target
-          ? document.querySelector<HTMLElement>(`[data-tour="${target}"]`)
-          : null;
-        if (element) element.scrollIntoView({ block: "center", behavior: "smooth" });
-        else if (delay === 0) window.scrollTo({ top: 0, behavior: "smooth" });
-      }, delay),
-    );
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
+    const timer = window.setTimeout(() => {
+      const element = target
+        ? document.querySelector<HTMLElement>(`[data-tour="${target}"]`)
+        : null;
+      if (element) {
+        element.scrollIntoView({ block: "center", behavior: "smooth" });
+      } else if (!target) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }, 180);
+    return () => window.clearTimeout(timer);
   }, [active, index, target]);
 
   useLayoutEffect(() => {
@@ -182,6 +210,12 @@ export function TourOverlay() {
     else next();
   }, [exit, isLast, next]);
 
+  const goBack = useCallback(() => {
+    if (isFirst) return;
+    hapticTap();
+    back();
+  }, [back, isFirst]);
+
   useEffect(() => {
     if (!active) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -196,11 +230,16 @@ export function TourOverlay() {
       if (event.key === "ArrowRight") {
         event.preventDefault();
         advance();
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goBack();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [active, advance, exit]);
+  }, [active, advance, exit, goBack]);
 
   if (!active || !step || !position) return null;
 
@@ -208,36 +247,52 @@ export function TourOverlay() {
   // A step with its own demo card needs the width; anchoring it beside a
   // header button would squeeze the thing it exists to show.
   const mustDock =
-    !rect || viewport.width < ANCHOR_MIN_WIDTH || Boolean(step.demoCard);
+    !displayRect ||
+    viewport.width < ANCHOR_MIN_WIDTH ||
+    Boolean(step.demoCard);
 
   /**
    * The lit area, padded and clamped to the viewport. Dimming is four panels
    * around this box rather than one huge box-shadow, because a shadow that
    * wide is at the mercy of whichever ancestor happens to be clipping.
    */
-  const lit = rect
+  const lit = displayRect
     ? (() => {
-        const top = Math.max(0, Math.min(rect.top - SPOT_PAD, viewport.height));
-        const left = Math.max(0, Math.min(rect.left - SPOT_PAD, viewport.width));
+        const top = Math.max(
+          0,
+          Math.min(displayRect.top - SPOT_PAD, viewport.height),
+        );
+        const left = Math.max(
+          0,
+          Math.min(displayRect.left - SPOT_PAD, viewport.width),
+        );
         return {
           top,
           left,
           bottom: Math.max(
             top,
-            Math.min(rect.top + rect.height + SPOT_PAD, viewport.height),
+            Math.min(
+              displayRect.top + displayRect.height + SPOT_PAD,
+              viewport.height,
+            ),
           ),
           right: Math.max(
             left,
-            Math.min(rect.left + rect.width + SPOT_PAD, viewport.width),
+            Math.min(
+              displayRect.left + displayRect.width + SPOT_PAD,
+              viewport.width,
+            ),
           ),
         };
       })()
     : null;
 
   let anchored: CSSProperties | undefined;
-  if (!mustDock && rect) {
-    const below = rect.top + rect.height + SPOT_PAD + CALLOUT_GAP;
-    const above = rect.top - SPOT_PAD - CALLOUT_GAP - calloutSize.height;
+  if (!mustDock && displayRect) {
+    const below =
+      displayRect.top + displayRect.height + SPOT_PAD + CALLOUT_GAP;
+    const above =
+      displayRect.top - SPOT_PAD - CALLOUT_GAP - calloutSize.height;
     const top =
       below + calloutSize.height + CALLOUT_GAP <= viewport.height
         ? below
@@ -245,7 +300,8 @@ export function TourOverlay() {
           ? above
           : null;
     if (top !== null) {
-      const centred = rect.left + rect.width / 2 - calloutSize.width / 2;
+      const centred =
+        displayRect.left + displayRect.width / 2 - calloutSize.width / 2;
       const maxLeft = Math.max(
         CALLOUT_GAP,
         viewport.width - calloutSize.width - CALLOUT_GAP,
@@ -305,7 +361,7 @@ export function TourOverlay() {
               left: lit.left,
               width: lit.right - lit.left,
               height: lit.bottom - lit.top,
-              borderRadius: `calc(${rect?.radius ?? "16px"} + ${SPOT_PAD}px)`,
+              borderRadius: `calc(${displayRect?.radius ?? "16px"} + ${SPOT_PAD}px)`,
             }}
           />
         </>
@@ -350,7 +406,11 @@ export function TourOverlay() {
           })}
         </div>
 
-        <div className="esc-tour-body" aria-live="polite">
+        <div
+          key={index}
+          className="esc-tour-body esc-tour-step-content"
+          aria-live="polite"
+        >
           <div className="esc-tour-meta">
             <span className="esc-tour-badge">
               Chapter {chapterNumber} of {chapterCount}
@@ -381,6 +441,14 @@ export function TourOverlay() {
         ) : null}
 
         <div className="esc-tour-actions">
+          <button
+            type="button"
+            className="esc-tour-back esc-pressable"
+            onClick={goBack}
+            disabled={isFirst}
+          >
+            Back
+          </button>
           <button
             type="button"
             className="esc-tour-next esc-pressable"
