@@ -104,6 +104,15 @@
   --color-informational-fg: oklch(36% 0.1 230);
 
   /*
+    Staff escalation — reserved red, never used on Student surfaces.
+    First consumer: Teacher escalation list and detail.
+  */
+  --color-escalation: oklch(54% 0.22 27);
+  --color-escalation-subtle: oklch(95% 0.04 27);
+  --color-escalation-border: oklch(78% 0.14 27);
+  --color-escalation-fg: oklch(34% 0.14 27);
+
+  /*
     Student-facing distress notice — LOCKED. Calm, non-alarming. This reset
     does not restyle or animate this surface.
   */
@@ -1556,6 +1565,159 @@
 
 .esc-illust {
   animation: esc-pop var(--duration-med) var(--ease-snap) both;
+}
+
+/* Teacher shell — same product language as Student nav, staff palette. */
+.esc-teacher-nav-disabled {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+  padding: 12px 16px;
+  border-radius: var(--radius-control);
+  color: var(--color-content-muted);
+  border: 1.5px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.55;
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.esc-teacher-nav-badge {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-content-muted);
+}
+
+.esc-escalation-row {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-shell);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-raised);
+  padding: 16px 18px;
+  transition:
+    border-color var(--duration-fast) var(--ease-snap),
+    background var(--duration-fast) var(--ease-snap);
+}
+
+.esc-escalation-row-urgent {
+  border-color: var(--color-escalation-border);
+  background: var(--color-escalation-subtle);
+  box-shadow: inset 4px 0 0 var(--color-escalation);
+}
+
+.esc-escalation-row-settled {
+  border-color: var(--color-border-subtle);
+  background: var(--color-surface-raised);
+  box-shadow: none;
+}
+
+.esc-escalation-row:hover {
+  border-color: color-mix(in oklch, var(--color-accent) 35%, var(--color-border));
+}
+
+.esc-escalation-row-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--color-content-primary);
+  margin-bottom: 4px;
+}
+
+.esc-escalation-row-meta {
+  font-size: 13px;
+  color: var(--color-content-secondary);
+  line-height: 1.45;
+}
+
+.esc-escalation-row-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.esc-escalation-row-status-urgent {
+  color: var(--color-escalation-fg);
+}
+
+.esc-escalation-row-status-settled {
+  color: var(--color-content-muted);
+  text-transform: none;
+  font-weight: 600;
+}
+
+.esc-escalation-detail-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.esc-escalation-field-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-content-muted);
+  margin-bottom: 6px;
+}
+
+.esc-escalation-field-value {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-content-primary);
+}
+
+.esc-escalation-quote {
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--color-content-primary);
+  white-space: pre-wrap;
+}
+
+.esc-escalation-student-notice {
+  background: var(--color-notice-bg);
+  border: 1px solid var(--color-notice-border);
+  border-radius: var(--radius-shell);
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-notice-fg);
+}
+
+.esc-escalation-presence {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-content-secondary);
+}
+
+.esc-escalation-classifier-note {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-content-secondary);
+  padding: 12px 14px;
+  border-radius: var(--radius-control);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border-subtle);
 }
 
 @media (prefers-reduced-motion: reduce) {
