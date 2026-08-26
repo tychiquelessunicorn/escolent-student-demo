@@ -52,7 +52,7 @@ export const SKILLS: Skill[] = [
     tier: "tentative",
     flagged: false,
     progressDetail:
-      "Getting there — one more clean streak and this should stick for good.",
+      "Getting there — one more clean run and this should stick for good.",
     source: "Grade 8 Equations Curriculum Guide, Unit 2",
     lesson:
       "A one-step equation is one lock to undo. Use the opposite operation on both sides until the variable stands alone.",

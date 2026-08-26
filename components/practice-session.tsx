@@ -78,7 +78,14 @@ interface State {
   wrongAnswers: number[];
   answerInput: string;
   sessionCompleted: number;
-  streak: number;
+  /**
+   * Unscored first-try-correct answers in a row, and the evidence behind the
+   * mastery-tier crossing. Not a streak mechanic: it is never shown as a
+   * number, never persisted, resets the moment a scaffold is needed, and resets
+   * again once it has fired. The constitution forbids streak mechanics; a tier
+   * crossing is one of the two moments it explicitly allows.
+   */
+  consecutiveFirstTry: number;
   showMasteryMsg: boolean;
   breakthrough: boolean;
   ladderExhausted: boolean;
@@ -145,7 +152,7 @@ function baseState(phase: Phase): State {
     wrongAnswers: [],
     answerInput: "",
     sessionCompleted: 0,
-    streak: 0,
+    consecutiveFirstTry: 0,
     showMasteryMsg: false,
     breakthrough: false,
     ladderExhausted: false,
@@ -779,13 +786,13 @@ function PracticeSessionInner() {
 
         if (correct) {
           const firstTry = s.wrongAnswers.length === 0;
-          let newStreak = firstTry ? s.streak + 1 : 0;
-          const crossedMastery = newStreak >= 3;
-          if (crossedMastery) newStreak = 0;
+          let run = firstTry ? s.consecutiveFirstTry + 1 : 0;
+          const crossedMastery = run >= 3;
+          if (crossedMastery) run = 0;
           return {
             connectivity: offline ? s.connectivity : "fresh",
             phase: "correct" as Phase,
-            streak: newStreak,
+            consecutiveFirstTry: run,
             showMasteryMsg: crossedMastery,
             breakthrough: isFirstExposure && !firstTry,
             sessionCompleted: s.sessionCompleted + 1,
@@ -1577,7 +1584,7 @@ function PracticeSessionInner() {
                   <Button
                     onClick={() =>
                       advanceOrEnd({
-                        streak: 0,
+                        consecutiveFirstTry: 0,
                         exhaustedCount: state.exhaustedCount + 1,
                       })
                     }

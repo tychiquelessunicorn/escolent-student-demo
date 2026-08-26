@@ -3,9 +3,7 @@
 import type { MasteryTier, Skill } from "@/lib/demo-data/types";
 
 const COMPLETED_KEY = "variables_completed";
-const STREAK_KEY = "streak";
 const LEGACY_MASTERED_KEY = "variablesOnBothSides";
-const LEGACY_STREAK_KEY = "demoStreak";
 const OFFLINE_SESSION_KEY = "esc_demo_offline";
 const DEMO_CONTROLS_KEY = "esc_demo_controls";
 const CURRENT_SPACE_KEY = "esc_demo_space";
@@ -14,8 +12,14 @@ const TOUR_MODE_KEY = "esc_demo_tour";
 const LEGACY_PITCH_MODE_KEY = "esc_demo_pitch";
 const MIRROR_PREFIX = "esc_mirror_";
 
-export const DEMO_DEFAULT_STREAK = 3;
-export const DEMO_COMPLETED_STREAK = 4;
+/**
+ * Consecutive-day counters written by builds that shipped the streak badge.
+ * Nothing reads them any more; they are listed only so purgeStreakState can
+ * clear them out of a browser that ran one of those builds. Do not reintroduce
+ * a reader — see the no-gamification principle in the project constitution.
+ */
+const REMOVED_STREAK_KEYS = ["streak", "demoStreak"];
+
 export const DEMO_TOTAL_DAILY_TASKS = 3;
 export const DEMO_PERSIST_EVENT = "esc-demo-persist";
 
@@ -85,17 +89,14 @@ export function isVariablesCompleted(): boolean {
   }
 }
 
-export function getDemoStreak(): number {
-  if (typeof window === "undefined") return DEMO_DEFAULT_STREAK;
-  try {
-    const primary = parseInt(mirrorGet(STREAK_KEY) ?? "", 10);
-    if (Number.isFinite(primary)) return primary;
-    const legacy = parseInt(mirrorGet(LEGACY_STREAK_KEY) ?? "", 10);
-    if (Number.isFinite(legacy)) return legacy;
-    return isVariablesCompleted() ? DEMO_COMPLETED_STREAK : DEMO_DEFAULT_STREAK;
-  } catch {
-    return DEMO_DEFAULT_STREAK;
-  }
+/**
+ * One-time cleanup of the removed streak counters. Called on shell mount so a
+ * browser that ran an earlier build does not keep a stale value on disk — the
+ * point is that the mechanic is gone, not merely unread.
+ */
+export function purgeStreakState(): void {
+  if (typeof window === "undefined") return;
+  for (const key of REMOVED_STREAK_KEYS) mirrorRemove(key);
 }
 
 function notifyPersist(): void {
@@ -107,8 +108,6 @@ export function completeVictoryLoop(): void {
   if (typeof window === "undefined") return;
   mirrorSet(COMPLETED_KEY, "true");
   mirrorSet(LEGACY_MASTERED_KEY, "mastered");
-  mirrorSet(STREAK_KEY, String(DEMO_COMPLETED_STREAK));
-  mirrorSet(LEGACY_STREAK_KEY, String(DEMO_COMPLETED_STREAK));
   notifyPersist();
 }
 
@@ -119,9 +118,8 @@ export function seedDemoState(seed: DemoSeed): void {
   } else {
     mirrorRemove(COMPLETED_KEY);
     mirrorRemove(LEGACY_MASTERED_KEY);
-    mirrorSet(STREAK_KEY, String(DEMO_DEFAULT_STREAK));
-    mirrorSet(LEGACY_STREAK_KEY, String(DEMO_DEFAULT_STREAK));
   }
+  purgeStreakState();
   // Pitch seeds should not inherit a leftover offline block.
   try {
     sessionStorage.removeItem(OFFLINE_SESSION_KEY);

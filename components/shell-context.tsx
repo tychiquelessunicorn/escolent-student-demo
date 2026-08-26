@@ -19,6 +19,7 @@ import {
   readDemoControlsEnabled,
   readDemoOffline,
   readDemoSpaceId,
+  purgeStreakState,
   readTourMode,
   seedDemoState,
   writeDemoControlsEnabled,
@@ -66,6 +67,10 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   );
 
   useEffect(() => {
+    // Clears the consecutive-day counters an earlier build persisted, so the
+    // removed streak mechanic leaves nothing behind on a returning browser.
+    purgeStreakState();
+
     let fromUrl = false;
     let tourFromUrl = false;
     let seed: string | null = null;
