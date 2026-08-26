@@ -86,7 +86,7 @@ function SafetyDemoCard({ kind }: { kind: TourDemoCardKind }) {
       <div className="esc-tour-demo-notice">{DISTRESS_SCRIPTED_MESSAGE}</div>
       <div className="esc-tour-demo-foot">
         {kind === "help_button"
-          ? "That one sentence is a constant in the code. It is never reworded, never generated at the point of display, and identical whichever path raised it."
+          ? "Five fixed reasons, one tap each — choosing is sending, with no confirmation and no free-text field. That one sentence is a constant in the code: never reworded, never generated at the point of display, and identical whichever path raised it."
           : "The answer and the notice arrive together. Detection never gates the reply, because making every question wait on a slower safety model would be a worse experience for no safety gain."}
       </div>
     </div>

@@ -223,31 +223,48 @@
   gap: 10px;
   flex-wrap: wrap;
   justify-content: flex-end;
-  flex: 1 1 220px;
+  flex: 0 1 auto;
   min-width: 0;
 }
 
-.esc-help-reasons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: flex-end;
-  max-width: min(100%, 42rem);
+.esc-help-menu {
+  position: relative;
 }
 
-.esc-help-reason {
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.25;
+.esc-help-menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: min(20rem, calc(100vw - 2 * var(--shell-header-x, 24px)));
+  max-width: min(22rem, calc(100vw - 2 * var(--shell-header-x, 24px)));
+  padding: 6px;
+  border-radius: var(--radius-shell);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-raised);
+  box-shadow: 0 8px 24px oklch(22% 0.02 55 / 0.12);
+}
+
+.esc-help-menu-option {
+  display: block;
+  width: 100%;
   text-align: left;
-  padding: 7px 10px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 10px 12px;
   border-radius: var(--radius-control);
-  border: 1.5px solid var(--color-accent-subtle-border);
+  border: none;
+  background: transparent;
+  color: var(--color-content-primary);
+  cursor: pointer;
+}
+
+.esc-help-menu-option:hover,
+.esc-help-menu-option:focus-visible {
   background: var(--color-accent-subtle);
   color: var(--color-accent-strong);
-  cursor: pointer;
-  max-width: 100%;
 }
 
 .esc-shell-layout {
@@ -446,16 +463,16 @@
     justify-content: flex-start;
   }
 
-  .esc-help-reasons {
-    width: 100%;
-    justify-content: flex-start;
+  .esc-help-menu-panel {
+    left: 0;
+    right: auto;
+    min-width: min(100%, 20rem);
   }
 
-  .esc-help-reason {
-    flex: 1 1 calc(50% - 3px);
+  .esc-help-menu-option {
     min-height: 44px;
-    font-size: 12px;
-    padding: 10px 12px;
+    font-size: 14px;
+    padding: 12px 14px;
   }
 
   .esc-illust-header {
@@ -543,10 +560,6 @@
 
   .esc-shell-header-brand {
     gap: 8px;
-  }
-
-  .esc-help-reason {
-    flex-basis: 100%;
   }
 
   .esc-illust-header {

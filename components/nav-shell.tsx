@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { DistressNotice, useDistress } from "@/components/distress-provider";
 import { useShellState } from "@/components/shell-context";
@@ -75,19 +76,55 @@ function activeArea(pathname: string): AreaTone {
 /**
  * Always-available student-initiated help (Requirement 18.6). Lives in the
  * shell so it is on every Student screen. On Practice the control is the hint
- * drawer; everywhere else it is five one-tap reason buttons — choosing one IS
- * sending, with no confirmation step and no free-text field.
+ * drawer; everywhere else one "I need help" button opens five reasons — picking
+ * one IS sending, with no confirmation step and no free-text field.
  */
 function HelpControls() {
   const { requestHelp } = useDistress();
   const { openPracticeHelp } = useShellState();
   const { stage } = useTour();
   const pathname = usePathname();
-  // On Practice this control is the hint drawer. The tour's safety-net chapter
-  // runs on Practice and is about the escalation path, so it asks for that form
-  // explicitly rather than the chapter pretending to be somewhere else.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
   const onPractice =
     pathname.startsWith("/practice") && !stage?.helpButtonEscalates;
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (menuRef.current && !menuRef.current.contains(target)) {
+        closeMenu();
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMenu();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen, closeMenu]);
+
+  const helpButtonStyle = {
+    fontFamily: "var(--font-body)",
+    fontSize: 12,
+    fontWeight: 700,
+    padding: "8px 16px",
+    borderRadius: "var(--radius-control)",
+    border: "1.5px solid var(--color-accent-subtle-border)",
+    background: "var(--color-accent-subtle)",
+    color: "var(--color-accent-strong)",
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+  };
 
   if (onPractice) {
     return (
@@ -99,18 +136,7 @@ function HelpControls() {
           hapticTap();
           openPracticeHelp();
         }}
-        style={{
-          fontFamily: "var(--font-body)",
-          fontSize: 12,
-          fontWeight: 700,
-          padding: "8px 16px",
-          borderRadius: "var(--radius-control)",
-          border: "1.5px solid var(--color-accent-subtle-border)",
-          background: "var(--color-accent-subtle)",
-          color: "var(--color-accent-strong)",
-          cursor: "pointer",
-          whiteSpace: "nowrap",
-        }}
+        style={helpButtonStyle}
       >
         Need a hint?
       </button>
@@ -119,26 +145,47 @@ function HelpControls() {
 
   const sendReason = (label: HelpReasonLabel) => {
     hapticTap();
+    closeMenu();
     requestHelp(label);
   };
 
   return (
-    <div
-      className="esc-help-reasons"
-      data-tour="help-button"
-      role="group"
-      aria-label="Tell your teacher you need help"
-    >
-      {HELP_REASON_LABELS.map((label) => (
-        <button
-          key={label}
-          type="button"
-          className="esc-help-reason esc-pressable"
-          onClick={() => sendReason(label)}
+    <div className="esc-help-menu" ref={menuRef}>
+      <button
+        type="button"
+        className="esc-help-trigger esc-pressable"
+        data-tour="help-button"
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        aria-controls="esc-help-menu-panel"
+        onClick={() => {
+          hapticTap();
+          setMenuOpen((open) => !open);
+        }}
+        style={helpButtonStyle}
+      >
+        I need help
+      </button>
+      {menuOpen ? (
+        <div
+          id="esc-help-menu-panel"
+          className="esc-help-menu-panel"
+          role="menu"
+          aria-label="Tell your teacher you need help"
         >
-          {label}
-        </button>
-      ))}
+          {HELP_REASON_LABELS.map((label) => (
+            <button
+              key={label}
+              type="button"
+              role="menuitem"
+              className="esc-help-menu-option esc-pressable"
+              onClick={() => sendReason(label)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

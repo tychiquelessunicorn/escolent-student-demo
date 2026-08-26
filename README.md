@@ -119,6 +119,11 @@ The scripted message is a constant in `lib/distress.ts`, rendered client-side.
 The API returns a boolean and nothing else, so there is no transport by which
 model output could reach that text.
 
+Student-initiated help is five one-tap reason buttons in the shell (not on
+Practice, where the header control opens the hint drawer). Choosing a reason IS
+sending — no confirmation step and no free-text field. The chosen label is
+stored on the same `EscalationRecord` as `helpReason` for teacher review.
+
 `GET /api/distress` reads back recent records. No Teacher screen exists this
 phase, so that endpoint is how a record is actually reviewable.
 

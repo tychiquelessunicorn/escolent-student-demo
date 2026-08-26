@@ -212,7 +212,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
         target: "help-button",
         title: "One tap, nothing else asked of her",
         caption:
-          "Five one-tap reasons live in the shell, so they are on every screen rather than only where the platform expects trouble. Choosing one is sending — no confirmation step and no form — because every extra tap is another chance to give up. The record is written and confirmed before she is ever told a teacher has been notified.",
+          "One I need help button opens five reasons in the shell, so they are on every screen rather than only where the platform expects trouble. Choosing a reason is sending — no confirmation step and no form — because every extra tap is another chance to give up. The record is written and confirmed before she is ever told a teacher has been notified.",
         ms: 15000,
         stage: { helpButtonEscalates: true },
         demoCard: "help_button",
