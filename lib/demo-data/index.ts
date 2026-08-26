@@ -14,6 +14,7 @@ export * from "./skills";
 export * from "./schedule";
 export * from "./practice";
 export * from "./spaces";
+export * from "./staff";
 
 export const STUDENT = {
   firstName: "Mia",

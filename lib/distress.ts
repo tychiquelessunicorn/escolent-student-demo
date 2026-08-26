@@ -55,6 +55,11 @@ export const HELP_REASON_LABELS = [
 
 export type HelpReasonLabel = (typeof HELP_REASON_LABELS)[number];
 
+export interface EscalationRecordView {
+  staffId: string;
+  viewedAt: string;
+}
+
 export function isHelpReasonLabel(value: unknown): value is HelpReasonLabel {
   return (
     typeof value === "string" &&
@@ -81,6 +86,11 @@ export interface EscalationRecord {
    * reviewer that a model did not confirm it.
    */
   classifierFailed: boolean;
+  /** Staff id from the roster — null until explicitly acknowledged. */
+  acknowledgedBy: string | null;
+  acknowledgedAt: string | null;
+  /** Distinct from acknowledgment: who opened the record and when. */
+  views: EscalationRecordView[];
 }
 
 export interface DistressResponse {
