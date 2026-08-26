@@ -16,7 +16,7 @@ import {
 } from "@/lib/demo-persistence";
 
 export function ProgressScreen() {
-  const { currentSpace, tourMode, setCurrentSpaceId } = useShellState();
+  const { currentSpace } = useShellState();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [mastered, setMastered] = useState(false);
 
@@ -25,10 +25,6 @@ export function ProgressScreen() {
     refresh();
     return subscribeDemoPersist(refresh);
   }, []);
-
-  useEffect(() => {
-    if (tourMode) setCurrentSpaceId("math");
-  }, [tourMode, setCurrentSpaceId]);
 
   useEffect(() => {
     setExpanded({});
@@ -53,32 +49,33 @@ export function ProgressScreen() {
         </div>
       </div>
 
-      {!tourMode ? (
-        <div style={{ marginBottom: 28 }}>
-          <AskBox
-            task="progress_ask"
-            surface="progress_ask"
-            area="progress"
-            spaceId={currentSpace.id}
-            placeholder={`Ask about your progress… e.g. "${currentSpace.askExample}"`}
-            loadingLabel="Checking your progress…"
-          />
-        </div>
-      ) : null}
+      <div style={{ marginBottom: 28 }}>
+        <AskBox
+          task="progress_ask"
+          surface="progress_ask"
+          area="progress"
+          spaceId={currentSpace.id}
+          placeholder={`Ask about your progress… e.g. "${currentSpace.askExample}"`}
+          loadingLabel="Checking your progress…"
+        />
+      </div>
 
-      <Card area="progress" style={{ padding: "24px 28px", marginBottom: 36 }}>
-        <SectionLabel area="progress" style={{ marginBottom: 10 }}>
-          Next review
-        </SectionLabel>
-        <CardTitle style={{ fontSize: 19, marginBottom: 6 }}>
-          {nextReview.skillName}, {nextReview.whenLabel}
-        </CardTitle>
-        <CardBody style={{ fontSize: 14 }}>{nextReview.note}</CardBody>
-      </Card>
+      <div data-tour="progress-next-review">
+        <Card area="progress" style={{ padding: "24px 28px", marginBottom: 36 }}>
+          <SectionLabel area="progress" style={{ marginBottom: 10 }}>
+            Next review
+          </SectionLabel>
+          <CardTitle style={{ fontSize: 19, marginBottom: 6 }}>
+            {nextReview.skillName}, {nextReview.whenLabel}
+          </CardTitle>
+          <CardBody style={{ fontSize: 14 }}>{nextReview.note}</CardBody>
+        </Card>
+      </div>
 
       <SectionLabel area="progress">Skill progression</SectionLabel>
       <div
         style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 36 }}
+        data-tour="progress-skill-tiers"
       >
         {skills.map((skill) => (
           <SkillRow

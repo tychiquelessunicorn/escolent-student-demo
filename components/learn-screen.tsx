@@ -7,6 +7,7 @@ import { PathIllustration } from "@/components/illustrations";
 import { useShellState } from "@/components/shell-context";
 import { SkillRow } from "@/components/skill-row";
 import { SpaceSwitcher } from "@/components/space-switcher";
+import { useTour } from "@/components/tour-provider";
 import { PageHeading, SectionLabel } from "@/components/ui";
 import { TIER_STYLE } from "@/lib/demo-data";
 import {
@@ -16,7 +17,8 @@ import {
 } from "@/lib/demo-persistence";
 
 export function LearnScreen() {
-  const { currentSpace, setCurrentSpaceId, tourMode } = useShellState();
+  const { currentSpace, setCurrentSpaceId } = useShellState();
+  const { stage } = useTour();
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [toastId, setToastId] = useState<string | null>(null);
   const [mastered, setMastered] = useState(false);
@@ -46,6 +48,12 @@ export function LearnScreen() {
     resolveDemoSkill(skill, mastered),
   );
 
+  // The tour opens a row itself, so its lesson step never depends on a visitor
+  // working out that skill names are clickable.
+  const tourOpenId = stage?.openSkillId;
+  const scriptedAsk =
+    stage?.scriptedAsk?.screen === "learn" ? stage.scriptedAsk : undefined;
+
   const openSource = (id: string) => {
     setToastId(id);
     setTimeout(() => setToastId((current) => (current === id ? null : current)), 1600);
@@ -67,6 +75,7 @@ export function LearnScreen() {
       <SectionLabel area="learn">Skills in this Space</SectionLabel>
       <div
         style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 32 }}
+        data-tour="learn-skill-map"
       >
         {skills.map((skill) => (
           <SkillRow
@@ -79,7 +88,7 @@ export function LearnScreen() {
                 ? "Durable (85%)"
                 : TIER_STYLE[skill.tier].label
             }
-            expanded={Boolean(expanded[skill.id])}
+            expanded={Boolean(expanded[skill.id]) || tourOpenId === skill.id}
             onToggle={() =>
               setExpanded((current) => ({
                 ...current,
@@ -87,7 +96,12 @@ export function LearnScreen() {
               }))
             }
           >
-            <div className="esc-skill-expanded">
+            <div
+              className="esc-skill-expanded"
+              data-tour={
+                tourOpenId === skill.id ? "learn-skill-expanded" : undefined
+              }
+            >
               <div className="esc-lesson-beat">
                 <div className="esc-lesson-label">Concept</div>
                 <div className="esc-lesson-concept">{skill.lesson}</div>
@@ -148,7 +162,7 @@ export function LearnScreen() {
         ))}
       </div>
 
-      {!tourMode ? (
+      <div data-tour="learn-ask">
         <AskBox
           task="learn_ask"
           surface="learn_ask"
@@ -156,8 +170,9 @@ export function LearnScreen() {
           spaceId={currentSpace.id}
           placeholder={`Ask about any skill… e.g. "${currentSpace.askExample}"`}
           loadingLabel="Thinking…"
+          scripted={scriptedAsk}
         />
-      ) : null}
+      </div>
     </div>
   );
 }

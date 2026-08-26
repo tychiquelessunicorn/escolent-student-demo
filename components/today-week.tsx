@@ -6,7 +6,7 @@ import { AskBox } from "@/components/ask-box";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { ResumeIllustration } from "@/components/illustrations";
 import { PageHeading, SectionLabel } from "@/components/ui";
-import { useShellState } from "@/components/shell-context";
+import { useTour } from "@/components/tour-provider";
 import {
   FRESHNESS_LABELS,
   SCHEDULE_DAYS,
@@ -314,7 +314,7 @@ function ViewTabs({ view }: { view: "today" | "week" }) {
 }
 
 export function TodayWeek({ view }: { view: "today" | "week" }) {
-  const { tourMode } = useShellState();
+  const { stage } = useTour();
   const [streak, setStreak] = useState(3);
   const [taskComplete, setTaskComplete] = useState(false);
 
@@ -327,10 +327,10 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
     return subscribeDemoPersist(refresh);
   }, [view]);
 
+  const scriptedAsk =
+    stage?.scriptedAsk?.screen === "today" ? stage.scriptedAsk : undefined;
   const todayItems = SCHEDULE_ITEMS.filter((item) => item.day === TODAY_KEY);
-  const nativeToday = todayItems
-    .filter((item) => item.source === "escolent")
-    .filter((item) => (tourMode ? item.demoTask : true));
+  const nativeToday = todayItems.filter((item) => item.source === "escolent");
   const lmsToday = todayItems.filter((item) => item.source === "lms");
 
   return (
@@ -352,40 +352,33 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
         </div>
       </div>
 
-      {!tourMode ? (
-        <div style={{ marginBottom: 32 }}>
-          <AskBox
-            task="today_ask"
-            surface="today_ask"
-            area="today"
-            placeholder={'Ask what\u2019s due… e.g. "what do I have due Thursday"'}
-            loadingLabel="Checking what's due…"
-          />
-        </div>
-      ) : null}
+      <div style={{ marginBottom: 32 }} data-tour="today-ask">
+        <AskBox
+          task="today_ask"
+          surface="today_ask"
+          area="today"
+          placeholder={'Ask what\u2019s due… e.g. "what do I have due Thursday"'}
+          loadingLabel="Checking what's due…"
+          scripted={scriptedAsk}
+        />
+      </div>
 
       {view === "today" ? (
-        <>
-          <SectionLabel area="today">
-            {tourMode ? "Your Demo task" : "From Escolent"}
-          </SectionLabel>
-          {!tourMode ? (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 12,
-                marginTop: -8,
-                marginBottom: 14,
-                flexWrap: "wrap",
-              }}
-            >
-              <div className="esc-completed-chip">{getDailyProgressLabel()}</div>
-            </div>
-          ) : (
-            <div style={{ marginTop: -8, marginBottom: 14 }} />
-          )}
+        <div data-tour="today-due-items">
+          <SectionLabel area="today">From Escolent</SectionLabel>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              marginTop: -8,
+              marginBottom: 14,
+              flexWrap: "wrap",
+            }}
+          >
+            <div className="esc-completed-chip">{getDailyProgressLabel()}</div>
+          </div>
           <div
             style={{
               display: "flex",
@@ -403,24 +396,22 @@ export function TodayWeek({ view }: { view: "today" | "week" }) {
             ))}
           </div>
 
-          {!tourMode ? (
-            <>
-              <SectionLabel>Also due — from {STUDENT.lms}</SectionLabel>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {lmsToday.map((item) => (
-                  <LmsItem key={item.id} item={item} />
-                ))}
-              </div>
-            </>
-          ) : null}
-        </>
+          <SectionLabel>Also due — from {STUDENT.lms}</SectionLabel>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {lmsToday.map((item) => (
+              <LmsItem key={item.id} item={item} />
+            ))}
+          </div>
+        </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+        <div
+          style={{ display: "flex", flexDirection: "column", gap: 20 }}
+          data-tour="week-grid"
+        >
           {SCHEDULE_DAYS.map((day) => {
-            const dayItems = SCHEDULE_ITEMS.filter((item) => item.day === day.key).filter(
-              (item) => (tourMode ? item.source === "escolent" : true),
+            const dayItems = SCHEDULE_ITEMS.filter(
+              (item) => item.day === day.key,
             );
-            if (tourMode && dayItems.length === 0) return null;
             return (
             <div key={day.key}>
               <div

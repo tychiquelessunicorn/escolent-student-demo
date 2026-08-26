@@ -10,14 +10,42 @@ files as the live demo.
 A deployed version of the four Student screens: Practice Session, Today / Week,
 Learn, and Progress, plus the global nav shell.
 
-## Demo walkthrough (recommended)
+## Guided tour (recommended)
 
-1. Open `/` or `/student/today?tour=1` — sticky **Demo** bar guides the full shell.
-2. Sequence: **Today → Practice → Today → Progress → Learn → Week**.
-3. On Practice: wrong answer → submit `5` → Session Complete → follow the bar.
-4. Harness tools: `?demo=1` or Ctrl/Cmd+Shift+E (separate from the guided Demo).
+Open `/` or `/student/today?tour=1`. An overlay dims the app, rings one real
+element, and explains why that element matters. **The only thing a viewer ever
+does is click Next**, or turn on auto-play and do nothing — no step asks for a
+typed value or a guessed click, and the app underneath is deliberately blocked
+while the tour runs.
 
-Canonical URL: `/student/today?tour=1`
+Six chapters, forward only. A chapter's screen is never shown again once it
+ends, which is why Practice carries three chapters back to back:
+
+| Chapter | Screen | Shows |
+| --- | --- | --- |
+| 1. Daily awareness | Today | The unified due-items list; the ask box answering a due-date question |
+| 2. Learning the material | Learn | The skill map; a skill opened to its Lens-generated instruction; the ask box |
+| 3. Adaptive practice | Practice | First-exposure intro → wrong-answer scaffold → the mastery moment → the rubric-graded problem |
+| 4. The safety net | Practice | The help button and what pressing it shows; a passive-detection example |
+| 5. Staying resilient | Practice | Offline continuation → session resume → direct-open auth → the review notification |
+| 6. Progress and mastery | Progress → Week | Skill tiers, next review, then Week as the closing wide-angle view |
+
+Every state the tour shows is a route: states that used to need a real
+interaction are reached by the tour setting the demo param below and navigating
+there, so the walkthrough never depends on anyone knowing the app.
+
+Chapter 4 never touches the live escalation path. It renders its own card from
+the same scripted constant the product uses, makes no request, and therefore
+cannot create a record — and it carries the on-screen label *"Demo mode — this
+is what the platform shows when it notices a student needs support"* throughout,
+so nobody watching can read it as a real one.
+
+Canonical URL: `/student/today?tour=1`. Code: `lib/tour.ts` (chapters),
+`components/tour-provider.tsx` (state and navigation),
+`components/tour-overlay.tsx` (spotlight and callout).
+
+The `?demo=1` harness below is a separate system and shares nothing with it;
+loading `?demo=1` ends the tour rather than stacking on top of it.
 
 ## Running locally
 
@@ -35,7 +63,7 @@ warning; in production it refuses traffic rather than running unmetered.
 
 | Route | Screen |
 | --- | --- |
-| `/` | Redirects to `/student/today?tour=1` — guided Demo entry |
+| `/` | Redirects to `/student/today?tour=1` — guided tour entry |
 | `/practice` | Practice Session |
 | `/student/today`, `/student/week` | Today / Week |
 | `/student/learn` | Learn / Course Map |
@@ -56,13 +84,21 @@ controls are enabled.
 | `connectivityDemo` | `auto` (default), `fresh`, `stale`, `syncing`, `unavailable` |
 | `interruptionDemo` | `none` (default), `recent`, `expired` |
 | `directOpenDemo` | `not_applicable` (default), `valid_session`, `no_valid_session` |
-| `problemDemo` | `standard` (default), `no_solution_rubric` |
+| `problemDemo` | `standard` (default), `no_solution_rubric`, `wrong_answer_scaffold`, `mastery_moment` |
 | `notificationPreviewDemo` | `not_applicable` (default), `shown` |
 | `aiHintsEnabled` | `true` (default), `false` |
 | `skill` | Any skill slug, e.g. `two_step`, `variables_both_sides`, `one_step` |
 | `seed` | `fresh` or `mastered` — resets local demo persistence |
-| `tour` | `1` — guided Demo across Today → Practice → Progress → Learn → Week |
+| `tour` | `1` — the guided chapter tour |
 | `demo` | `1` — open harness / demo tools panel |
+
+`wrong_answer_scaffold` and `mastery_moment` exist because those two practice
+states were otherwise reachable only by answering, which put them out of reach
+of a walkthrough that never types. The scaffold seeds two attempts, so the
+ladder shows its guided-step rung with the hint a real second attempt would have
+produced; neither is faked further along than the attempt count implies. The
+panel's dropdowns list the two originals only — they are the ones worth clicking
+through by hand.
 
 ## Distress detection
 

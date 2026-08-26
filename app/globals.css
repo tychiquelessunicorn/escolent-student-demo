@@ -921,124 +921,318 @@
   font-size: 10px;
 }
 
-.esc-demo-guide {
-  position: sticky;
-  top: 0;
-  z-index: 28;
-  background: oklch(32% 0.08 55);
-  color: oklch(98% 0.01 55);
-  border-bottom: 2px solid oklch(48% 0.14 55);
-  padding: 12px 16px 10px;
+/*
+  Guided chapter tour (?tour=1). Entirely an overlay: it dims and rings a real
+  element rather than restyling one, so nothing in this block can change how the
+  app looks once the tour is exited. Separate from the ?demo=1 harness panel
+  above, which is unrelated chrome.
+*/
+.esc-tour-block {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
 }
 
-.esc-demo-guide-inner {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 20px;
-  max-width: 1100px;
-  margin: 0 auto;
+/* Dim enough to direct the eye, light enough that surrounding copy stays legible. */
+.esc-tour-shade {
+  position: fixed;
+  z-index: 200;
+  pointer-events: none;
+  background: oklch(24% 0.014 55 / 0.52);
 }
 
-.esc-demo-guide-meta {
+.esc-tour-ring {
+  position: fixed;
+  z-index: 201;
+  pointer-events: none;
+  box-shadow:
+    0 0 0 2px var(--color-accent),
+    0 0 0 7px oklch(48.8% 0.217 264.4 / 0.3);
+  transition:
+    top var(--duration-med) var(--ease-snap),
+    left var(--duration-med) var(--ease-snap),
+    width var(--duration-med) var(--ease-snap),
+    height var(--duration-med) var(--ease-snap);
+}
+
+/*
+  Only the body scrolls. The chapter bar and the actions row are flex siblings
+  outside it, so however long a caption or demo card gets, Next and Exit tour
+  are never pushed below the fold on a short viewport.
+*/
+.esc-tour-callout {
+  position: fixed;
+  z-index: 202;
+  box-sizing: border-box;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  width: min(420px, calc(100vw - 32px));
+  /* Capped so the spotlight it is describing is never fully covered. */
+  max-height: 78vh;
+  padding: 18px 20px 16px;
+  border-radius: var(--radius-card);
+  background: var(--color-surface-raised);
+  border: 1.5px solid var(--color-border);
+  box-shadow: 0 20px 44px oklch(24% 0.014 55 / 0.28);
+  font-family: var(--font-body);
+  animation: esc-rise var(--duration-med) var(--ease-snap) both;
+}
+
+/*
+  Centred with auto inline margins rather than a translate, because esc-rise
+  animates `transform` and an animated value wins over the declared one — which
+  silently un-centred this and pushed it off the right edge.
+*/
+.esc-tour-callout-docked {
+  left: 16px;
+  right: 16px;
+  width: auto;
+  max-width: 620px;
+  margin-inline: auto;
+  bottom: 20px;
+  top: auto;
+}
+
+.esc-tour-body {
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.esc-tour-chapters {
+  display: flex;
   flex-shrink: 0;
+  gap: 5px;
+  margin-bottom: 14px;
 }
 
-.esc-demo-guide-badge {
+.esc-tour-chapter-seg {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+}
+
+.esc-tour-chapter-seg-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--color-accent);
+  transition: width var(--duration-med) var(--ease-snap);
+}
+
+.esc-tour-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.esc-tour-badge {
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  background: oklch(72% 0.16 55);
-  color: oklch(22% 0.04 55);
-  padding: 4px 8px;
-  border-radius: 6px;
+  background: var(--color-accent);
+  color: var(--color-surface-raised);
+  padding: 4px 9px;
+  border-radius: 999px;
 }
 
-.esc-demo-guide-step {
-  font-size: 12px;
-  font-weight: 700;
-  opacity: 0.85;
-}
-
-.esc-demo-guide-title {
+.esc-tour-chapter-name {
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-.esc-demo-guide-copy {
-  flex: 1;
-  min-width: 200px;
+.esc-tour-screen {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-content-muted);
+}
+
+.esc-tour-substep {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-content-muted);
+}
+
+.esc-tour-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0 0 8px;
+}
+
+.esc-tour-caption {
   margin: 0;
   font-size: 14px;
-  line-height: 1.45;
-  font-weight: 500;
+  line-height: 1.6;
+  color: var(--color-content-secondary);
 }
 
-.esc-demo-guide-actions {
+.esc-tour-demo {
+  margin-top: 14px;
+  border: 1.5px dashed var(--color-accent-subtle-border);
+  border-radius: var(--radius-shell);
+  padding: 14px 16px;
+  background: var(--color-surface);
+}
+
+.esc-tour-demo-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-accent-strong);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.esc-tour-demo-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.esc-tour-demo-said {
+  align-self: flex-start;
+  max-width: 92%;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--color-surface-sunken);
+  color: var(--color-content-primary);
+}
+
+.esc-tour-demo-answer {
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 10px 12px;
+  border-radius: var(--radius-control);
+  background: var(--color-accent-subtle);
+  border: 1px solid var(--color-accent-subtle-border);
+  color: var(--color-accent-strong);
+}
+
+/* Matches the locked Student distress notice tokens — calm, never alarming. */
+.esc-tour-demo-notice {
+  background: var(--color-notice-bg);
+  border: 1px solid var(--color-notice-border);
+  border-radius: var(--radius-shell);
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-notice-fg);
+}
+
+.esc-tour-demo-foot {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--color-content-muted);
+}
+
+.esc-tour-timer {
+  flex-shrink: 0;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--color-surface-sunken);
+  overflow: hidden;
+  margin-top: 14px;
+}
+
+.esc-tour-timer-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: var(--color-accent);
+  animation: esc-tour-timer linear both;
+}
+
+@keyframes esc-tour-timer {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.esc-tour-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.esc-tour-actions-end {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  gap: 4px;
 }
 
-.esc-demo-guide-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.esc-tour-next {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  padding: 8px 14px;
+  padding: 10px 22px;
   border-radius: var(--radius-control);
   border: none;
-  background: oklch(98% 0.01 55);
-  color: oklch(28% 0.06 55);
-  text-decoration: none;
+  background: var(--color-accent);
+  color: var(--color-surface-raised);
+  box-shadow: 0 6px 16px oklch(48.8% 0.217 264.4 / 0.28);
   cursor: pointer;
 }
 
-.esc-demo-guide-stay {
-  font-size: 12px;
-  font-weight: 600;
-  opacity: 0.8;
+.esc-tour-toggle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 14px;
+  border-radius: var(--radius-control);
+  border: 1.5px solid var(--color-accent-subtle-border);
+  background: var(--color-accent-subtle);
+  color: var(--color-accent-strong);
+  cursor: pointer;
 }
 
-.esc-demo-guide-exit {
+.esc-tour-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.esc-tour-quiet {
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 600;
   padding: 8px 10px;
   border: none;
   background: transparent;
-  color: oklch(92% 0.02 55);
+  color: var(--color-content-muted);
   text-decoration: underline;
   cursor: pointer;
-  opacity: 0.85;
 }
 
-.esc-demo-guide-progress {
-  display: flex;
-  gap: 6px;
-  max-width: 1100px;
-  margin: 10px auto 0;
-}
-
-.esc-demo-guide-dot {
-  flex: 1;
-  height: 4px;
-  border-radius: 999px;
-  background: oklch(48% 0.04 55);
-}
-
-.esc-demo-guide-dot-on {
-  background: oklch(78% 0.14 55);
+@media (max-width: 759px) {
+  .esc-tour-callout-docked {
+    bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 12px);
+    max-height: 66vh;
+  }
 }
 
 .esc-completed-chip {

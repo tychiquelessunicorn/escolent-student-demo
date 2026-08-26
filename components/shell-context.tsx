@@ -38,7 +38,10 @@ interface ShellStateValue {
   demoControls: boolean;
   enableDemoControls: () => void;
   applyDemoSeed: (seed: DemoSeed) => void;
-  /** Guided Demo walkthrough across the Student shell. */
+  /**
+   * Whether the guided chapter tour is running. Activation and persistence live
+   * here; the tour's own state lives in TourProvider.
+   */
   tourMode: boolean;
   exitTour: () => void;
   currentSpaceId: string;
@@ -78,6 +81,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       /* ignore */
     }
 
+    // The tour narrates a clean run from a known state, and it must never be
+    // competing with the harness panel for the same query params.
     if (tourFromUrl) {
       seedDemoState("fresh");
       writeTourMode(true);
@@ -93,7 +98,15 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
           writeDemoControlsEnabled(false);
         }
       }
-      setTourMode(readTourMode());
+      // Opening the harness is an explicit request for the other system. Tour
+      // mode outlives a navigation, so without this the two would stack on a
+      // ?demo=1 load later in the same session.
+      if (fromUrl) {
+        writeTourMode(false);
+        setTourMode(false);
+      } else {
+        setTourMode(readTourMode());
+      }
 
       const enabled = fromUrl || readDemoControlsEnabled();
       setDemoControls(enabled);
