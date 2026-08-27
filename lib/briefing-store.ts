@@ -9,10 +9,11 @@ import {
   type RosterStudent,
 } from "@/lib/demo-data/roster";
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
-import { getTeacherSpace, teacherSpaceScopeLabel } from "@/lib/demo-data/teacher-spaces";
+import { getTeacherSpace } from "@/lib/demo-data/teacher-spaces";
 import type { EscalationRecord } from "@/lib/distress";
 import { listEscalations, seedEscalationsIfEmpty } from "@/lib/distress-store";
 import { getEffectiveStudent, listEffectiveStudents } from "@/lib/override-store";
+import { getSpace, listSpaces, teacherSpaceScopeLabelAsync } from "@/lib/space-store";
 
 export type BriefingState =
   | "populated"
@@ -55,6 +56,7 @@ export interface TeacherBriefing {
   items: BriefingItem[];
   /** Present when state is all_clear — never dressed as urgent. */
   lowPriority: BriefingItem[];
+  spaces: { id: string; name: string; shortName: string }[];
 }
 
 const OVERRIDE_REVISIT_DAYS = 30;
@@ -64,8 +66,10 @@ function skillName(skillId: string): string {
   return OVERVIEW_SKILL_COLUMNS.find((skill) => skill.id === skillId)?.name ?? skillId;
 }
 
-function spaceLabel(spaceId: string | null): string {
+async function spaceLabel(spaceId: string | null): Promise<string> {
   if (!spaceId) return "Across your Spaces";
+  const managed = await getSpace(spaceId);
+  if (managed) return managed.name;
   return getTeacherSpace(spaceId)?.name ?? spaceId;
 }
 
@@ -111,7 +115,7 @@ async function buildEscalationItems(
       category: "escalation_pending",
       urgency: "urgent",
       spaceId,
-      spaceLabel: spaceLabel(spaceId),
+      spaceLabel: await spaceLabel(spaceId),
       title: `${record.student} may need support.`,
       detail: record.helpReason
         ? `Asked for help: “${record.helpReason}” — not yet acknowledged.`
@@ -145,9 +149,12 @@ async function buildMisconceptionItems(spaceFilter: string | null): Promise<Brie
     const itemSpaceId = spaceIds.length === 1 ? spaceIds[0] : null;
     const itemSpaceLabel =
       spaceIds.length === 1
-        ? spaceLabel(spaceIds[0])
-        : spaceIds
-            .map((id) => getTeacherSpace(id)?.name)
+        ? await spaceLabel(spaceIds[0])
+        : (
+            await Promise.all(
+              spaceIds.map(async (id) => (await getSpace(id))?.name ?? getTeacherSpace(id)?.name),
+            )
+          )
             .filter(Boolean)
             .join(" · ");
 
@@ -202,7 +209,7 @@ async function buildStrugglingItems(spaceFilter: string | null): Promise<Briefin
       category: "struggling_students",
       urgency: "urgent",
       spaceId: group.spaceId,
-      spaceLabel: spaceLabel(group.spaceId),
+      spaceLabel: await spaceLabel(group.spaceId),
       title:
         group.students.length === 1
           ? `${names[0]} is struggling on ${skill.toLowerCase()}.`
@@ -233,7 +240,7 @@ async function buildOverrideItems(spaceFilter: string | null): Promise<BriefingI
       category: "override_revisit",
       urgency: "informational",
       spaceId: student.spaceId,
-      spaceLabel: spaceLabel(student.spaceId),
+      spaceLabel: await spaceLabel(student.spaceId),
       title: `${student.fullName}'s override is due for a check.`,
       detail: `${skillName(student.override.skillId)} — overridden ${days} days ago. Confirm or reassess.`,
       actionRoute: `/teacher/overview?student=${encodeURIComponent(student.id)}&overrideSkill=${encodeURIComponent(student.override.skillId)}&overrideMode=revisit`,
@@ -258,7 +265,7 @@ async function buildLowPriority(spaceFilter: string | null): Promise<BriefingIte
       category: "low_priority",
       urgency: "informational",
       spaceId: student.spaceId,
-      spaceLabel: spaceLabel(student.spaceId),
+      spaceLabel: await spaceLabel(student.spaceId),
       title: `${student.fullName} is still building multi-step equations.`,
       detail: "Not flagged — a quiet glance, not something that needs attention today.",
       actionRoute: studentHref(student.id),
@@ -313,8 +320,13 @@ export async function buildTeacherBriefing(options: {
 }): Promise<TeacherBriefing> {
   const spaceFilter = options.spaceFilter ?? null;
   const demoState = options.demoState ?? "auto";
-  const scopeLabel = teacherSpaceScopeLabel(spaceFilter);
+  const scopeLabel = await teacherSpaceScopeLabelAsync(spaceFilter);
   const computedAt = new Date().toISOString();
+  const spaces = (await listSpaces()).map((space) => ({
+    id: space.id,
+    name: space.name,
+    shortName: space.shortName,
+  }));
 
   if (demoState === "no_spaces") {
     return {
@@ -323,6 +335,7 @@ export async function buildTeacherBriefing(options: {
       computedAt,
       items: [],
       lowPriority: [],
+      spaces: [],
     };
   }
 
@@ -333,6 +346,7 @@ export async function buildTeacherBriefing(options: {
       computedAt,
       items: [],
       lowPriority: [],
+      spaces,
     };
   }
 
@@ -343,6 +357,7 @@ export async function buildTeacherBriefing(options: {
       computedAt,
       items: [],
       lowPriority: await buildLowPriority(spaceFilter),
+      spaces,
     };
   }
 
@@ -362,6 +377,7 @@ export async function buildTeacherBriefing(options: {
         computedAt,
         items: [],
         lowPriority: await buildLowPriority(spaceFilter),
+        spaces,
       };
     }
     return {
@@ -370,6 +386,7 @@ export async function buildTeacherBriefing(options: {
       computedAt,
       items,
       lowPriority: [],
+      spaces,
     };
   }
 
@@ -379,5 +396,6 @@ export async function buildTeacherBriefing(options: {
     computedAt,
     items,
     lowPriority: [],
+    spaces,
   };
 }

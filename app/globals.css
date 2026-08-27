@@ -3383,6 +3383,222 @@
   }
 }
 
+/* —— Teacher Spaces (Req 9 Part A) —— */
+
+.esc-spaces-screen {
+  max-width: 720px;
+}
+
+.esc-spaces-list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.esc-spaces-lede {
+  margin: 4px 0 0;
+  font-size: var(--text-staff-sm);
+  color: var(--color-staff-content-muted);
+}
+
+.esc-spaces-back {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-staff-content-muted);
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+.esc-spaces-back:hover {
+  color: var(--color-staff-interactive);
+}
+
+.esc-spaces-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.esc-spaces-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-staff-surface-raised);
+  border: 1px solid var(--color-staff-border);
+  border-radius: var(--radius-staff-card);
+  padding: 20px 22px;
+}
+
+.esc-spaces-card:hover {
+  border-color: var(--color-staff-interactive-border);
+}
+
+.esc-spaces-card-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-staff-lg);
+  margin: 0 0 6px;
+}
+
+.esc-spaces-card-meta {
+  margin: 0 0 8px;
+  font-size: 14px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-spaces-card-desc {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-spaces-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.esc-spaces-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-staff-control);
+  background: var(--color-staff-surface-sunken);
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-spaces-card-edit {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-staff-interactive);
+}
+
+.esc-spaces-section {
+  margin-bottom: 28px;
+}
+
+.esc-spaces-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.esc-spaces-input,
+.esc-spaces-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+  font-size: 15px;
+  padding: 10px 14px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+  color: var(--color-staff-content-primary);
+}
+
+.esc-spaces-textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.45;
+}
+
+.esc-spaces-input-narrow {
+  width: 72px;
+  margin-left: 8px;
+}
+
+.esc-spaces-hint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-spaces-skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.esc-spaces-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-staff-border);
+  border-radius: var(--radius-staff-control);
+  background: var(--color-staff-surface-raised);
+  cursor: pointer;
+}
+
+.esc-spaces-check-row {
+  align-items: center;
+}
+
+.esc-spaces-difficulty {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.esc-spaces-difficulty label {
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.esc-spaces-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.esc-spaces-roster-row {
+  align-items: center;
+}
+
+.esc-spaces-roster-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.esc-spaces-roster-meta {
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-spaces-future-note {
+  margin: 0 0 20px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-staff-content-secondary);
+  padding: 12px 14px;
+  border-left: 3px solid var(--color-staff-border);
+  background: var(--color-staff-surface);
+}
+
+.esc-spaces-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.esc-briefing-edge .esc-staff-btn {
+  margin-top: 14px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

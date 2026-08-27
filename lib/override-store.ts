@@ -17,6 +17,7 @@ import { OVERVIEW_SKILL_IDS } from "@/lib/demo-data/overview-skills";
 import { DEMO_SESSION_STAFF_ID } from "@/lib/demo-data/staff";
 import type { MasteryTier } from "@/lib/demo-data/types";
 import { getRedis } from "@/lib/rate-limit";
+import { getEffectiveSpaceId } from "@/lib/space-store";
 
 export type OverrideEntryMethod = "structured" | "conversational";
 export type OverrideKind = "mark_mastered" | "reconfirm";
@@ -328,13 +329,16 @@ function composeEffectiveStudent(
 
 /**
  * Roster row with live tier patches + primary `override` (oldest active —
- * drives Briefing 30-day revisit the same way Elena's seed did).
+ * drives Briefing 30-day revisit the same way Elena's seed did) + Space
+ * assignment layered over roster.spaceId.
  */
 export async function getEffectiveStudent(studentId: string): Promise<RosterStudent | null> {
   const base = getRosterStudent(studentId);
   if (!base) return null;
   const state = await readLive(studentId);
-  return composeEffectiveStudent(base, state);
+  const composed = composeEffectiveStudent(base, state);
+  const spaceId = (await getEffectiveSpaceId(studentId)) ?? composed.spaceId;
+  return { ...composed, spaceId };
 }
 
 export async function listEffectiveStudents(spaceFilter: string | null): Promise<RosterStudent[]> {

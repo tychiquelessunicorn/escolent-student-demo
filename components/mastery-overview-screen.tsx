@@ -10,7 +10,7 @@ import { FRESHNESS_LABELS } from "@/lib/demo-data/schedule";
 
 const POLL_MS = 17_000;
 
-type SpaceFilter = "all" | "algebra_8a" | "remediation_8a";
+type SpaceFilter = string; // "all" or a managed Space id
 
 function freshnessLabel(freshness: MasteryOverviewPayload["rosterFreshness"]): string {
   return FRESHNESS_LABELS[freshness] ?? formatFreshnessLabel(freshness);
@@ -130,9 +130,11 @@ function MasteryOverviewInner() {
         </div>
         <div className="esc-mastery-space-switch" role="tablist" aria-label="Space filter">
           {[
-            { id: "all" as const, label: "All Spaces" },
-            { id: "algebra_8a" as const, label: "Grade 8A Algebra" },
-            { id: "remediation_8a" as const, label: "Grade 8A Remediation" },
+            { id: "all", label: "All Spaces" },
+            ...(data?.spaces ?? []).map((space) => ({
+              id: space.id,
+              label: space.name,
+            })),
           ].map((option) => (
             <button
               key={option.id}

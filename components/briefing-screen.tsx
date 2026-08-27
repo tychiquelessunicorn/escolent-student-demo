@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
 import type { BriefingItem, TeacherBriefing } from "@/lib/briefing-store";
 
-type SpaceFilter = "all" | "algebra_8a" | "remediation_8a";
+type SpaceFilter = string; // "all" or a managed Space id
 type DemoState = "auto" | "populated" | "no_spaces" | "insufficient_data" | "all_clear";
 
 const CATEGORY_LABEL: Record<BriefingItem["category"], string> = {
@@ -126,7 +126,7 @@ function BriefingInner() {
   const briefingStateParam = (searchParams.get("briefingState") as DemoState | null) ?? "auto";
 
   const spaceFilter: SpaceFilter =
-    spaceParam === "algebra_8a" || spaceParam === "remediation_8a" ? spaceParam : "all";
+    spaceParam && spaceParam !== "all" ? spaceParam : "all";
   const demoState: DemoState =
     briefingStateParam === "no_spaces" ||
     briefingStateParam === "insufficient_data" ||
@@ -228,9 +228,11 @@ function BriefingInner() {
         </div>
         <div className="esc-mastery-space-switch" role="tablist" aria-label="Space filter">
           {[
-            { id: "all" as const, label: "All Spaces" },
-            { id: "algebra_8a" as const, label: "Grade 8A Algebra" },
-            { id: "remediation_8a" as const, label: "Grade 8A Remediation" },
+            { id: "all", label: "All Spaces" },
+            ...(data?.spaces ?? []).map((space) => ({
+              id: space.id,
+              label: space.name,
+            })),
           ].map((option) => (
             <button
               key={option.id}
@@ -287,10 +289,12 @@ function BriefingInner() {
             <div className="esc-staff-panel esc-briefing-edge">
               <h2 className="esc-briefing-edge-title">No Spaces yet.</h2>
               <p className="esc-staff-body">
-                Once you create or join a Space, your Briefing will start showing what needs
-                attention here. Space creation is out of scope for this demo slice — this is
-                where that flow would begin.
+                Once you create a Space, your Briefing will start showing what needs attention
+                here.
               </p>
+              <Link href="/teacher/spaces/new" className="esc-staff-btn esc-staff-btn-primary">
+                Create a Space
+              </Link>
             </div>
           ) : null}
 

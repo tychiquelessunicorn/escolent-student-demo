@@ -5,7 +5,7 @@ import {
   misconceptionsForStudent,
 } from "@/lib/demo-data/roster";
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
-import { TEACHER_SPACES, teacherSpaceScopeLabel, getTeacherSpace } from "@/lib/demo-data/teacher-spaces";
+import { getTeacherSpace } from "@/lib/demo-data/teacher-spaces";
 import type { MasteryTier } from "@/lib/demo-data/types";
 import { TIER_FILL_PCT } from "@/lib/mastery-overview-labels";
 import { TIER_STYLE } from "@/lib/demo-data/skills";
@@ -17,6 +17,7 @@ import {
   listOverrideHistory,
   type OverrideHistoryEntry,
 } from "@/lib/override-store";
+import { getSpace, listSpaces, teacherSpaceScopeLabelAsync } from "@/lib/space-store";
 
 export interface MasteryCell {
   skillId: string;
@@ -126,7 +127,8 @@ function applyLiveOverlay(students: RosterStudent[]): RosterStudent[] {
 }
 
 async function toOverviewStudent(student: RosterStudent): Promise<MasteryOverviewStudent> {
-  const space = getTeacherSpace(student.spaceId);
+  const managed = await getSpace(student.spaceId);
+  const space = managed ?? getTeacherSpace(student.spaceId);
   const [activeOverrides, overrideHistory] = await Promise.all([
     listActiveOverrides(student.id),
     listOverrideHistory(student.id),
@@ -156,6 +158,7 @@ export async function buildMasteryOverview(
 ): Promise<MasteryOverviewPayload> {
   const filtered = applyLiveOverlay(await listEffectiveStudents(spaceFilter));
   const students = await Promise.all(filtered.map((student) => toOverviewStudent(student)));
+  const managedSpaces = await listSpaces();
 
   const legend = (Object.keys(TIER_STYLE) as MasteryTier[]).map((tier) => ({
     tier,
@@ -167,10 +170,10 @@ export async function buildMasteryOverview(
 
   return {
     refreshedAt: new Date().toISOString(),
-    scopeLabel: teacherSpaceScopeLabel(spaceFilter),
+    scopeLabel: await teacherSpaceScopeLabelAsync(spaceFilter),
     rosterFreshness: ROSTER_LMS_FRESHNESS,
     liveCount: students.filter((student) => student.isLive).length,
-    spaces: TEACHER_SPACES.map((space) => ({
+    spaces: managedSpaces.map((space) => ({
       id: space.id,
       name: space.name,
       shortName: space.shortName,

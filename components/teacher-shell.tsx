@@ -27,6 +27,11 @@ const NAV_ITEMS: {
     match: ["/teacher/overview"],
   },
   {
+    label: "Spaces",
+    href: "/teacher/spaces",
+    match: ["/teacher/spaces"],
+  },
+  {
     label: "Escalations",
     href: "/teacher/escalations",
     match: ["/teacher/escalations"],

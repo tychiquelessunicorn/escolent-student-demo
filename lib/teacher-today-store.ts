@@ -23,7 +23,7 @@ import {
   type TeacherLmsScheduleItem,
   type UnmatchedErrorEntry,
 } from "@/lib/demo-data/teacher-schedule";
-import { teacherSpaceScopeLabel } from "@/lib/demo-data/teacher-spaces";
+import { teacherSpaceScopeLabelAsync } from "@/lib/space-store";
 import type { SyncFreshness } from "@/lib/demo-data/types";
 import { STUDENT } from "@/lib/demo-data";
 
@@ -217,7 +217,7 @@ export async function buildTeacherTodaySchedule(options?: {
   }));
 
   return {
-    scopeLabel: teacherSpaceScopeLabel(spaceFilter),
+    scopeLabel: await teacherSpaceScopeLabelAsync(spaceFilter),
     todayKey: TEACHER_TODAY_KEY,
     todayDateLabel: TEACHER_TODAY_DATE_LABEL,
     todayShortLabel: TEACHER_TODAY_SHORT_LABEL,

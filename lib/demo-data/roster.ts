@@ -18,7 +18,8 @@ export interface MasteryOverrideRecord {
 export interface RosterStudent {
   id: string;
   fullName: string;
-  spaceId: "algebra_8a" | "remediation_8a";
+  /** Baseline Space id — effective membership may be overridden via space-store. */
+  spaceId: string;
   /** Ordered tiers aligned with OVERVIEW_SKILL_IDS (s0–s6). */
   tiers: MasteryTier[];
   /** Skill ids flagged as prerequisite gaps underneath the current unit. */
@@ -48,7 +49,7 @@ function minutesAgo(minutes: number): string {
 function row(
   id: string,
   fullName: string,
-  spaceId: "algebra_8a" | "remediation_8a",
+  spaceId: string,
   tiers: MasteryTier[],
   options: Partial<
     Pick<

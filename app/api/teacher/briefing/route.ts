@@ -3,6 +3,7 @@ import {
   buildTeacherBriefing,
   type BriefingDemoState,
 } from "@/lib/briefing-store";
+import { isKnownSpaceId } from "@/lib/space-store";
 
 export const runtime = "nodejs";
 
@@ -23,9 +24,7 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const space = url.searchParams.get("space");
   const spaceFilter =
-    space && space !== "all" && (space === "algebra_8a" || space === "remediation_8a")
-      ? space
-      : null;
+    space && space !== "all" && (await isKnownSpaceId(space)) ? space : null;
   const demoState = readDemoState(url.searchParams.get("briefingState"));
 
   const briefing = await buildTeacherBriefing({ spaceFilter, demoState });

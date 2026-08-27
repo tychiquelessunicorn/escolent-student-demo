@@ -61,6 +61,9 @@ function readSpaceId(body: Body): string | undefined {
 function readSpaceFilter(body: Body): string | null {
   const value = body.spaceFilter;
   if (value === "algebra_8a" || value === "remediation_8a") return value;
+  // Dynamic Spaces created via Requirement 9 — accept any non-empty string;
+  // overview grounding filters students by effective spaceId at ask time.
+  if (typeof value === "string" && value.length > 0 && value !== "all") return value;
   return null;
 }
 

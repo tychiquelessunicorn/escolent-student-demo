@@ -4,6 +4,7 @@ import {
   buildMasteryOverview,
   getMasteryOverviewStudent,
 } from "@/lib/mastery-overview-store";
+import { isKnownSpaceId } from "@/lib/space-store";
 
 export const runtime = "nodejs";
 
@@ -13,9 +14,7 @@ export async function GET(request: Request) {
   const studentId = url.searchParams.get("studentId");
 
   const spaceFilter =
-    space && space !== "all" && (space === "algebra_8a" || space === "remediation_8a")
-      ? space
-      : null;
+    space && space !== "all" && (await isKnownSpaceId(space)) ? space : null;
 
   if (studentId) {
     if (!getRosterStudent(studentId)) {
