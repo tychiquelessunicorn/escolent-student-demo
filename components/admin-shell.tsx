@@ -31,6 +31,11 @@ const NAV_ITEMS: {
     href: "/admin/lms-setup",
     match: ["/admin/lms-setup"],
   },
+  {
+    label: "Data",
+    href: "/admin/data-requests",
+    match: ["/admin/data-requests"],
+  },
   { label: "Pilot", soon: true },
   { label: "Users", soon: true },
   { label: "Billing", soon: true },

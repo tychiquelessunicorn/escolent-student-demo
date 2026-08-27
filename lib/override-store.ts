@@ -18,6 +18,7 @@ import { DEMO_SESSION_STAFF_ID } from "@/lib/demo-data/staff";
 import type { MasteryTier } from "@/lib/demo-data/types";
 import { getRedis } from "@/lib/rate-limit";
 import { getEffectiveSpaceId } from "@/lib/space-store";
+import { isStudentDeleted } from "@/lib/student-data-store";
 
 export type OverrideEntryMethod = "structured" | "conversational";
 export type OverrideKind = "mark_mastered" | "reconfirm";
@@ -343,6 +344,7 @@ function composeEffectiveStudent(
 export async function getEffectiveStudent(studentId: string): Promise<RosterStudent | null> {
   const base = getRosterStudent(studentId);
   if (!base) return null;
+  if (await isStudentDeleted(studentId)) return null;
   const state = await readLive(studentId);
   const composed = composeEffectiveStudent(base, state);
   const spaceId = (await getEffectiveSpaceId(studentId)) ?? composed.spaceId;

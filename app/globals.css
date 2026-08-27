@@ -4083,3 +4083,213 @@
   display: grid;
   gap: 0;
 }
+
+.esc-admin-data-screen {
+  padding-bottom: 88px;
+}
+
+.esc-admin-data-section {
+  display: grid;
+  gap: 12px;
+}
+
+.esc-admin-data-export-grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .esc-admin-data-export-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.esc-admin-data-export-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+}
+
+.esc-admin-data-export-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.esc-admin-data-export-meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-data-layout {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 960px) {
+  .esc-admin-data-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.esc-admin-data-field {
+  display: grid;
+  gap: 6px;
+}
+
+.esc-admin-data-form-divider {
+  height: 1px;
+  background: var(--color-staff-border);
+  margin: 8px 0;
+}
+
+.esc-admin-data-routing-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-staff-control);
+  background: var(--color-staff-interactive-subtle);
+  border: 1.5px solid var(--color-staff-interactive-border);
+  font-size: 14px;
+}
+
+.esc-admin-data-success {
+  margin: 0;
+  color: var(--color-staff-interactive);
+  font-size: 14px;
+}
+
+.esc-admin-data-request-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.esc-admin-data-request-row {
+  width: 100%;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-border);
+  background: transparent;
+  cursor: pointer;
+}
+
+.esc-admin-data-request-row-active {
+  border-color: var(--color-staff-interactive-border);
+  background: var(--color-staff-interactive-subtle);
+}
+
+.esc-admin-data-request-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.esc-admin-data-request-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.esc-admin-data-request-meta {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-data-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.esc-admin-data-badge-pending {
+  background: color-mix(in oklch, var(--color-warning) 18%, transparent);
+  color: var(--color-warning);
+}
+
+.esc-admin-data-badge-complete {
+  background: color-mix(in oklch, var(--color-staff-interactive) 16%, transparent);
+  color: var(--color-staff-interactive);
+}
+
+.esc-admin-data-detail {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1.5px solid var(--color-staff-border);
+  display: grid;
+  gap: 10px;
+}
+
+.esc-admin-data-detail-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.esc-admin-data-detail-list {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.esc-admin-data-detail-list div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.esc-admin-data-detail-list dt {
+  margin: 0;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-data-detail-list dd {
+  margin: 0;
+}
+
+.esc-admin-data-detail-note {
+  margin: 0;
+  font-size: 14px;
+}
+
+.esc-admin-data-viewers {
+  padding: 10px 12px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-warning);
+  background: color-mix(in oklch, var(--color-warning) 10%, transparent);
+}
+
+.esc-admin-data-viewers ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+}
+
+.esc-admin-data-demo-note {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.esc-admin-data-demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

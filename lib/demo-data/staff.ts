@@ -12,6 +12,9 @@ export interface StaffMember {
 /** Demo session acts as Sarah unless a future harness overrides this. */
 export const DEMO_SESSION_STAFF_ID = "sarah_mokoena";
 
+/** Harness-only peer admin for data-rights concurrency demos (Req 17.5). */
+export const DEMO_PEER_ADMIN_ID = "demo_peer_admin";
+
 export const STAFF: StaffMember[] = [
   {
     id: "sarah_mokoena",
@@ -38,6 +41,7 @@ export function formatStaffName(
   staffId: string | null | undefined,
   style: "short" | "full" = "short",
 ): string {
+  if (staffId === DEMO_PEER_ADMIN_ID) return "Another administrator";
   const member = getStaffMember(staffId);
   if (!member) return "Unknown staff member";
   return style === "full" ? member.fullName : member.shortName;

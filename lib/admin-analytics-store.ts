@@ -15,8 +15,13 @@ import {
 import { ROSTER } from "@/lib/demo-data/roster";
 import { TIER_STYLE } from "@/lib/demo-data/skills";
 import type { MasteryTier, SessionRecord } from "@/lib/demo-data/types";
-import { listEffectiveStudents } from "@/lib/override-store";
 import { adminBriefingScopeLabel } from "@/lib/admin-briefing-store";
+import {
+  BASELINE_ROSTER_SIZE,
+  listAnalyticsSessionRecords,
+  listAnalyticsTierCells,
+  listExportStudents,
+} from "@/lib/student-data-store";
 
 export type AdminAnalyticsDateRangePreset = "7d" | "14d" | "all";
 
@@ -105,24 +110,19 @@ function sessionInRange(session: SessionRecord, range: AdminAnalyticsDateRange):
   return day >= range.from && day <= range.to;
 }
 
-function collectSessionsInRange(range: AdminAnalyticsDateRange): SessionRecord[] {
-  const sessions: SessionRecord[] = [];
-  for (const student of ROSTER) {
-    for (const session of student.recentSessions) {
-      if (sessionInRange(session, range)) sessions.push(session);
-    }
-  }
-  return sessions;
+async function collectSessionsInRange(range: AdminAnalyticsDateRange): Promise<SessionRecord[]> {
+  const sessions = await listAnalyticsSessionRecords();
+  return sessions.filter((session) => sessionInRange(session, range));
 }
 
-function buildAdoption(range: AdminAnalyticsDateRange): AdminAnalyticsAdoption {
+async function buildAdoption(range: AdminAnalyticsDateRange): Promise<AdminAnalyticsAdoption> {
   const now = Date.now();
-  const students = ROSTER;
+  const students = await listExportStudents();
   const activeStudents = students.filter(
     (student) => now - new Date(student.lastActivityAt).getTime() <= ACTIVE_WINDOW_MS,
   ).length;
 
-  const sessions = collectSessionsInRange(range);
+  const sessions = await collectSessionsInRange(range);
   const totalPracticeProblems = sessions.reduce(
     (sum, session) => sum + session.problemsAttempted,
     0,
@@ -137,7 +137,7 @@ function buildAdoption(range: AdminAnalyticsDateRange): AdminAnalyticsAdoption {
 
   return {
     activeStudents,
-    totalStudents: students.length,
+    totalStudents: BASELINE_ROSTER_SIZE,
     averageSessionDurationMinutes,
     totalPracticeProblems,
     sessionsInRange: sessions.length,
@@ -145,7 +145,7 @@ function buildAdoption(range: AdminAnalyticsDateRange): AdminAnalyticsAdoption {
 }
 
 async function buildMastery(): Promise<AdminAnalyticsMastery> {
-  const students = await listEffectiveStudents(null);
+  const tierCells = await listAnalyticsTierCells();
   const tierCounts: Record<MasteryTier, number> = {
     durable: 0,
     tentative: 0,
@@ -155,14 +155,11 @@ async function buildMastery(): Promise<AdminAnalyticsMastery> {
   };
 
   let durableSkillTotal = 0;
-  let totalSkillCells = 0;
+  let totalSkillCells = tierCells.length;
 
-  for (const student of students) {
-    durableSkillTotal += student.tiers.filter((tier) => tier === "durable").length;
-    for (const tier of student.tiers) {
-      tierCounts[tier] += 1;
-      totalSkillCells += 1;
-    }
+  for (const tier of tierCells) {
+    if (tier === "durable") durableSkillTotal += 1;
+    tierCounts[tier] += 1;
   }
 
   const tierDistribution = TIER_ORDER.map((tier) => ({
@@ -175,9 +172,9 @@ async function buildMastery(): Promise<AdminAnalyticsMastery> {
 
   return {
     averageDurableSkillsPerStudent:
-      students.length === 0
+      BASELINE_ROSTER_SIZE === 0
         ? 0
-        : Math.round((durableSkillTotal / students.length) * 10) / 10,
+        : Math.round((durableSkillTotal / BASELINE_ROSTER_SIZE) * 10) / 10,
     tierDistribution,
     totalSkillCells,
   };
@@ -188,7 +185,7 @@ export async function buildAdminAnalytics(options?: {
 }): Promise<AdminAnalyticsPayload> {
   const preset = options?.dateRange ?? "7d";
   const dateRange = resolveDateRange(preset);
-  const adoption = buildAdoption(dateRange);
+  const adoption = await buildAdoption(dateRange);
   const mastery = await buildMastery();
 
   return {
