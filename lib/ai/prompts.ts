@@ -18,6 +18,10 @@ import {
   briefingAskGroundingLines,
 } from "@/lib/briefing-store";
 import {
+  computeWeeklyDigestMetrics,
+  weeklyDigestGroundingLines,
+} from "@/lib/digest-store";
+import {
   buildTeacherTodaySchedule,
   teacherTodayAskGroundingLines,
 } from "@/lib/teacher-today-store";
@@ -211,6 +215,30 @@ export async function teacherBriefingAskPrompt(
   const dataLines = briefingAskGroundingLines(briefing).join("\n");
 
   return `You are answering a teacher's question about her Daily Briefing, using ONLY these real synthesized briefing items for the current scope. Do not invent reasons, student situations, or flags that are not listed.\n\nScope: ${briefing.scopeLabel}\nBriefing state: ${briefing.state}\n\nBriefing items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the items above. If she asks why a student is flagged, use only items that name that student. If nothing matches, say so plainly rather than inventing an explanation. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+/**
+ * Req 12 — weekly digest body. Delivery is a labeled preview; this prompt
+ * produces real prose from computed metrics (never a fill-in template).
+ */
+export const WEEKLY_DIGEST_SYSTEM = `You write a warm, professional weekly email digest for a grade-8 math teacher summarizing progress across her Spaces. Use ONLY the metrics in the user message. Never invent a statistic, student name, misconception, Space name, or detail that is not present. If a count is zero, say so plainly rather than padding. Respond with ONLY the email body prose — no subject line, no markdown headings, no labels, no emojis.`;
+
+export async function weeklyDigestPrompt(): Promise<string> {
+  const metrics = await computeWeeklyDigestMetrics();
+  const dataLines = weeklyDigestGroundingLines(metrics).join("\n");
+
+  return `Write this week's Teacher digest email body from ONLY the grounding data below.
+
+Grounding data:
+${dataLines}
+
+Requirements:
+- Warm, professional prose a teacher would want to skim on Friday afternoon
+- Cover durable mastery this week, flagged prerequisite gaps, and the most common misconceptions
+- Name Spaces from the list when relevant
+- You may name students only when they appear in the grounding data
+- Do not invent numbers, names, or details absent above
+- 2–4 short paragraphs, plain sentences only`;
 }
 
 /**

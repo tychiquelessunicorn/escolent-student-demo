@@ -285,6 +285,14 @@ export async function listOverrideHistory(studentId: string): Promise<OverrideHi
     .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
 }
 
+/** Full override history (newest-first) — used by weekly digest metrics. */
+export async function listAllOverrideHistory(): Promise<OverrideHistoryEntry[]> {
+  const history = await readAllHistory();
+  return [...history].sort(
+    (a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime(),
+  );
+}
+
 export async function listActiveOverrides(studentId: string): Promise<MasteryOverrideRecord[]> {
   const state = await readLive(studentId);
   if (Object.keys(state.activeBySkill).length === 0) {

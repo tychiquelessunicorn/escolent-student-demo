@@ -3652,6 +3652,63 @@
   color: var(--color-staff-content-secondary);
 }
 
+/* —— Teacher weekly digest / Settings (Req 12) —— */
+
+.esc-digest-screen {
+  max-width: 720px;
+}
+
+.esc-digest-schedule {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 14px;
+  align-items: center;
+  max-width: 360px;
+}
+
+.esc-digest-select,
+.esc-digest-time {
+  width: 100%;
+  max-width: 220px;
+}
+
+.esc-digest-metrics {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-staff-content-primary);
+}
+
+.esc-digest-metrics li + li {
+  margin-top: 6px;
+}
+
+.esc-digest-preview {
+  margin-top: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--color-staff-border);
+  border-radius: var(--radius-staff-card);
+  background: var(--color-staff-surface-raised);
+}
+
+.esc-digest-preview-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-staff-content-muted);
+  margin-bottom: 12px;
+}
+
+.esc-digest-preview-body {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--color-staff-content-primary);
+  white-space: pre-wrap;
+}
+
 .esc-briefing-edge .esc-staff-btn {
   margin-top: 14px;
 }

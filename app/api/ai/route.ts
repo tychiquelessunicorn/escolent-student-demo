@@ -3,6 +3,7 @@ import { MODEL_DEFAULT, complete } from "@/lib/ai/models";
 import {
   ASK_LOOKUP_SYSTEM,
   SPACE_COAUTHOR_SYSTEM,
+  WEEKLY_DIGEST_SYSTEM,
   hintPrompt,
   introPrompt,
   learnAskPrompt,
@@ -16,6 +17,7 @@ import {
   teacherBriefingAskPrompt,
   teacherTodayAskPrompt,
   todayAskPrompt,
+  weeklyDigestPrompt,
   workedLensPrompt,
   type SkillKey,
 } from "@/lib/ai/prompts";
@@ -228,6 +230,18 @@ export async function POST(request: Request) {
           system: ASK_LOOKUP_SYSTEM,
           prompt: await teacherBriefingAskPrompt(question, spaceFilter),
           maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "teacher_weekly_digest": {
+        // Req 12 — real LLM prose grounded in computed metrics. Delivery is
+        // a labeled preview elsewhere; this task never sends email.
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: WEEKLY_DIGEST_SYSTEM,
+          prompt: await weeklyDigestPrompt(),
+          maxTokens: 700,
         });
         return NextResponse.json({ text: sanitizeAiText(text) });
       }

@@ -36,6 +36,11 @@ const NAV_ITEMS: {
     href: "/teacher/escalations",
     match: ["/teacher/escalations"],
   },
+  {
+    label: "Settings",
+    href: "/teacher/settings",
+    match: ["/teacher/settings"],
+  },
 ];
 
 function isActive(pathname: string, match: string[] | undefined) {
