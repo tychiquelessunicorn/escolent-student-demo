@@ -70,7 +70,7 @@ export function TeacherSpaceEditor({
   );
   const [spaceLabels, setSpaceLabels] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const [step, setStep] = useState<"edit" | "confirm">("edit");
+  const [step, setStep] = useState<"edit" | "confirm" | "confirm-delete">("edit");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [coauthorOpen, setCoauthorOpen] = useState(false);
@@ -239,6 +239,29 @@ export function TeacherSpaceEditor({
       router.refresh();
     } catch {
       setError("Could not save Space — try again in a moment.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const removeSpace = async () => {
+    if (mode !== "edit" || !spaceId) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/teacher/spaces/${encodeURIComponent(spaceId)}`, {
+        method: "DELETE",
+      });
+      const data = (await response.json()) as { error?: string };
+      if (!response.ok) {
+        setError(data.error ?? "Could not delete Space.");
+        return;
+      }
+      hapticTap();
+      router.push("/teacher/spaces");
+      router.refresh();
+    } catch {
+      setError("Could not delete Space — try again in a moment.");
     } finally {
       setSubmitting(false);
     }
@@ -473,6 +496,19 @@ export function TeacherSpaceEditor({
           </p>
 
           <div className="esc-spaces-actions">
+            {mode === "edit" ? (
+              <button
+                type="button"
+                className="esc-staff-btn esc-staff-btn-danger esc-spaces-actions-danger"
+                onClick={() => {
+                  hapticTap();
+                  setError(null);
+                  setStep("confirm-delete");
+                }}
+              >
+                Delete Space
+              </button>
+            ) : null}
             <button
               type="button"
               className="esc-staff-btn esc-staff-btn-secondary"
@@ -493,6 +529,36 @@ export function TeacherSpaceEditor({
             </button>
           </div>
         </>
+      ) : step === "confirm-delete" ? (
+        <section className="esc-override-flow">
+          <h2 className="esc-staff-section-label">Confirm Space deletion</h2>
+          <p className="esc-staff-body">
+            Delete <strong>{form.name.trim() || "this Space"}</strong>? This cannot be undone from
+            here.
+          </p>
+          <p className="esc-spaces-hint">
+            Students currently assigned here ({form.studentIds.length}) return to their roster
+            baseline Space. In-progress sessions are not interrupted.
+          </p>
+          <div className="esc-override-flow-actions">
+            <button
+              type="button"
+              className="esc-staff-btn esc-staff-btn-danger"
+              disabled={submitting}
+              onClick={() => void removeSpace()}
+            >
+              {submitting ? "Deleting…" : "Confirm and delete"}
+            </button>
+            <button
+              type="button"
+              className="esc-staff-btn esc-staff-btn-secondary"
+              disabled={submitting}
+              onClick={() => setStep("edit")}
+            >
+              Back
+            </button>
+          </div>
+        </section>
       ) : (
         <section className="esc-override-flow">
           <h2 className="esc-staff-section-label">

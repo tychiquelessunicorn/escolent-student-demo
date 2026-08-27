@@ -2215,6 +2215,17 @@
   background: var(--color-staff-interactive-subtle);
 }
 
+.esc-staff-btn-danger {
+  border: 1px solid var(--color-error);
+  background: var(--color-staff-surface-raised);
+  color: var(--color-error);
+}
+
+.esc-staff-btn-danger:hover {
+  background: oklch(96% 0.02 18);
+  border-color: var(--color-error);
+}
+
 .esc-staff-data-row {
   display: flex;
   align-items: flex-start;
@@ -3597,6 +3608,11 @@
   flex-wrap: wrap;
   gap: 10px;
   justify-content: flex-end;
+  align-items: center;
+}
+
+.esc-spaces-actions-danger {
+  margin-right: auto;
 }
 
 .esc-spaces-coauthor-toggle {
