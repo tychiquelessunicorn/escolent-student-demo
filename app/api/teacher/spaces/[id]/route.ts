@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  deleteSpace,
   getSpace,
   listSpaces,
   listStudentIdsForSpace,
@@ -61,4 +62,13 @@ export async function PUT(request: Request, context: RouteContext) {
     return NextResponse.json({ error: result.error }, { status: result.status });
   }
   return NextResponse.json({ space: result.space });
+}
+
+export async function DELETE(_request: Request, context: RouteContext) {
+  const { id } = await context.params;
+  const result = await deleteSpace(id);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+  return NextResponse.json({ ok: true, space: result.space });
 }

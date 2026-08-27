@@ -399,6 +399,58 @@ export async function updateSpace(
   return { ok: true, space: updated };
 }
 
+/**
+ * Remove a Space from the catalog and clear assignment overrides that pointed
+ * at it so those students fall back to roster baseline.
+ */
+export async function deleteSpace(spaceId: string): Promise<SpaceWriteResult> {
+  const spaces = await readCatalog();
+  const existing = spaces.find((space) => space.id === spaceId);
+  if (!existing) return { ok: false, error: "Space not found", status: 404 };
+
+  await writeCatalog(spaces.filter((space) => space.id !== spaceId));
+
+  const assignments = await readAssignments();
+  let changed = false;
+  for (const [studentId, assignedSpaceId] of Object.entries(assignments)) {
+    if (assignedSpaceId === spaceId) {
+      delete assignments[studentId];
+      changed = true;
+    }
+  }
+  if (changed) await writeAssignments(assignments);
+
+  return { ok: true, space: existing };
+}
+
+/** One-shot purge for leftover manual-test Spaces with gibberish names. */
+export async function purgeGibberishTestSpaces(options?: {
+  namePattern?: RegExp;
+}): Promise<{
+  removed: ManagedTeacherSpace[];
+  restoredStudentIds: string[];
+}> {
+  const pattern = options?.namePattern ?? /^jhfkgkjujn$/i;
+  const spaces = await readCatalog();
+  const targets = spaces.filter(
+    (space) =>
+      pattern.test(space.name.trim()) &&
+      space.id !== "algebra_8a" &&
+      space.id !== "remediation_8a",
+  );
+  const restoredStudentIds: string[] = [];
+
+  for (const target of targets) {
+    const assignments = await readAssignments();
+    for (const [studentId, assignedSpaceId] of Object.entries(assignments)) {
+      if (assignedSpaceId === target.id) restoredStudentIds.push(studentId);
+    }
+    await deleteSpace(target.id);
+  }
+
+  return { removed: targets, restoredStudentIds: [...new Set(restoredStudentIds)] };
+}
+
 export async function buildSpacesListPayload() {
   const spaces = await listSpaces();
   const withCounts = await Promise.all(

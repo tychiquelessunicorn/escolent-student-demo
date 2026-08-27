@@ -399,3 +399,20 @@ export async function buildTeacherBriefing(options: {
     spaces,
   };
 }
+
+/** Flat grounding lines for the Briefing ask box — same items the UI shows. */
+export function briefingAskGroundingLines(briefing: TeacherBriefing): string[] {
+  const lines: string[] = [];
+  const push = (item: BriefingItem, bucket: "attention" | "quiet") => {
+    const students =
+      item.affectedStudents.length > 0
+        ? item.affectedStudents.map((student) => student.fullName).join(", ")
+        : "none named";
+    lines.push(
+      `- [${bucket}] ${item.category} | urgency: ${item.urgency} | space: ${item.spaceLabel} | title: ${item.title} | detail: ${item.detail} | students: ${students}`,
+    );
+  };
+  for (const item of briefing.items) push(item, "attention");
+  for (const item of briefing.lowPriority) push(item, "quiet");
+  return lines;
+}

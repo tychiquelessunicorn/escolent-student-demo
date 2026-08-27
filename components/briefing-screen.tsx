@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { TeacherAskBox } from "@/components/teacher-ask-box";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
 import type { BriefingItem, TeacherBriefing } from "@/lib/briefing-store";
 
@@ -274,6 +275,17 @@ function BriefingInner() {
 
       {initialLoading ? <p className="esc-staff-body">Loading…</p> : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
+
+      {data && !initialLoading && !error ? (
+        <div className="esc-briefing-ask">
+          <TeacherAskBox
+            spaceFilter={spaceFilter === "all" ? null : spaceFilter}
+            task="teacher_briefing_ask"
+            placeholder='Ask the briefing… e.g. "why is Marcus flagged today"'
+            loadingLabel="Checking the briefing…"
+          />
+        </div>
+      ) : null}
 
       {data && !initialLoading && !error ? (
         <div

@@ -13,6 +13,7 @@ import {
   rubricGradePrompt,
   sanitizeAiText,
   spaceCoauthorPrompt,
+  teacherBriefingAskPrompt,
   teacherTodayAskPrompt,
   todayAskPrompt,
   workedLensPrompt,
@@ -213,6 +214,19 @@ export async function POST(request: Request) {
           model: MODEL_DEFAULT,
           system: ASK_LOOKUP_SYSTEM,
           prompt: await teacherTodayAskPrompt(question, spaceFilter),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "teacher_briefing_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const spaceFilter = readSpaceFilter(body);
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await teacherBriefingAskPrompt(question, spaceFilter),
           maxTokens: 500,
         });
         return NextResponse.json({ text: sanitizeAiText(text) });

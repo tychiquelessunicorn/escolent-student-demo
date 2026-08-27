@@ -14,6 +14,10 @@ import {
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
 import { buildMasteryOverview } from "@/lib/mastery-overview-store";
 import {
+  buildTeacherBriefing,
+  briefingAskGroundingLines,
+} from "@/lib/briefing-store";
+import {
   buildTeacherTodaySchedule,
   teacherTodayAskGroundingLines,
 } from "@/lib/teacher-today-store";
@@ -197,6 +201,16 @@ export async function teacherTodayAskPrompt(
   const dataLines = teacherTodayAskGroundingLines(schedule).join("\n");
 
   return `You are answering a teacher's question about what's due across her Spaces, using ONLY this real due-items data (today is ${schedule.todayShortLabel}).\n\nScope: ${schedule.scopeLabel}\n\nDue items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If she asks about a Space like Remediation or Algebra, filter to those items. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function teacherBriefingAskPrompt(
+  question: string,
+  spaceFilter: string | null,
+): Promise<string> {
+  const briefing = await buildTeacherBriefing({ spaceFilter, demoState: "auto" });
+  const dataLines = briefingAskGroundingLines(briefing).join("\n");
+
+  return `You are answering a teacher's question about her Daily Briefing, using ONLY these real synthesized briefing items for the current scope. Do not invent reasons, student situations, or flags that are not listed.\n\nScope: ${briefing.scopeLabel}\nBriefing state: ${briefing.state}\n\nBriefing items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the items above. If she asks why a student is flagged, use only items that name that student. If nothing matches, say so plainly rather than inventing an explanation. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
 /**

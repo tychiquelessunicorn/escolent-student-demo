@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export type TeacherAskTask = "overview_ask" | "teacher_today_ask";
+export type TeacherAskTask = "overview_ask" | "teacher_today_ask" | "teacher_briefing_ask";
 
 export function TeacherAskBox({
   spaceFilter,
