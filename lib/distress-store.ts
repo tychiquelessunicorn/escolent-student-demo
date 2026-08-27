@@ -16,6 +16,7 @@ export const ESCALATION_CAP = 200;
 const SEED_IDS = {
   passiveOpen: "f4e8c2a1-6b3d-4f1a-9c2e-1a2b3c4d5e6f",
   studentViewed: "a9d7e3b2-8c4f-4a2b-b1d0-7e8f9a0b1c2d",
+  agedOpen: "d8e9f0a1-b2c3-4d5e-8f9a-0b1c2d3e4f5a",
   acknowledged: "c1b2a3d4-e5f6-4789-a012-3456789abcde",
 } as const;
 
@@ -162,6 +163,19 @@ export async function seedEscalationsIfEmpty(): Promise<void> {
             viewedAt: hoursAgo(1.5),
           },
         ],
+      },
+      {
+        id: SEED_IDS.agedOpen,
+        createdAt: hoursAgo(26),
+        student: STUDENT.fullName,
+        method: "passive_pattern",
+        surface: "practice_ask",
+        text: "Nothing I try works anymore. I keep getting stuck on the same step.",
+        helpReason: null,
+        classifierFailed: false,
+        acknowledgedBy: null,
+        acknowledgedAt: null,
+        views: [],
       },
       {
         id: SEED_IDS.acknowledged,

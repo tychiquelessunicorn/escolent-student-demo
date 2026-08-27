@@ -46,3 +46,7 @@ export function formatStaffName(
 export function getPrimaryTeacher(): StaffMember {
   return STAFF[0];
 }
+
+export function getPrimaryAdmin(): StaffMember {
+  return STAFF.find((member) => member.role === "admin") ?? STAFF[1];
+}

@@ -22,7 +22,7 @@ const SHELLS: {
   {
     label: "Admin",
     description: "School configuration, roster, and platform settings.",
-    soon: true,
+    href: "/admin/briefing",
   },
   {
     label: "Pedagogical Lead",
