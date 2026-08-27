@@ -10,7 +10,11 @@ const NAV_ITEMS: {
   match?: string[];
   soon?: boolean;
 }[] = [
-  { label: "Briefing", soon: true },
+  {
+    label: "Briefing",
+    href: "/teacher/briefing",
+    match: ["/teacher/briefing"],
+  },
   { label: "Today", soon: true },
   {
     label: "Overview",

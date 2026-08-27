@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MasteryStudentPanel } from "@/components/mastery-student-panel";
 import { TeacherAskBox } from "@/components/teacher-ask-box";
 import type { MasteryOverviewPayload, MasteryOverviewStudent } from "@/lib/mastery-overview-store";
@@ -15,7 +16,13 @@ function freshnessLabel(freshness: MasteryOverviewPayload["rosterFreshness"]): s
   return FRESHNESS_LABELS[freshness] ?? formatFreshnessLabel(freshness);
 }
 
-export function MasteryOverviewScreen() {
+function MasteryOverviewInner() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const studentParam = searchParams.get("student");
+  const fromBriefing = searchParams.get("from") === "briefing-insufficient";
+
   const [spaceFilter, setSpaceFilter] = useState<SpaceFilter>("all");
   const [studentQuery, setStudentQuery] = useState("");
   const [skillFilter, setSkillFilter] = useState("all");
@@ -23,6 +30,30 @@ export function MasteryOverviewScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedStudent, setSelectedStudent] = useState<MasteryOverviewStudent | null>(null);
+
+  const writeStudentParam = useCallback(
+    (studentId: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (studentId) params.set("student", studentId);
+      else params.delete("student");
+      const query = params.toString();
+      router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  const openStudent = useCallback(
+    (student: MasteryOverviewStudent) => {
+      setSelectedStudent(student);
+      writeStudentParam(student.id);
+    },
+    [writeStudentParam],
+  );
+
+  const closeStudent = useCallback(() => {
+    setSelectedStudent(null);
+    writeStudentParam(null);
+  }, [writeStudentParam]);
 
   const refresh = useCallback(async () => {
     try {
@@ -33,10 +64,6 @@ export function MasteryOverviewScreen() {
       const payload = (await response.json()) as MasteryOverviewPayload;
       setData(payload);
       setError(null);
-      setSelectedStudent((current) => {
-        if (!current) return current;
-        return payload.students.find((student) => student.id === current.id) ?? null;
-      });
     } catch {
       setError("Could not load mastery overview right now.");
     } finally {
@@ -51,6 +78,16 @@ export function MasteryOverviewScreen() {
     }, POLL_MS);
     return () => window.clearInterval(timer);
   }, [refresh]);
+
+  useEffect(() => {
+    if (!data) return;
+    if (!studentParam) {
+      setSelectedStudent(null);
+      return;
+    }
+    const found = data.students.find((student) => student.id === studentParam) ?? null;
+    setSelectedStudent(found);
+  }, [data, studentParam]);
 
   const visibleSkills = useMemo(() => {
     if (!data) return [];
@@ -107,6 +144,15 @@ export function MasteryOverviewScreen() {
           ))}
         </div>
       </header>
+
+      {fromBriefing ? (
+        <div className="esc-staff-panel" style={{ marginBottom: 20 }}>
+          <p className="esc-staff-body" style={{ margin: 0 }}>
+            Not enough session data yet for a confident Briefing — Mastery Overview is the
+            right place to start while signal accumulates.
+          </p>
+        </div>
+      ) : null}
 
       <TeacherAskBox spaceFilter={apiSpaceFilter} />
 
@@ -175,7 +221,7 @@ export function MasteryOverviewScreen() {
                       <button
                         type="button"
                         className="esc-mastery-student-button"
-                        onClick={() => setSelectedStudent(student)}
+                        onClick={() => openStudent(student)}
                       >
                         {student.isLive ? (
                           <span className="esc-mastery-live-dot" aria-hidden />
@@ -258,8 +304,16 @@ export function MasteryOverviewScreen() {
       ) : null}
 
       {selectedStudent ? (
-        <MasteryStudentPanel student={selectedStudent} onClose={() => setSelectedStudent(null)} />
+        <MasteryStudentPanel student={selectedStudent} onClose={closeStudent} />
       ) : null}
     </div>
+  );
+}
+
+export function MasteryOverviewScreen() {
+  return (
+    <Suspense fallback={<div className="esc-screen"><p className="esc-staff-body">Loading…</p></div>}>
+      <MasteryOverviewInner />
+    </Suspense>
   );
 }

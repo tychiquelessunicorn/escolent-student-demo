@@ -14,7 +14,7 @@ const SHELLS: {
   {
     label: "Teacher",
     description: "Escalations, briefing, and class oversight for staff.",
-    href: "/teacher/escalations",
+    href: "/teacher/briefing",
   },
   {
     label: "Admin",
