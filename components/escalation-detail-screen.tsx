@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Button, Card, PageHeading, SectionLabel } from "@/components/ui";
+import { useTeacherTour } from "@/components/teacher-tour-provider";
 import {
   DEMO_SESSION_STAFF_ID,
   formatStaffName,
@@ -32,6 +33,7 @@ export function EscalationDetailScreen({ escalationId }: { escalationId: string 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [acknowledging, setAcknowledging] = useState(false);
+  const { active: tourActive } = useTeacherTour();
 
   const load = useCallback(async () => {
     try {
@@ -57,7 +59,8 @@ export function EscalationDetailScreen({ escalationId }: { escalationId: string 
   }, [load]);
 
   useEffect(() => {
-    if (!escalationId) return;
+    // Tour is read-only — do not record a staff view write.
+    if (!escalationId || tourActive) return;
     void fetch(`/api/distress/${escalationId}/view`, { method: "POST" }).then((response) => {
       if (response.ok) {
         void response.json().then((data: { record?: EscalationRecord }) => {
@@ -65,7 +68,7 @@ export function EscalationDetailScreen({ escalationId }: { escalationId: string 
         });
       }
     });
-  }, [escalationId]);
+  }, [escalationId, tourActive]);
 
   const acknowledge = async () => {
     if (!record?.id || record.acknowledgedBy) return;
@@ -117,6 +120,7 @@ export function EscalationDetailScreen({ escalationId }: { escalationId: string 
       </div>
 
       <Card
+        dataTour="teacher-escalation-detail"
         style={{
           padding: "28px 24px",
           borderColor: record.acknowledgedBy

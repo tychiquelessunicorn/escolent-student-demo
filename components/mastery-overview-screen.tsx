@@ -210,7 +210,7 @@ function MasteryOverviewInner() {
 
       {data && !error ? (
         <>
-          <div className="esc-mastery-grid-wrap">
+          <div className="esc-mastery-grid-wrap" data-tour="teacher-overview-grid">
             <table className="esc-mastery-grid">
               <thead>
                 <tr>

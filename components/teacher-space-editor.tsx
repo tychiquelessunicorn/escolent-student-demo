@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { useTeacherTour } from "@/components/teacher-tour-provider";
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
 import { hapticTap } from "@/lib/haptics";
 import type { ManagedTeacherSpace } from "@/lib/space-store";
@@ -77,6 +78,13 @@ export function TeacherSpaceEditor({
   const [coauthorText, setCoauthorText] = useState("");
   const [coauthorLoading, setCoauthorLoading] = useState(false);
   const [coauthorNote, setCoauthorNote] = useState<string | null>(null);
+  const { stage } = useTeacherTour();
+
+  useEffect(() => {
+    if (!stage?.openSpaceCoauthor) return;
+    setCoauthorOpen(true);
+    if (stage.spaceCoauthorText) setCoauthorText(stage.spaceCoauthorText);
+  }, [stage?.openSpaceCoauthor, stage?.spaceCoauthorText]);
 
   useEffect(() => {
     let cancelled = false;
@@ -292,7 +300,10 @@ export function TeacherSpaceEditor({
       {step === "edit" ? (
         <>
           {mode === "create" ? (
-            <section className="esc-spaces-section esc-spaces-coauthor">
+            <section
+              className="esc-spaces-section esc-spaces-coauthor"
+              data-tour="teacher-space-coauthor"
+            >
               <button
                 type="button"
                 className="esc-staff-btn esc-staff-btn-secondary esc-spaces-coauthor-toggle"

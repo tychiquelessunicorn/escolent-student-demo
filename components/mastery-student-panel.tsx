@@ -87,7 +87,10 @@ export function MasteryStudentPanel({
         ) : null}
 
         {flow ? (
-          <section className="esc-mastery-panel-section">
+          <section
+            className="esc-mastery-panel-section"
+            data-tour="teacher-overview-override"
+          >
             <OverrideActionFlow
               studentId={student.id}
               studentName={student.fullName}
@@ -169,7 +172,10 @@ export function MasteryStudentPanel({
         </section>
 
         {student.misconceptions.length > 0 ? (
-          <section className="esc-mastery-panel-section">
+          <section
+            className="esc-mastery-panel-section"
+            data-tour="teacher-overview-misconception"
+          >
             <h3 className="esc-staff-section-label">Misconceptions</h3>
             <ul className="esc-mastery-panel-list">
               {student.misconceptions.map((misc) => (

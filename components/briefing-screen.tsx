@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { TeacherAskBox } from "@/components/teacher-ask-box";
+import { useTeacherTour } from "@/components/teacher-tour-provider";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
 import type { BriefingItem, TeacherBriefing } from "@/lib/briefing-store";
 
@@ -22,13 +23,16 @@ function BriefingItemCard({
   item,
   expanded,
   onToggle,
+  tourExpanded,
 }: {
   item: BriefingItem;
   expanded: boolean;
   onToggle: () => void;
+  tourExpanded?: boolean;
 }) {
   const needsSet = item.affectedStudents.length > 1 && !item.actionRoute;
   const href = item.actionRoute;
+  const tourAttr = tourExpanded ? { "data-tour": "teacher-briefing-expanded" } : {};
 
   const body = (
     <>
@@ -54,6 +58,7 @@ function BriefingItemCard({
   if (needsSet) {
     return (
       <div
+        {...tourAttr}
         className={[
           "esc-briefing-item",
           item.urgency === "urgent" ? "esc-briefing-item-urgent" : "esc-briefing-item-info",
@@ -90,6 +95,7 @@ function BriefingItemCard({
   if (href) {
     return (
       <Link
+        {...tourAttr}
         href={href}
         className={[
           "esc-briefing-item",
@@ -107,6 +113,7 @@ function BriefingItemCard({
 
   return (
     <div
+      {...tourAttr}
       className={[
         "esc-briefing-item",
         item.urgency === "urgent" ? "esc-briefing-item-urgent" : "esc-briefing-item-info",
@@ -122,6 +129,7 @@ function BriefingInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const teacher = getPrimaryTeacher();
+  const { stage } = useTeacherTour();
 
   const spaceParam = searchParams.get("space");
   const briefingStateParam = (searchParams.get("briefingState") as DemoState | null) ?? "auto";
@@ -143,6 +151,15 @@ function BriefingInner() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const tourExpandId = stage?.expandBriefingId ?? null;
+  const effectiveExpandedId = tourExpandId ?? expandedId;
+  const scriptedAsk =
+    stage?.scriptedAsk?.screen === "briefing" ? stage.scriptedAsk : undefined;
+
+  useEffect(() => {
+    if (tourExpandId) setExpandedId(tourExpandId);
+  }, [tourExpandId]);
 
   const writeParams = useCallback(
     (patch: { space?: SpaceFilter; briefingState?: DemoState }) => {
@@ -227,7 +244,12 @@ function BriefingInner() {
           <p className="esc-mastery-scope">{dateLabel}</p>
           <p className="esc-mastery-freshness">{data?.scopeLabel ?? "Loading…"}</p>
         </div>
-        <div className="esc-mastery-space-switch" role="tablist" aria-label="Space filter">
+        <div
+          className="esc-mastery-space-switch"
+          role="tablist"
+          aria-label="Space filter"
+          data-tour="teacher-briefing-space-filter"
+        >
           {[
             { id: "all", label: "All Spaces" },
             ...(data?.spaces ?? []).map((space) => ({
@@ -277,12 +299,13 @@ function BriefingInner() {
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {data && !initialLoading && !error ? (
-        <div className="esc-briefing-ask">
+        <div className="esc-briefing-ask" data-tour="teacher-briefing-ask">
           <TeacherAskBox
             spaceFilter={spaceFilter === "all" ? null : spaceFilter}
             task="teacher_briefing_ask"
             placeholder='Ask the briefing… e.g. "why is Marcus flagged today"'
             loadingLabel="Checking the briefing…"
+            scripted={scriptedAsk}
           />
         </div>
       ) : null}
@@ -324,6 +347,7 @@ function BriefingInner() {
                       item={item}
                       expanded={false}
                       onToggle={() => undefined}
+                      tourExpanded={effectiveExpandedId === item.id}
                     />
                   ))}
                 </div>
@@ -332,14 +356,17 @@ function BriefingInner() {
           ) : null}
 
           {data.state === "populated" ? (
-            <div className="esc-briefing-list">
+            <div className="esc-briefing-list" data-tour="teacher-briefing-list">
               {data.items.map((item) => (
                 <BriefingItemCard
                   key={item.id}
                   item={item}
-                  expanded={expandedId === item.id}
+                  expanded={effectiveExpandedId === item.id}
                   onToggle={() =>
                     setExpandedId((current) => (current === item.id ? null : item.id))
+                  }
+                  tourExpanded={
+                    Boolean(tourExpandId) && effectiveExpandedId === item.id
                   }
                 />
               ))}

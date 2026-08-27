@@ -45,7 +45,9 @@ export const TEACHER_LMS_ITEMS: TeacherLmsScheduleItem[] = [
     title: "Two-step equations quiz — grades due",
     detail: "Canvas grading window closes today.",
     dueMeta: "Grades due today",
-    freshness: "fresh",
+    // Stale on Today so Req 10a.4 and the teacher tour can spotlight a non-fresh
+    // LMS row without waiting for Friday's week cell.
+    freshness: "stale",
     lmsActionLabel: "Grade in Canvas",
   },
   {

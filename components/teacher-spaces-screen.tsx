@@ -54,7 +54,7 @@ export function TeacherSpacesScreen() {
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {!loading && !error ? (
-        <div className="esc-spaces-card-list">
+        <div className="esc-spaces-card-list" data-tour="teacher-spaces-list">
           {spaces.map((space) => (
             <Link
               key={space.id}

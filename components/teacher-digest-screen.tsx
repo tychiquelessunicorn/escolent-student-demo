@@ -126,7 +126,10 @@ export function TeacherDigestScreen() {
 
       {step === "edit" ? (
         <>
-          <section className="esc-spaces-section">
+          <section
+            className="esc-spaces-section"
+            data-tour="teacher-digest-schedule"
+          >
             <h2 className="esc-staff-section-label">Weekly digest schedule</h2>
             <p className="esc-spaces-hint">
               Day and time the digest would go out (Req 12.5). Saved per teacher in Redis — not

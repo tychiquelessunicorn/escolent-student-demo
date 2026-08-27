@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { TeacherAskBox } from "@/components/teacher-ask-box";
+import { useTeacherTour } from "@/components/teacher-tour-provider";
 import { hapticTap } from "@/lib/haptics";
 import type {
   TeacherTodayItem,
@@ -62,7 +63,10 @@ function LmsItem({
 
   if (compact) {
     return (
-      <div className="esc-teacher-today-lms esc-teacher-today-lms-compact">
+      <div
+        className="esc-teacher-today-lms esc-teacher-today-lms-compact"
+        data-tour={freshness === "stale" ? "teacher-today-stale-lms" : undefined}
+      >
         <div className="esc-teacher-today-lms-body">
           <div className="esc-teacher-today-lms-title">{item.title}</div>
         </div>
@@ -73,7 +77,10 @@ function LmsItem({
   }
 
   return (
-    <div className="esc-teacher-today-lms">
+    <div
+      className="esc-teacher-today-lms"
+      data-tour={freshness === "stale" ? "teacher-today-stale-lms" : undefined}
+    >
       <div className="esc-teacher-today-lms-header">
         <div>
           <div className="esc-teacher-today-lms-title">{item.title}</div>
@@ -146,9 +153,11 @@ function EscolentItem({
     .filter(Boolean)
     .join(" ");
 
+  const tourAttr = isCuration ? { "data-tour": "teacher-today-curation" } : {};
+
   if (needsExpand && onToggle) {
     return (
-      <div className={className}>
+      <div className={className} {...tourAttr}>
         <button type="button" className="esc-teacher-today-item-button" onClick={onToggle}>
           {titleBlock}
           <span className="esc-teacher-today-item-hint">
@@ -185,7 +194,11 @@ function EscolentItem({
 
   if (item.actionRoute) {
     return (
-      <Link href={item.actionRoute} className={`${className} esc-teacher-today-item-link esc-pressable`}>
+      <Link
+        href={item.actionRoute}
+        className={`${className} esc-teacher-today-item-link esc-pressable`}
+        {...tourAttr}
+      >
         <div style={{ flex: 1, minWidth: 0 }}>{titleBlock}</div>
         {!compact ? <span className="esc-teacher-today-chevron" aria-hidden>›</span> : (
           <span className="esc-teacher-today-meta">{item.dueMeta}</span>
@@ -194,7 +207,11 @@ function EscolentItem({
     );
   }
 
-  return <div className={className}>{titleBlock}</div>;
+  return (
+    <div className={className} {...tourAttr}>
+      {titleBlock}
+    </div>
+  );
 }
 
 function TodaySections({
@@ -290,6 +307,7 @@ export function TeacherTodayWeek({ view }: { view: "today" | "week" }) {
   const [schedule, setSchedule] = useState<TeacherTodaySchedule | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const { active: tourActive, position, stage } = useTeacherTour();
 
   const load = useCallback(async () => {
     setError(null);
@@ -309,10 +327,21 @@ export function TeacherTodayWeek({ view }: { view: "today" | "week" }) {
     void load();
   }, [load]);
 
+  // Tour opens the curation disclosure so Pedagogical Lead copy is visible.
+  useEffect(() => {
+    if (!tourActive || !schedule) return;
+    if (position?.step.target !== "teacher-today-curation") return;
+    const curation = schedule.items.find((item) => item.kind === "curation_backlog");
+    if (curation) setExpandedId(curation.id);
+  }, [tourActive, position?.step.target, schedule]);
+
   const onToggle = (id: string) => {
     hapticTap();
     setExpandedId((current) => (current === id ? null : id));
   };
+
+  const scriptedAsk =
+    stage?.scriptedAsk?.screen === "today" ? stage.scriptedAsk : undefined;
 
   return (
     <div className="esc-screen esc-teacher-today-screen">
@@ -331,12 +360,13 @@ export function TeacherTodayWeek({ view }: { view: "today" | "week" }) {
         </div>
       </div>
 
-      <div className="esc-teacher-today-ask">
+      <div className="esc-teacher-today-ask" data-tour="teacher-today-ask">
         <TeacherAskBox
           spaceFilter={null}
           task="teacher_today_ask"
           placeholder={`Ask what's due… e.g. "what's due for Grade 8A Remediation this week"`}
           loadingLabel="Checking what’s due…"
+          scripted={scriptedAsk}
         />
       </div>
 
@@ -351,7 +381,9 @@ export function TeacherTodayWeek({ view }: { view: "today" | "week" }) {
       ) : null}
 
       {schedule && view === "week" ? (
-        <WeekSections schedule={schedule} expandedId={expandedId} onToggle={onToggle} />
+        <div data-tour="teacher-week-grid">
+          <WeekSections schedule={schedule} expandedId={expandedId} onToggle={onToggle} />
+        </div>
       ) : null}
     </div>
   );

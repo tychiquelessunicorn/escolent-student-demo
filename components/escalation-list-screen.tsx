@@ -81,7 +81,7 @@ export function EscalationListScreen() {
       ) : null}
 
       {unacknowledged.length > 0 ? (
-        <section style={{ marginBottom: 32 }}>
+        <section style={{ marginBottom: 32 }} data-tour="teacher-escalations-list">
           <SectionLabel>Needs acknowledgment ({unacknowledged.length})</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {unacknowledged.map((record) => (
@@ -92,7 +92,7 @@ export function EscalationListScreen() {
       ) : null}
 
       {records.filter((record) => record.acknowledgedBy).length > 0 ? (
-        <section>
+        <section data-tour={unacknowledged.length === 0 ? "teacher-escalations-list" : undefined}>
           <SectionLabel>Acknowledged</SectionLabel>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {records
