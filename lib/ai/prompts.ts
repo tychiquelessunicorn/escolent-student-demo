@@ -11,6 +11,7 @@ import {
   prerequisiteOf,
   type PracticeProblem,
 } from "@/lib/demo-data";
+import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
 import { buildMasteryOverview } from "@/lib/mastery-overview-store";
 import {
   buildTeacherTodaySchedule,
@@ -196,6 +197,34 @@ export async function teacherTodayAskPrompt(
   const dataLines = teacherTodayAskGroundingLines(schedule).join("\n");
 
   return `You are answering a teacher's question about what's due across her Spaces, using ONLY this real due-items data (today is ${schedule.todayShortLabel}).\n\nScope: ${schedule.scopeLabel}\n\nDue items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If she asks about a Space like Remediation or Algebra, filter to those items. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+/**
+ * Req 9.8 / 31-style co-authoring: plain language → draft skill ids + difficulty
+ * only. Name and description stay manual. Grounded on OVERVIEW_SKILL_COLUMNS.
+ */
+export const SPACE_COAUTHOR_SYSTEM = `You help a teacher draft Space skill boundaries and difficulty from a plain-language description. Suggest only from the skill list in the user message. Never invent skill ids. Respond with ONLY strict JSON — no markdown, no prose.`;
+
+export function spaceCoauthorPrompt(description: string): string {
+  const skillLines = OVERVIEW_SKILL_COLUMNS.map(
+    (skill) => `- ${skill.id}: ${skill.name}`,
+  ).join("\n");
+
+  return `A grade-8 math teacher is creating a practice Space. From her description, suggest which skills from this list to include and a difficulty range (integers 1–5, min ≤ max).
+
+Available skills (use only these ids):
+${skillLines}
+
+Her description: "${description.replace(/"/g, '\\"')}"
+
+Respond with ONLY strict JSON:
+{"skillIds":["s0","s1"],"difficultyMin":1,"difficultyMax":3}
+
+Rules:
+- skillIds must be a non-empty subset of the ids listed above
+- difficultyMin and difficultyMax are integers from 1 to 5 with min ≤ max
+- Do not suggest a name or description
+- Do not invent skills outside the list`;
 }
 
 /**

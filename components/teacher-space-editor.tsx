@@ -73,6 +73,10 @@ export function TeacherSpaceEditor({
   const [step, setStep] = useState<"edit" | "confirm">("edit");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [coauthorOpen, setCoauthorOpen] = useState(false);
+  const [coauthorText, setCoauthorText] = useState("");
+  const [coauthorLoading, setCoauthorLoading] = useState(false);
+  const [coauthorNote, setCoauthorNote] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -155,6 +159,57 @@ export function TeacherSpaceEditor({
     });
   };
 
+  const draftFromPlainLanguage = async () => {
+    const trimmed = coauthorText.trim();
+    if (!trimmed || coauthorLoading) return;
+    setCoauthorLoading(true);
+    setError(null);
+    setCoauthorNote(null);
+    try {
+      const response = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task: "space_coauthor",
+          description: trimmed,
+        }),
+      });
+      const data = (await response.json()) as {
+        includedSkillIds?: string[];
+        difficultyMin?: number;
+        difficultyMax?: number;
+        error?: string;
+      };
+      if (!response.ok) {
+        setError(data.error ?? "Could not draft skills from that description.");
+        return;
+      }
+      if (
+        !Array.isArray(data.includedSkillIds) ||
+        data.includedSkillIds.length === 0 ||
+        typeof data.difficultyMin !== "number" ||
+        typeof data.difficultyMax !== "number"
+      ) {
+        setError("Draft came back empty — try rephrasing.");
+        return;
+      }
+      setForm((current) => ({
+        ...current,
+        includedSkillIds: data.includedSkillIds!,
+        difficultyMin: data.difficultyMin!,
+        difficultyMax: data.difficultyMax!,
+      }));
+      hapticTap();
+      setCoauthorNote(
+        "Skills and difficulty filled from your description — review and adjust below before saving. Name and description stay yours to write.",
+      );
+    } catch {
+      setError("Could not draft skills — try again in a moment.");
+    } finally {
+      setCoauthorLoading(false);
+    }
+  };
+
   const canContinue =
     form.name.trim().length >= 2 &&
     form.description.trim().length >= 1 &&
@@ -206,11 +261,60 @@ export function TeacherSpaceEditor({
         {mode === "create" ? "New Space" : "Edit Space"}
       </h1>
       <p className="esc-spaces-lede">
-        Structured configuration only — plain-language AI co-authoring is a follow-up slice.
+        {mode === "create"
+          ? "Configure skills and difficulty below — or describe the Space in plain language to draft those fields for review."
+          : "Update this Space’s configuration. Changes apply to future sessions only."}
       </p>
 
       {step === "edit" ? (
         <>
+          {mode === "create" ? (
+            <section className="esc-spaces-section esc-spaces-coauthor">
+              <button
+                type="button"
+                className="esc-spaces-coauthor-toggle"
+                aria-expanded={coauthorOpen}
+                onClick={() => {
+                  hapticTap();
+                  setCoauthorOpen((open) => !open);
+                }}
+              >
+                {coauthorOpen ? "Hide plain-language draft" : "Describe in plain language"}
+              </button>
+              {coauthorOpen ? (
+                <div className="esc-spaces-coauthor-panel">
+                  <p className="esc-spaces-hint">
+                    Describe the practice focus. AI suggests skill checkboxes and a difficulty range
+                    only — you still write the name and description, and you review every suggested
+                    value before saving.
+                  </p>
+                  <label className="esc-spaces-label" htmlFor="space-coauthor">
+                    Plain-language description
+                  </label>
+                  <textarea
+                    id="space-coauthor"
+                    className="esc-spaces-textarea"
+                    rows={3}
+                    value={coauthorText}
+                    placeholder='e.g. "Catch-up Space for students still shaky on one-step and two-step equations, keep problems easy to medium"'
+                    onChange={(event) => setCoauthorText(event.target.value)}
+                  />
+                  <div className="esc-spaces-coauthor-actions">
+                    <button
+                      type="button"
+                      className="esc-staff-btn esc-staff-btn-secondary"
+                      disabled={!coauthorText.trim() || coauthorLoading}
+                      onClick={() => void draftFromPlainLanguage()}
+                    >
+                      {coauthorLoading ? "Drafting…" : "Draft skills & difficulty"}
+                    </button>
+                  </div>
+                  {coauthorNote ? <p className="esc-spaces-coauthor-note">{coauthorNote}</p> : null}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
           <section className="esc-spaces-section">
             <label className="esc-spaces-label" htmlFor="space-name">
               Name
@@ -240,7 +344,9 @@ export function TeacherSpaceEditor({
 
           <section className="esc-spaces-section">
             <h2 className="esc-staff-section-label">Skills from the graph</h2>
-            <p className="esc-spaces-hint">Same seven overview skills used elsewhere — select which belong in this Space.</p>
+            <p className="esc-spaces-hint">
+              Same seven overview skills used elsewhere — select which belong in this Space.
+            </p>
             <div className="esc-spaces-skill-grid">
               {skills.map((skill) => {
                 const checked = form.includedSkillIds.includes(skill.id);
@@ -386,7 +492,9 @@ export function TeacherSpaceEditor({
         </>
       ) : (
         <section className="esc-override-flow">
-          <h2 className="esc-staff-section-label">Confirm Space {mode === "create" ? "creation" : "update"}</h2>
+          <h2 className="esc-staff-section-label">
+            Confirm Space {mode === "create" ? "creation" : "update"}
+          </h2>
           <p className="esc-staff-body">
             <strong>{form.name.trim()}</strong> — {form.includedSkillIds.length} skills · difficulty{" "}
             {form.difficultyMin}–{form.difficultyMax} ·{" "}

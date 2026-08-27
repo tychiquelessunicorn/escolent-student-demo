@@ -245,6 +245,50 @@ export type SpaceWriteResult =
   | { ok: true; space: ManagedTeacherSpace }
   | { ok: false; error: string; status: number };
 
+/**
+ * Filter an AI co-author draft to real skill ids and a valid difficulty range.
+ * Unknown skill ids are dropped — never silently accepted.
+ */
+export function sanitizeSpaceCoauthorDraft(raw: {
+  skillIds?: unknown;
+  difficultyMin?: unknown;
+  difficultyMax?: unknown;
+}): {
+  includedSkillIds: string[];
+  difficultyMin: number;
+  difficultyMax: number;
+} | null {
+  const skillIds = Array.isArray(raw.skillIds)
+    ? [
+        ...new Set(
+          raw.skillIds.filter(
+            (id): id is string => typeof id === "string" && OVERVIEW_SKILL_IDS.includes(id),
+          ),
+        ),
+      ]
+    : [];
+  if (skillIds.length === 0) return null;
+
+  let difficultyMin =
+    typeof raw.difficultyMin === "number" && Number.isFinite(raw.difficultyMin)
+      ? Math.round(raw.difficultyMin)
+      : DIFFICULTY_MIN;
+  let difficultyMax =
+    typeof raw.difficultyMax === "number" && Number.isFinite(raw.difficultyMax)
+      ? Math.round(raw.difficultyMax)
+      : DIFFICULTY_MAX;
+
+  difficultyMin = Math.min(DIFFICULTY_MAX, Math.max(DIFFICULTY_MIN, difficultyMin));
+  difficultyMax = Math.min(DIFFICULTY_MAX, Math.max(DIFFICULTY_MIN, difficultyMax));
+  if (difficultyMin > difficultyMax) {
+    const swap = difficultyMin;
+    difficultyMin = difficultyMax;
+    difficultyMax = swap;
+  }
+
+  return { includedSkillIds: skillIds, difficultyMin, difficultyMax };
+}
+
 function validateSpaceInput(input: SpaceInput): string | null {
   const name = input.name.trim();
   if (name.length < 2) return "Name must be at least 2 characters.";

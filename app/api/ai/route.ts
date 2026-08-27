@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { MODEL_DEFAULT, complete } from "@/lib/ai/models";
 import {
   ASK_LOOKUP_SYSTEM,
+  SPACE_COAUTHOR_SYSTEM,
   hintPrompt,
   introPrompt,
   learnAskPrompt,
@@ -11,6 +12,7 @@ import {
   progressAskPrompt,
   rubricGradePrompt,
   sanitizeAiText,
+  spaceCoauthorPrompt,
   teacherTodayAskPrompt,
   todayAskPrompt,
   workedLensPrompt,
@@ -18,6 +20,7 @@ import {
 } from "@/lib/ai/prompts";
 import { checkAiRateLimit, clientIp } from "@/lib/rate-limit";
 import { DEMO_SPACES, VARIABLES_BOTH_SIDES_PROBLEMS } from "@/lib/demo-data";
+import { sanitizeSpaceCoauthorDraft } from "@/lib/space-store";
 
 export const runtime = "nodejs";
 
@@ -213,6 +216,43 @@ export async function POST(request: Request) {
           maxTokens: 500,
         });
         return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "space_coauthor": {
+        // Req 9.8 — draft skill ids + difficulty only. Never invents name/
+        // description; never auto-saves. Unknown skill ids filtered out.
+        const description = readQuestion({ question: body.description });
+        if (!description) return badRequest("Invalid description");
+        const raw = await complete({
+          model: MODEL_DEFAULT,
+          system: SPACE_COAUTHOR_SYSTEM,
+          prompt: spaceCoauthorPrompt(description),
+          maxTokens: 300,
+        });
+        const cleaned = raw
+          .trim()
+          .replace(/^```(json)?/i, "")
+          .replace(/```$/, "")
+          .trim();
+        let parsed: {
+          skillIds?: unknown;
+          difficultyMin?: unknown;
+          difficultyMax?: unknown;
+        };
+        try {
+          parsed = JSON.parse(cleaned) as typeof parsed;
+        } catch {
+          return badRequest("Co-author returned unusable JSON");
+        }
+        const draft = sanitizeSpaceCoauthorDraft(parsed);
+        if (!draft) {
+          return badRequest("Co-author suggested no valid skills from the graph");
+        }
+        return NextResponse.json({
+          includedSkillIds: draft.includedSkillIds,
+          difficultyMin: draft.difficultyMin,
+          difficultyMax: draft.difficultyMax,
+        });
       }
 
       case "today_ask":
