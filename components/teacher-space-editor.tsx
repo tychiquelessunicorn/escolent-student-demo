@@ -272,13 +272,16 @@ export function TeacherSpaceEditor({
             <section className="esc-spaces-section esc-spaces-coauthor">
               <button
                 type="button"
-                className="esc-spaces-coauthor-toggle"
+                className="esc-staff-btn esc-staff-btn-secondary esc-spaces-coauthor-toggle"
                 aria-expanded={coauthorOpen}
                 onClick={() => {
                   hapticTap();
                   setCoauthorOpen((open) => !open);
                 }}
               >
+                <span className="esc-spaces-coauthor-chevron" aria-hidden>
+                  {coauthorOpen ? "▾" : "▸"}
+                </span>
                 {coauthorOpen ? "Hide plain-language draft" : "Describe in plain language"}
               </button>
               {coauthorOpen ? (
