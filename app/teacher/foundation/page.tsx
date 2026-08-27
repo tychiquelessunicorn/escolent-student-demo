@@ -8,8 +8,8 @@ import Link from "next/link";
  * cool neutrals, brand-blue interactive chrome, escalation red reserved for
  * distress status. No decorative illustration.
  *
- * Interactive/accent chroma is raised on this page only (foundation pass),
- * matching Student --color-accent* values as separate --color-staff-* tokens.
+ * Interactive/accent chroma matches Student --color-accent* values as separate
+ * --color-staff-* tokens on :root, so real Teacher screens pick up brand blue.
  */
 export default function TeacherFoundationPage() {
   return (
@@ -100,7 +100,7 @@ export default function TeacherFoundationPage() {
           <h2 className="esc-staff-section-label">Representative components</h2>
           <p className="esc-staff-body" style={{ marginBottom: 14 }}>
             Same staff components as production screens — primary button, secondary, links, and
-            selected chrome should read as blue on this page only until the tokens propagate.
+            selected chrome use the global staff interactive tokens (brand blue).
           </p>
           <div className="esc-staff-stack">
             <div className="esc-staff-panel">

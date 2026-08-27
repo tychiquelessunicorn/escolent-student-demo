@@ -113,8 +113,10 @@
   --color-escalation-fg: oklch(34% 0.14 27);
 
   /*
-    Teacher / staff chrome — cool neutrals. Colour is for status, not vibrancy.
-    Propagate via esc-staff-* utilities; Student tokens stay untouched.
+    Teacher / staff chrome — cool neutrals for structure; interactive chrome
+    matches Student brand blue (same oklch values as --color-accent*, kept as
+    separate staff tokens so the systems can still diverge). Escalation red
+    stays reserved for distress status only.
   */
   --color-staff-surface: oklch(97.5% 0.006 264);
   --color-staff-surface-raised: oklch(99% 0.003 264);
@@ -124,10 +126,10 @@
   --color-staff-content-muted: oklch(58% 0.02 264);
   --color-staff-border: oklch(87% 0.015 264);
   --color-staff-border-subtle: oklch(92% 0.01 264);
-  --color-staff-interactive: oklch(38% 0.04 264);
-  --color-staff-interactive-hover: oklch(28% 0.04 264);
-  --color-staff-interactive-subtle: oklch(95% 0.015 264);
-  --color-staff-interactive-border: oklch(82% 0.025 264);
+  --color-staff-interactive: oklch(48.8% 0.217 264.4);
+  --color-staff-interactive-hover: oklch(40% 0.22 264.4);
+  --color-staff-interactive-subtle: oklch(92% 0.055 264.4);
+  --color-staff-interactive-border: oklch(72% 0.12 264.4);
 
   --text-staff-xs: 11px;
   --text-staff-sm: 13px;
@@ -2022,16 +2024,10 @@
 /* Teacher visual foundation reference — /teacher/foundation */
 .esc-staff-foundation {
   /*
-    Foundation-only chroma pass (same discipline as Student foundation warming):
-    raise interactive tokens to match Student brand blue values, without aliasing
-    to --color-accent* and without changing global :root staff tokens yet.
-    Neutrals and escalation red stay as-is.
+    Interactive tokens now live on :root (propagated after the foundation
+    chroma pass). This page still documents the staff system; overrides are
+    no longer needed here.
   */
-  --color-staff-interactive: oklch(48.8% 0.217 264.4);
-  --color-staff-interactive-hover: oklch(40% 0.22 264.4);
-  --color-staff-interactive-subtle: oklch(92% 0.055 264.4);
-  --color-staff-interactive-border: oklch(72% 0.12 264.4);
-
   min-height: 100vh;
   background: var(--color-staff-surface);
   color: var(--color-staff-content-primary);

@@ -96,9 +96,9 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
               width: 10,
               height: 10,
               borderRadius: 3,
-              background: "var(--color-escalation)",
+              background: "var(--color-staff-interactive)",
               boxShadow:
-                "0 0 0 4px color-mix(in oklch, var(--color-escalation) 22%, transparent)",
+                "0 0 0 4px color-mix(in oklch, var(--color-staff-interactive) 22%, transparent)",
               flexShrink: 0,
             }}
           />
