@@ -22,6 +22,29 @@ export function ShellExitLink({ variant = "student" }: { variant?: "student" | "
       title="Exit to demo home"
       onClick={() => hapticTap()}
     >
+      <svg
+        className="esc-shell-exit-icon"
+        width="14"
+        height="14"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden
+      >
+        <path
+          d="M6.5 3H4.25C3.56 3 3 3.56 3 4.25v7.5C3 12.44 3.56 13 4.25 13H6.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M10 11.5 13.5 8 10 4.5M13.25 8H6.5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
       <span className="esc-shell-exit-label">Exit</span>
     </Link>
   );
