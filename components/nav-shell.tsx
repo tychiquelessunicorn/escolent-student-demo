@@ -12,6 +12,7 @@ import { HELP_REASON_LABELS, type HelpReasonLabel } from "@/lib/distress";
 import { STUDENT_PRACTICE_PATH } from "@/lib/routes";
 import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
+import { ShellExitLink } from "@/components/shell-exit-link";
 
 const NAV_ITEMS: {
   label: string;
@@ -299,6 +300,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
               {headerNote}
             </span>
           ) : null}
+          <ShellExitLink variant="student" />
         </div>
       </header>
 

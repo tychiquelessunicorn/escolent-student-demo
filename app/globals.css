@@ -239,7 +239,7 @@
 .esc-shell-header {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 10px 14px;
   padding: var(--shell-header-y) var(--shell-header-x);
   padding-top: calc(var(--shell-header-y) + env(safe-area-inset-top, 0px));
@@ -260,10 +260,50 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: flex-end;
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
+}
+
+.esc-shell-exit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 8px 14px;
+  border-radius: var(--radius-control);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-raised);
+  color: var(--color-content-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  min-height: 36px;
+  box-sizing: border-box;
+}
+
+.esc-shell-exit:hover {
+  border-color: color-mix(in oklch, var(--color-accent) 35%, var(--color-border));
+  color: var(--color-accent-strong);
+}
+
+.esc-shell-exit-staff {
+  border-radius: var(--radius-staff-control);
+  border-color: var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+  color: var(--color-staff-content-secondary);
+  padding: 7px 12px;
+  min-height: 34px;
+}
+
+.esc-shell-exit-staff:hover {
+  border-color: var(--color-staff-interactive-border);
+  background: var(--color-staff-interactive-subtle);
+  color: var(--color-staff-interactive);
 }
 
 .esc-help-menu {
@@ -512,10 +552,16 @@
     flex-shrink: 0;
     justify-content: flex-end;
     margin-left: auto;
+    gap: 8px;
   }
 
   .esc-help-trigger {
     flex-shrink: 0;
+  }
+
+  .esc-shell-exit {
+    padding: 7px 11px;
+    min-height: 34px;
   }
 
   .esc-help-menu-panel {
@@ -615,6 +661,12 @@
 
   .esc-shell-header-brand {
     gap: 8px;
+  }
+
+  .esc-shell-exit {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
   }
 
   .esc-illust-header {
@@ -1763,6 +1815,7 @@
 
 .esc-staff-shell .esc-shell-header {
   border-bottom: 1.5px solid var(--color-staff-border);
+  flex-wrap: nowrap;
 }
 
 .esc-staff-shell #app-rail {

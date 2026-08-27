@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
+import { ShellExitLink } from "@/components/shell-exit-link";
 
 const NAV_ITEMS: {
   label: string;
@@ -85,6 +86,9 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
           >
             Teacher · {teacher.shortName}
           </span>
+        </div>
+        <div className="esc-shell-header-actions">
+          <ShellExitLink variant="staff" />
         </div>
       </header>
 
