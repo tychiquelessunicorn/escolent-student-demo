@@ -304,6 +304,10 @@
   color: var(--color-staff-interactive);
 }
 
+.esc-shell-settings-active {
+  color: var(--color-staff-interactive);
+}
+
 .esc-help-menu {
   position: relative;
 }

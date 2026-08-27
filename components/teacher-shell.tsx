@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
 import { ShellExitLink } from "@/components/shell-exit-link";
+import { hapticTap } from "@/lib/haptics";
 
 const NAV_ITEMS: {
   label: string;
@@ -36,16 +37,49 @@ const NAV_ITEMS: {
     href: "/teacher/escalations",
     match: ["/teacher/escalations"],
   },
-  {
-    label: "Settings",
-    href: "/teacher/settings",
-    match: ["/teacher/settings"],
-  },
 ];
 
 function isActive(pathname: string, match: string[] | undefined) {
   if (!match) return false;
   return match.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
+function TeacherSettingsLink({ active }: { active: boolean }) {
+  return (
+    <Link
+      href="/teacher/settings"
+      className={[
+        "esc-shell-exit",
+        "esc-shell-exit-staff",
+        "esc-pressable",
+        active ? "esc-shell-settings-active" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      aria-label="Settings — weekly digest"
+      title="Settings"
+      aria-current={active ? "page" : undefined}
+      onClick={() => hapticTap()}
+    >
+      <svg
+        className="esc-shell-exit-icon"
+        width="14"
+        height="14"
+        viewBox="0 0 16 16"
+        fill="none"
+        aria-hidden
+      >
+        <path
+          d="M6.4 2.2h3.2l.35 1.55a4.8 4.8 0 0 1 1.15.67l1.55-.5 1.6 2.77-1.2 1.1c.08.35.12.7.12 1.06s-.04.71-.12 1.06l1.2 1.1-1.6 2.77-1.55-.5a4.8 4.8 0 0 1-1.15.67L9.6 13.8H6.4l-.35-1.55a4.8 4.8 0 0 1-1.15-.67l-1.55.5L1.75 9.3l1.2-1.1A4.9 4.9 0 0 1 2.83 7.1c0-.36.04-.71.12-1.06l-1.2-1.1 1.6-2.77 1.55.5c.35-.27.73-.5 1.15-.67L6.4 2.2Z"
+          stroke="currentColor"
+          strokeWidth="1.35"
+          strokeLinejoin="round"
+        />
+        <circle cx="8" cy="8" r="2.1" stroke="currentColor" strokeWidth="1.35" />
+      </svg>
+      <span className="esc-shell-exit-label">Settings</span>
+    </Link>
+  );
 }
 
 export function TeacherShell({ children }: { children: React.ReactNode }) {
@@ -102,6 +136,7 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
           </span>
         </div>
         <div className="esc-shell-header-actions">
+          <TeacherSettingsLink active={pathname.startsWith("/teacher/settings")} />
           <ShellExitLink variant="staff" />
         </div>
       </header>
