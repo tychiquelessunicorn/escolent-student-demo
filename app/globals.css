@@ -2370,7 +2370,7 @@
 .esc-mastery-space-tab-active {
   background: var(--color-staff-surface-raised);
   color: var(--color-staff-interactive);
-  box-shadow: 0 1px 0 oklch(22% 0.02 264 / 0.04);
+  box-shadow: 0 1px 0 color-mix(in oklch, var(--color-staff-content-primary) 4%, transparent);
 }
 
 .esc-mastery-ask {
@@ -2591,7 +2591,7 @@
 }
 
 .esc-mastery-cell-override {
-  box-shadow: inset 0 0 0 2px oklch(78% 0.09 264);
+  box-shadow: inset 0 0 0 2px var(--color-staff-interactive-border);
 }
 
 .esc-mastery-sidecards {
@@ -2645,8 +2645,8 @@
   font-weight: 700;
   padding: 3px 9px;
   border-radius: 999px;
-  background: oklch(94% 0.03 264);
-  color: oklch(38% 0.12 264);
+  background: var(--color-staff-interactive-subtle);
+  color: var(--color-staff-interactive);
   white-space: nowrap;
 }
 
@@ -2660,7 +2660,7 @@
 .esc-mastery-panel-backdrop {
   position: fixed;
   inset: 0;
-  background: oklch(22% 0.02 264 / 0.28);
+  background: color-mix(in oklch, var(--color-staff-content-primary) 28%, transparent);
   z-index: 50;
   display: flex;
   justify-content: flex-end;
