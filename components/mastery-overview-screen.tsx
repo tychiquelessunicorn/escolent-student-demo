@@ -22,6 +22,8 @@ function MasteryOverviewInner() {
   const searchParams = useSearchParams();
   const studentParam = searchParams.get("student");
   const fromBriefing = searchParams.get("from") === "briefing-insufficient";
+  const overrideSkillParam = searchParams.get("overrideSkill");
+  const overrideModeParam = searchParams.get("overrideMode");
 
   const [spaceFilter, setSpaceFilter] = useState<SpaceFilter>("all");
   const [studentQuery, setStudentQuery] = useState("");
@@ -32,10 +34,14 @@ function MasteryOverviewInner() {
   const [selectedStudent, setSelectedStudent] = useState<MasteryOverviewStudent | null>(null);
 
   const writeStudentParam = useCallback(
-    (studentId: string | null) => {
+    (studentId: string | null, override?: { skillId?: string | null; mode?: string | null }) => {
       const params = new URLSearchParams(searchParams.toString());
       if (studentId) params.set("student", studentId);
       else params.delete("student");
+      if (override?.skillId) params.set("overrideSkill", override.skillId);
+      else params.delete("overrideSkill");
+      if (override?.mode) params.set("overrideMode", override.mode);
+      else params.delete("overrideMode");
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
@@ -304,7 +310,16 @@ function MasteryOverviewInner() {
       ) : null}
 
       {selectedStudent ? (
-        <MasteryStudentPanel student={selectedStudent} onClose={closeStudent} />
+        <MasteryStudentPanel
+          student={selectedStudent}
+          onClose={closeStudent}
+          onChanged={() => {
+            void refresh();
+            writeStudentParam(selectedStudent.id);
+          }}
+          initialOverrideSkillId={overrideSkillParam}
+          initialOverrideMode={overrideModeParam === "revisit" ? "revisit" : overrideSkillParam ? "mark" : null}
+        />
       ) : null}
     </div>
   );

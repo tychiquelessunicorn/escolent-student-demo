@@ -3,13 +3,19 @@ import {
   ROSTER_LMS_FRESHNESS,
   type RosterStudent,
   misconceptionsForStudent,
-  rosterStudentsForSpace,
 } from "@/lib/demo-data/roster";
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
 import { TEACHER_SPACES, teacherSpaceScopeLabel, getTeacherSpace } from "@/lib/demo-data/teacher-spaces";
 import type { MasteryTier } from "@/lib/demo-data/types";
 import { TIER_FILL_PCT } from "@/lib/mastery-overview-labels";
 import { TIER_STYLE } from "@/lib/demo-data/skills";
+import {
+  getEffectiveStudent,
+  listActiveOverrides,
+  listEffectiveStudents,
+  listOverrideHistory,
+  type OverrideHistoryEntry,
+} from "@/lib/override-store";
 
 export interface MasteryCell {
   skillId: string;
@@ -34,7 +40,10 @@ export interface MasteryOverviewStudent {
   cells: MasteryCell[];
   flaggedSkillIds: string[];
   misconceptions: RosterStudent["misconceptions"];
+  /** Primary/oldest active override — Briefing revisit compatibility. */
   override: RosterStudent["override"];
+  activeOverrides: NonNullable<RosterStudent["override"]>[];
+  overrideHistory: OverrideHistoryEntry[];
   recentSessions: RosterStudent["recentSessions"];
   escalationNote: string | null;
 }
@@ -56,7 +65,7 @@ function buildCell(student: RosterStudent, skillId: string, tier: MasteryTier): 
   const column = OVERVIEW_SKILL_COLUMNS.find((skill) => skill.id === skillId);
   const style = TIER_STYLE[tier];
   const isGap = student.flaggedSkillIds.includes(skillId);
-  const isOverride = student.override?.skillId === skillId;
+  const isOverride = listActiveOverrides(student.id).some((entry) => entry.skillId === skillId);
   return {
     skillId,
     skillName: column?.name ?? skillId,
@@ -110,27 +119,31 @@ function applyLiveOverlay(students: RosterStudent[]): RosterStudent[] {
   });
 }
 
+function toOverviewStudent(student: RosterStudent): MasteryOverviewStudent {
+  const space = getTeacherSpace(student.spaceId);
+  return {
+    id: student.id,
+    fullName: student.fullName,
+    spaceId: student.spaceId,
+    spaceShort: space?.shortName ?? student.spaceId,
+    activityLabel: student.activityLabel,
+    isLive: student.isLive,
+    cells: OVERVIEW_SKILL_COLUMNS.map((skill, index) =>
+      buildCell(student, skill.id, student.tiers[index] ?? "not_attempted"),
+    ),
+    flaggedSkillIds: student.flaggedSkillIds,
+    misconceptions: misconceptionsForStudent(student),
+    override: student.override,
+    activeOverrides: listActiveOverrides(student.id),
+    overrideHistory: listOverrideHistory(student.id),
+    recentSessions: student.recentSessions,
+    escalationNote: student.escalationNote,
+  };
+}
+
 export function buildMasteryOverview(spaceFilter: string | null): MasteryOverviewPayload {
-  const filtered = applyLiveOverlay(rosterStudentsForSpace(spaceFilter));
-  const students: MasteryOverviewStudent[] = filtered.map((student) => {
-    const space = getTeacherSpace(student.spaceId);
-    return {
-      id: student.id,
-      fullName: student.fullName,
-      spaceId: student.spaceId,
-      spaceShort: space?.shortName ?? student.spaceId,
-      activityLabel: student.activityLabel,
-      isLive: student.isLive,
-      cells: OVERVIEW_SKILL_COLUMNS.map((skill, index) =>
-        buildCell(student, skill.id, student.tiers[index] ?? "not_attempted"),
-      ),
-      flaggedSkillIds: student.flaggedSkillIds,
-      misconceptions: misconceptionsForStudent(student),
-      override: student.override,
-      recentSessions: student.recentSessions,
-      escalationNote: student.escalationNote,
-    };
-  });
+  const filtered = applyLiveOverlay(listEffectiveStudents(spaceFilter));
+  const students = filtered.map(toOverviewStudent);
 
   const legend = (Object.keys(TIER_STYLE) as MasteryTier[]).map((tier) => ({
     tier,
@@ -164,4 +177,10 @@ export function getMasteryOverviewStudent(
 ): MasteryOverviewStudent | null {
   const overview = buildMasteryOverview(spaceFilter);
   return overview.students.find((student) => student.id === studentId) ?? null;
+}
+
+export function getEffectiveOverviewStudent(studentId: string): MasteryOverviewStudent | null {
+  const student = getEffectiveStudent(studentId);
+  if (!student) return null;
+  return toOverviewStudent(student);
 }

@@ -5,15 +5,14 @@
 
 import {
   OVERVIEW_MISCONCEPTION_AGGREGATES,
-  ROSTER,
   getRosterStudent,
   type RosterStudent,
-  rosterStudentsForSpace,
 } from "@/lib/demo-data/roster";
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
 import { getTeacherSpace, teacherSpaceScopeLabel } from "@/lib/demo-data/teacher-spaces";
 import type { EscalationRecord } from "@/lib/distress";
 import { listEscalations, seedEscalationsIfEmpty } from "@/lib/distress-store";
+import { getEffectiveStudent, listEffectiveStudents } from "@/lib/override-store";
 
 export type BriefingState =
   | "populated"
@@ -90,7 +89,7 @@ function toAffected(students: RosterStudent[]): BriefingAffectedStudent[] {
 }
 
 function matchRosterByName(fullName: string): RosterStudent | null {
-  return ROSTER.find((student) => student.fullName === fullName) ?? null;
+  return listEffectiveStudents(null).find((student) => student.fullName === fullName) ?? null;
 }
 
 function buildEscalationItems(
@@ -133,7 +132,7 @@ function buildMisconceptionItems(spaceFilter: string | null): BriefingItem[] {
 
   for (const aggregate of OVERVIEW_MISCONCEPTION_AGGREGATES) {
     const students = aggregate.studentIds
-      .map((id) => getRosterStudent(id))
+      .map((id) => getEffectiveStudent(id) ?? getRosterStudent(id))
       .filter((student): student is RosterStudent => Boolean(student))
       .filter((student) => !spaceFilter || student.spaceId === spaceFilter);
 
@@ -167,7 +166,7 @@ function buildMisconceptionItems(spaceFilter: string | null): BriefingItem[] {
 }
 
 function buildStrugglingItems(spaceFilter: string | null): BriefingItem[] {
-  const roster = rosterStudentsForSpace(spaceFilter);
+  const roster = listEffectiveStudents(spaceFilter);
   const groups = new Map<string, { skillId: string; spaceId: string; students: RosterStudent[] }>();
 
   for (const student of roster) {
@@ -220,7 +219,7 @@ function buildOverrideItems(spaceFilter: string | null): BriefingItem[] {
   const now = Date.now();
   const items: BriefingItem[] = [];
 
-  for (const student of rosterStudentsForSpace(spaceFilter)) {
+  for (const student of listEffectiveStudents(spaceFilter)) {
     if (!student.override) continue;
     const ageMs = now - new Date(student.override.appliedAt).getTime();
     if (!Number.isFinite(ageMs) || ageMs < OVERRIDE_REVISIT_DAYS * MS_PER_DAY) continue;
@@ -234,7 +233,7 @@ function buildOverrideItems(spaceFilter: string | null): BriefingItem[] {
       spaceLabel: spaceLabel(student.spaceId),
       title: `${student.fullName}'s override is due for a check.`,
       detail: `${skillName(student.override.skillId)} — overridden ${days} days ago. Confirm or reassess.`,
-      actionRoute: studentHref(student.id),
+      actionRoute: `/teacher/overview?student=${encodeURIComponent(student.id)}&overrideSkill=${encodeURIComponent(student.override.skillId)}&overrideMode=revisit`,
       affectedStudents: toAffected([student]),
     });
   }
@@ -244,7 +243,7 @@ function buildOverrideItems(spaceFilter: string | null): BriefingItem[] {
 
 function buildLowPriority(spaceFilter: string | null): BriefingItem[] {
   // Soft signal for all_clear: someone tentative on a mid-unit skill, not urgent.
-  const candidates = rosterStudentsForSpace(spaceFilter).filter((student) => {
+  const candidates = listEffectiveStudents(spaceFilter).filter((student) => {
     const multiStep = student.tiers[4];
     return multiStep === "emerging" || multiStep === "tentative";
   });
