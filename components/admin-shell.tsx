@@ -16,7 +16,11 @@ const NAV_ITEMS: {
     href: "/admin/briefing",
     match: ["/admin/briefing", "/admin"],
   },
-  { label: "Today", soon: true },
+  {
+    label: "Today",
+    href: "/admin/today",
+    match: ["/admin/today", "/admin/week"],
+  },
   {
     label: "Analytics",
     href: "/admin/analytics",

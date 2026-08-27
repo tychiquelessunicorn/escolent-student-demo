@@ -3931,3 +3931,14 @@
   padding-top: 24px;
   border-top: 1.5px solid var(--color-staff-border);
 }
+
+.esc-admin-today-week-note {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-staff-content-secondary);
+  border: 1.5px solid var(--color-staff-border);
+  border-radius: var(--radius-staff-shell);
+  background: var(--color-staff-surface-sunken);
+}

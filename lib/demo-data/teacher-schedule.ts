@@ -160,6 +160,11 @@ export function unmatchedEntriesForSpace(
   return UNMATCHED_ERROR_ENTRIES.filter((entry) => entry.spaceId === spaceFilter);
 }
 
+/** School-wide curation backlog — all unmatched errors across every Space. */
+export function unmatchedEntriesSchoolWide(): UnmatchedErrorEntry[] {
+  return UNMATCHED_ERROR_ENTRIES;
+}
+
 export function teacherLmsItemsForSpace(
   spaceFilter: string | null,
 ): TeacherLmsScheduleItem[] {
