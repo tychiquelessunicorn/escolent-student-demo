@@ -4644,3 +4644,240 @@
   font-size: 14px;
   z-index: 20;
 }
+
+.esc-admin-pilot-screen {
+  max-width: 920px;
+}
+
+.esc-admin-pilot-demo-note {
+  margin-bottom: 12px;
+}
+
+.esc-admin-pilot-section {
+  display: grid;
+  gap: 12px;
+}
+
+.esc-admin-pilot-space-list,
+.esc-admin-pilot-staff-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.esc-admin-pilot-space-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+}
+
+.esc-admin-pilot-space-main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.esc-admin-pilot-space-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.esc-admin-pilot-space-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.esc-admin-pilot-space-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 5px;
+}
+
+.esc-admin-pilot-space-status-on {
+  color: oklch(40% 0.1 150);
+  background: color-mix(in oklch, oklch(40% 0.1 150) 12%, transparent);
+}
+
+.esc-admin-pilot-space-status-off {
+  color: oklch(48% 0.12 25);
+  background: color-mix(in oklch, oklch(48% 0.12 25) 12%, transparent);
+}
+
+.esc-admin-pilot-space-meta {
+  margin: 0;
+  font-size: 13px;
+}
+
+.esc-admin-pilot-space-enforcement {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-pilot-staff-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-border);
+}
+
+.esc-admin-pilot-staff-main {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.esc-admin-pilot-staff-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.esc-admin-pilot-staff-email {
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-pilot-staff-role {
+  font-size: 13px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-pilot-day21 {
+  display: grid;
+  gap: 12px;
+}
+
+.esc-admin-pilot-day21-mode {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-pilot-day21-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.esc-admin-pilot-day21-metrics div {
+  padding: 12px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+}
+
+.esc-admin-pilot-day21-metrics dt {
+  margin: 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-pilot-day21-metrics dd {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.esc-admin-pilot-day21-lines {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.esc-admin-pilot-notes {
+  border-style: dashed;
+}
+
+.esc-student-access-gate {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: var(--color-surface-base);
+}
+
+.esc-student-access-gate-status {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-content-secondary);
+}
+
+.esc-student-access-gate-card {
+  max-width: 420px;
+  width: 100%;
+  padding: 28px 24px;
+  border-radius: 16px;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-soft);
+  display: grid;
+  gap: 10px;
+  text-align: center;
+}
+
+.esc-student-access-gate-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-area-practice-fg);
+}
+
+.esc-student-access-gate-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.esc-student-access-gate-space {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-content-secondary);
+}
+
+.esc-student-access-gate-message {
+  margin: 8px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-content-primary);
+}
+
+.esc-student-access-gate-link {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-interactive);
+  text-decoration: none;
+}
+
+.esc-student-access-gate-link:hover {
+  text-decoration: underline;
+}

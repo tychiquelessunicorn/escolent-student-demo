@@ -36,7 +36,11 @@ const NAV_ITEMS: {
     href: "/admin/data-requests",
     match: ["/admin/data-requests"],
   },
-  { label: "Pilot", soon: true },
+  {
+    label: "Pilot",
+    href: "/admin/pilot",
+    match: ["/admin/pilot"],
+  },
   {
     label: "Users",
     href: "/admin/users",

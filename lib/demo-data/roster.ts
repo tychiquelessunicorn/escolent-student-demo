@@ -1,6 +1,9 @@
 import type { MasteryTier, SessionRecord, SyncFreshness } from "./types";
 import { OVERVIEW_SKILL_IDS } from "./overview-skills";
 
+/** Demo session acts as Mia unless a future harness overrides this. */
+export const DEMO_SESSION_STUDENT_ID = "mia_ndlovu";
+
 export interface StudentMisconception {
   skillId: string;
   skillName: string;

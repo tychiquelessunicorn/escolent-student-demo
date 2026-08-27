@@ -3,6 +3,7 @@ import { DemoPanel } from "@/components/demo-panel";
 import { DistressProvider } from "@/components/distress-provider";
 import { NavShell } from "@/components/nav-shell";
 import { ShellStateProvider } from "@/components/shell-context";
+import { StudentAccessGate } from "@/components/student-access-gate";
 import { TourOverlay } from "@/components/tour-overlay";
 import { TourProvider } from "@/components/tour-provider";
 
@@ -21,8 +22,10 @@ export default function StudentLayout({
           system and shares nothing with it.
         */}
         <TourProvider>
-          <NavShell>{children}</NavShell>
-          <TourOverlay />
+          <StudentAccessGate>
+            <NavShell>{children}</NavShell>
+            <TourOverlay />
+          </StudentAccessGate>
         </TourProvider>
         <Suspense fallback={null}>
           <DemoPanel />
