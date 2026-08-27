@@ -4293,3 +4293,145 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.esc-admin-billing-screen {
+  padding-bottom: 88px;
+}
+
+.esc-admin-billing-summary {
+  display: grid;
+  gap: 16px;
+}
+
+.esc-admin-billing-metrics {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 760px) {
+  .esc-admin-billing-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.esc-admin-billing-metric {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+}
+
+.esc-admin-billing-metric-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-billing-metric-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.esc-admin-billing-metric-sub {
+  font-size: 12px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-billing-ask {
+  margin-top: 24px;
+}
+
+.esc-admin-billing-ask-note {
+  margin: 0 0 12px;
+  font-size: 14px;
+}
+
+.esc-admin-billing-plan-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.esc-admin-billing-plan-current {
+  color: var(--color-staff-interactive);
+}
+
+.esc-admin-billing-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.esc-admin-billing-panel-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.esc-admin-billing-change-review {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius-staff-control);
+  border: 1.5px solid var(--color-staff-interactive-border);
+  background: var(--color-staff-interactive-subtle);
+}
+
+.esc-admin-billing-change-heading {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.esc-admin-billing-change-list {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.esc-admin-billing-change-list div {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.esc-admin-billing-change-list dt {
+  margin: 0;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-billing-change-list dd {
+  margin: 0;
+}
+
+.esc-admin-billing-field {
+  display: grid;
+  gap: 6px;
+}
+
+.esc-admin-billing-change-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.esc-admin-billing-delta {
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-billing-badge {
+  color: oklch(48% 0.09 230);
+}
+
+.esc-teacher-today-item-billing {
+  border-left-color: oklch(53% 0.09 230);
+}

@@ -8,6 +8,7 @@ import type { LmsIntegrationStatusPayload } from "@/lib/lms-integration-store";
 
 const KIND_LABEL: Record<AdminTodayItem["kind"], string> = {
   escalation_backlog: "Escalation backlog",
+  billing_event: "Billing",
   curation_backlog: "Curation backlog",
 };
 
@@ -45,6 +46,7 @@ function AdminTodayItemCard({
   onToggle?: () => void;
 }) {
   const isEscalation = item.kind === "escalation_backlog";
+  const isBilling = item.kind === "billing_event";
   const isCuration = item.kind === "curation_backlog";
   const needsExpand = isCuration && (item.unmatchedEntries?.length ?? 0) > 0;
 
@@ -55,7 +57,9 @@ function AdminTodayItemCard({
           "esc-briefing-badge",
           isEscalation
             ? "esc-briefing-badge-urgent esc-briefing-badge-escalation"
-            : "esc-briefing-badge-info",
+            : isBilling
+              ? "esc-briefing-badge-info esc-admin-billing-badge"
+              : "esc-briefing-badge-info",
         ].join(" ")}
       >
         {KIND_LABEL[item.kind]}
@@ -76,6 +80,7 @@ function AdminTodayItemCard({
   const className = [
     "esc-teacher-today-item",
     isEscalation ? "esc-teacher-today-item-escalation" : "",
+    isBilling ? "esc-teacher-today-item-billing" : "",
     isCuration ? "esc-teacher-today-item-curation" : "",
   ]
     .filter(Boolean)

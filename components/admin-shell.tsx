@@ -38,7 +38,11 @@ const NAV_ITEMS: {
   },
   { label: "Pilot", soon: true },
   { label: "Users", soon: true },
-  { label: "Billing", soon: true },
+  {
+    label: "Billing",
+    href: "/admin/billing",
+    match: ["/admin/billing"],
+  },
 ];
 
 function isActive(pathname: string, match: string[] | undefined) {

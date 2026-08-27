@@ -23,6 +23,10 @@ import {
   type AdminAnalyticsDateRangePreset,
 } from "@/lib/admin-analytics-store";
 import {
+  adminBillingAskGroundingLines,
+  getAdminBillingSnapshot,
+} from "@/lib/admin-billing-store";
+import {
   computeWeeklyDigestMetrics,
   weeklyDigestGroundingLines,
 } from "@/lib/digest-store";
@@ -230,6 +234,13 @@ export async function adminAnalyticsAskPrompt(
   const dataLines = adminAnalyticsAskGroundingLines(analytics).join("\n");
 
   return `You are answering an Admin's question about school-wide pilot analytics, using ONLY these real computed metrics. Do not invent adoption numbers, mastery counts, student names, or trends absent from the data.\n\nMetrics:\n${dataLines}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the metrics above. If they ask about a teacher, class, or metric not present in the data, say plainly that the data does not include it. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminBillingAskPrompt(question: string): Promise<string> {
+  const billing = await getAdminBillingSnapshot();
+  const dataLines = adminBillingAskGroundingLines(billing).join("\n");
+
+  return `You are answering an Admin's question about the school's Escolent subscription billing, using ONLY these real billing fields. Do not invent plan prices, seat counts, renewal dates, or dollar amounts absent from the data. If they ask to change the plan, say plainly that plan changes must use the structured form on the Billing page — you cannot change plans from this ask box.\n\nBilling data:\n${dataLines}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the billing data above. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
 /**

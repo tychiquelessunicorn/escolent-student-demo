@@ -15,6 +15,7 @@ import {
   sanitizeAiText,
   spaceCoauthorPrompt,
   adminAnalyticsAskPrompt,
+  adminBillingAskPrompt,
   teacherBriefingAskPrompt,
   teacherTodayAskPrompt,
   todayAskPrompt,
@@ -245,6 +246,18 @@ export async function POST(request: Request) {
           model: MODEL_DEFAULT,
           system: ASK_LOOKUP_SYSTEM,
           prompt: await adminAnalyticsAskPrompt(question, dateRange),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_billing_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminBillingAskPrompt(question),
           maxTokens: 500,
         });
         return NextResponse.json({ text: sanitizeAiText(text) });

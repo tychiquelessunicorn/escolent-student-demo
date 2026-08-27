@@ -1,10 +1,11 @@
 /**
  * Admin Today / Week — Req 15b (minus LMS setup).
  *
- * Only escalation backlog and curation backlog are real in this build.
- * Compliance deadlines and billing events stay omitted until 17 / 15c exist.
+ * Escalation backlog, curation backlog, and billing renewal (15c) are real.
+ * Compliance deadlines stay omitted until their backing systems exist.
  */
 
+import { buildBillingRenewalEventCopy } from "@/lib/admin-billing-store";
 import { adminBriefingScopeLabel } from "@/lib/admin-briefing-store";
 import { computeEscalationOversightSummary } from "@/lib/admin-escalation-oversight";
 import {
@@ -16,7 +17,7 @@ import {
   type UnmatchedErrorEntry,
 } from "@/lib/demo-data/teacher-schedule";
 
-export type AdminTodayKind = "escalation_backlog" | "curation_backlog";
+export type AdminTodayKind = "escalation_backlog" | "billing_event" | "curation_backlog";
 
 export interface AdminTodayUnmatchedEntry {
   id: string;
@@ -87,6 +88,21 @@ async function buildEscalationBacklogItem(): Promise<AdminTodayItem | null> {
   };
 }
 
+async function buildBillingEventItem(): Promise<AdminTodayItem | null> {
+  const copy = await buildBillingRenewalEventCopy();
+  if (!copy) return null;
+
+  return {
+    id: "billing_event:renewal",
+    kind: "billing_event",
+    scopeLabel: "Billing",
+    title: copy.title,
+    detail: copy.detail,
+    dueMeta: copy.dueMeta,
+    actionRoute: "/admin/billing",
+  };
+}
+
 function buildCurationBacklogItem(): AdminTodayItem | null {
   const entries = unmatchedEntriesSchoolWide().map(mapUnmatched);
   if (entries.length === 0) return null;
@@ -108,15 +124,23 @@ function buildCurationBacklogItem(): AdminTodayItem | null {
 function sortItems(items: AdminTodayItem[]): AdminTodayItem[] {
   const rank: Record<AdminTodayKind, number> = {
     escalation_backlog: 0,
-    curation_backlog: 1,
+    billing_event: 1,
+    curation_backlog: 2,
   };
   return [...items].sort((a, b) => rank[a.kind] - rank[b.kind]);
 }
 
 export async function buildAdminTodaySchedule(): Promise<AdminTodaySchedule> {
-  const escalation = await buildEscalationBacklogItem();
+  const [escalation, billing] = await Promise.all([
+    buildEscalationBacklogItem(),
+    buildBillingEventItem(),
+  ]);
   const curation = buildCurationBacklogItem();
-  const items = sortItems([...(escalation ? [escalation] : []), ...(curation ? [curation] : [])]);
+  const items = sortItems([
+    ...(escalation ? [escalation] : []),
+    ...(billing ? [billing] : []),
+    ...(curation ? [curation] : []),
+  ]);
 
   return {
     scopeLabel: adminBriefingScopeLabel(),
