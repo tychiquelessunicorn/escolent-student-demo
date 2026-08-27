@@ -497,9 +497,25 @@
     display: none;
   }
 
+  .esc-shell-header {
+    flex-wrap: nowrap;
+    gap: 8px 10px;
+  }
+
+  .esc-shell-header-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
   .esc-shell-header-actions {
-    flex-basis: 100%;
-    justify-content: flex-start;
+    flex: 0 0 auto;
+    flex-shrink: 0;
+    justify-content: flex-end;
+    margin-left: auto;
+  }
+
+  .esc-help-trigger {
+    flex-shrink: 0;
   }
 
   .esc-help-menu-panel {

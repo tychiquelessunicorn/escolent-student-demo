@@ -40,10 +40,9 @@ export default function HomePage() {
             <span className="esc-landing-wordmark">Escolent</span>
           </div>
           <p className="esc-landing-lede">
-            Investor demo — pick a shell to enter. Deep links such as{" "}
-            <code className="esc-landing-code">?tour=1</code> and{" "}
-            <code className="esc-landing-code">?demo=1</code> still work on their routes; this
-            page is an optional front door.
+            Escolent is an adaptive learning platform for schools — one system where students
+            learn, teachers respond, and leaders oversee progress from the same mastery data. The
+            product is organized into four shells; choose one to explore.
           </p>
         </header>
 
