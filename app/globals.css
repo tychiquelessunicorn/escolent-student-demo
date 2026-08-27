@@ -2888,6 +2888,360 @@
   margin: 0 0 10px;
 }
 
+/* —— Teacher Today / Week (Req 10a) —— */
+
+.esc-teacher-today-screen {
+  max-width: 720px;
+}
+
+.esc-teacher-today-date {
+  margin: 0;
+  font-size: var(--text-staff-sm);
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-scope {
+  margin: 6px 0 0;
+  font-size: var(--text-staff-sm);
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-teacher-today-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--color-staff-surface-sunken);
+  padding: 4px;
+  border-radius: var(--radius-staff-card);
+}
+
+.esc-teacher-today-tab {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-staff-control);
+  text-decoration: none;
+  color: var(--color-staff-content-secondary);
+  border: 1.5px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.esc-teacher-today-tab-active {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: var(--color-staff-surface-raised);
+  color: var(--color-staff-interactive);
+  border-color: var(--color-staff-interactive-border);
+}
+
+.esc-teacher-today-ask {
+  margin: 0 0 28px;
+}
+
+.esc-teacher-today-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.esc-teacher-today-list-compact {
+  gap: 8px;
+}
+
+.esc-teacher-today-section-gap {
+  margin-top: 32px;
+}
+
+.esc-teacher-today-empty {
+  margin: 0;
+  font-size: var(--text-staff-sm);
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-item {
+  position: relative;
+  background: var(--color-staff-surface-raised);
+  border: 1px solid var(--color-staff-border);
+  border-left: 4px solid var(--color-staff-interactive);
+  border-radius: 4px 12px 12px 4px;
+  padding: 16px 18px;
+}
+
+.esc-teacher-today-item-compact {
+  padding: 10px 14px;
+  border-left-width: 3px;
+  border-radius: 3px 8px 8px 3px;
+}
+
+.esc-teacher-today-item-escalation {
+  border-left-color: var(--color-escalation);
+}
+
+.esc-teacher-today-item-curation {
+  border-left-color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-item-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.esc-teacher-today-item-compact.esc-teacher-today-item-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.esc-teacher-today-item-compact.esc-teacher-today-item-link .esc-teacher-today-item-title-sm {
+  flex: 1;
+  min-width: 0;
+}
+
+.esc-teacher-today-item-link:hover {
+  border-color: var(--color-staff-interactive-border);
+}
+
+.esc-teacher-today-item-button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.esc-teacher-today-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.esc-teacher-today-item-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-staff-lg);
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+
+.esc-teacher-today-item-title-sm {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  margin: 0;
+}
+
+.esc-teacher-today-item-detail {
+  margin: 0;
+  font-size: var(--text-staff-sm);
+  line-height: 1.45;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-teacher-today-item-hint {
+  display: block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-staff-interactive);
+}
+
+.esc-teacher-today-space {
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-meta {
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+  flex-shrink: 0;
+}
+
+.esc-teacher-today-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-curation {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-staff-border);
+}
+
+.esc-teacher-today-curation-note {
+  margin: 0 0 12px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-curation-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.esc-teacher-today-curation-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--radius-staff-control);
+  border: 1px solid var(--color-staff-border);
+  text-decoration: none;
+  color: inherit;
+  background: var(--color-staff-surface);
+}
+
+.esc-teacher-today-curation-link:hover {
+  border-color: var(--color-staff-interactive-border);
+}
+
+.esc-teacher-today-curation-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.esc-teacher-today-curation-error {
+  font-size: 13px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-teacher-today-curation-meta {
+  font-size: 11px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-lms {
+  background: var(--color-staff-surface);
+  border: 1px dashed var(--color-staff-border);
+  border-radius: var(--radius-staff-card);
+  padding: 16px 18px;
+}
+
+.esc-teacher-today-lms-compact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+}
+
+.esc-teacher-today-lms-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.esc-teacher-today-lms-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.esc-teacher-today-lms-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.esc-teacher-today-lms-detail {
+  font-size: 13px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-freshness {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-lms-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.esc-teacher-today-ref {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-teacher-today-lms-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-staff-interactive);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.esc-teacher-today-toast {
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+  margin-top: 8px;
+}
+
+.esc-teacher-today-week {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.esc-teacher-today-day-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.esc-teacher-today-day-label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0;
+}
+
+.esc-teacher-today-day-date {
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+}
+
+@media (max-width: 759px) {
+  .esc-teacher-today-lms-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

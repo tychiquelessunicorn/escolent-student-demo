@@ -12,6 +12,10 @@ import {
   type PracticeProblem,
 } from "@/lib/demo-data";
 import { buildMasteryOverview } from "@/lib/mastery-overview-store";
+import {
+  buildTeacherTodaySchedule,
+  teacherTodayAskGroundingLines,
+} from "@/lib/teacher-today-store";
 
 /**
  * Every prompt below is the prototype's prompt, moved server-side unchanged.
@@ -182,6 +186,16 @@ export function overviewAskPrompt(question: string, spaceFilter: string | null):
     .join("\n");
 
   return `You are answering a teacher's question about her Mastery Overview grid, using ONLY this real per-student, per-skill data. Percentages map approximate mastery depth: Durable=92%, Tentative=72%, Emerging=48%, Struggling=25%, Not attempted=0%.\n\nScope: ${overview.scopeLabel}\n\nStudents:\n${studentLines}\n\nPrerequisite gap alerts:\n${gapLines || "- none"}\n\nMisconceptions this week:\n${miscLines || "- none"}\n\nHer question: "${question}"\n\nAnswer directly using real student names from the data above. If she asks about a threshold like "below 60%", use the percentages given. If nothing matches, say so plainly rather than inventing anything. Keep it to a few sentences or a short plain list of names. Respond with ONLY the plain answer — no markdown, no labels, no emojis.`;
+}
+
+export async function teacherTodayAskPrompt(
+  question: string,
+  spaceFilter: string | null,
+): Promise<string> {
+  const schedule = await buildTeacherTodaySchedule({ spaceFilter });
+  const dataLines = teacherTodayAskGroundingLines(schedule).join("\n");
+
+  return `You are answering a teacher's question about what's due across her Spaces, using ONLY this real due-items data (today is ${schedule.todayShortLabel}).\n\nScope: ${schedule.scopeLabel}\n\nDue items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If she asks about a Space like Remediation or Algebra, filter to those items. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
 /**

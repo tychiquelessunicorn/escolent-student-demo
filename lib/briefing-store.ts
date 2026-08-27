@@ -283,6 +283,27 @@ function sortItems(items: BriefingItem[]): BriefingItem[] {
 
 export type BriefingDemoState = BriefingState | "auto";
 
+/**
+ * Pending escalations — same builder Briefing uses. Teacher Today must call
+ * this rather than inventing a parallel pending list (Req 10a.1).
+ */
+export async function listPendingEscalationItems(
+  spaceFilter: string | null = null,
+): Promise<BriefingItem[]> {
+  await seedEscalationsIfEmpty();
+  const escalations = await listEscalations();
+  return buildEscalationItems(escalations, spaceFilter);
+}
+
+/**
+ * Overrides past the revisit window — same builder Briefing uses.
+ */
+export function listOverrideRevisitItems(
+  spaceFilter: string | null = null,
+): BriefingItem[] {
+  return buildOverrideItems(spaceFilter);
+}
+
 export async function buildTeacherBriefing(options: {
   spaceFilter?: string | null;
   /** Harness override — when not auto, short-circuits synthesis for edge demos. */
@@ -323,14 +344,11 @@ export async function buildTeacherBriefing(options: {
     };
   }
 
-  await seedEscalationsIfEmpty();
-  const escalations = await listEscalations();
-
   const items = sortItems([
-    ...buildEscalationItems(escalations, spaceFilter),
+    ...(await listPendingEscalationItems(spaceFilter)),
     ...buildStrugglingItems(spaceFilter),
     ...buildMisconceptionItems(spaceFilter),
-    ...buildOverrideItems(spaceFilter),
+    ...listOverrideRevisitItems(spaceFilter),
   ]);
 
   // Forced populated harness: keep real items even if somehow empty.

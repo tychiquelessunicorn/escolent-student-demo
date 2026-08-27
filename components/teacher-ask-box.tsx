@@ -2,12 +2,18 @@
 
 import { useState } from "react";
 
+export type TeacherAskTask = "overview_ask" | "teacher_today_ask";
+
 export function TeacherAskBox({
   spaceFilter,
+  task = "overview_ask",
   placeholder = "Ask the grid… e.g. \"who's below 60% on two-step equations\"",
+  loadingLabel = "Scanning the grid…",
 }: {
   spaceFilter: string | null;
+  task?: TeacherAskTask;
   placeholder?: string;
+  loadingLabel?: string;
 }) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,14 +31,14 @@ export function TeacherAskBox({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          task: "overview_ask",
+          task,
           question: trimmed,
           spaceFilter: spaceFilter ?? "all",
         }),
       });
       if (!response.ok) throw new Error("ask failed");
       const data = (await response.json()) as { text?: string };
-      setAnswer(data.text ?? "Nothing in the grid matched that question.");
+      setAnswer(data.text ?? "Nothing in the data matched that question.");
     } catch {
       setError("Could not check that right now — try again in a moment.");
     } finally {
@@ -59,9 +65,7 @@ export function TeacherAskBox({
           </button>
         ) : null}
       </div>
-      {loading ? (
-        <p className="esc-mastery-ask-status">Scanning the grid…</p>
-      ) : null}
+      {loading ? <p className="esc-mastery-ask-status">{loadingLabel}</p> : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
       {answer ? <div className="esc-mastery-ask-answer">{answer}</div> : null}
     </div>
