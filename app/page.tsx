@@ -4,17 +4,20 @@ const SHELLS: {
   label: string;
   description: string;
   href?: string;
+  tourHref?: string;
   soon?: boolean;
 }[] = [
   {
     label: "Student",
     description: "Today, Learn, Practice, and Progress — the adaptive learning shell.",
     href: "/student/today",
+    tourHref: "/student/today?tour=1",
   },
   {
     label: "Teacher",
     description: "Escalations, briefing, and class oversight for staff.",
     href: "/teacher/briefing",
+    tourHref: "/teacher/briefing?tour=1",
   },
   {
     label: "Admin",
@@ -62,13 +65,22 @@ export default function HomePage() {
                 <p className="esc-landing-card-body">{shell.description}</p>
               </div>
             ) : (
-              <Link key={shell.href} href={shell.href} className="esc-landing-card esc-pressable">
+              <div key={shell.href} className="esc-landing-card">
                 <div className="esc-landing-card-top">
                   <h2 className="esc-landing-card-title">{shell.label}</h2>
-                  <span className="esc-landing-enter">Enter</span>
                 </div>
                 <p className="esc-landing-card-body">{shell.description}</p>
-              </Link>
+                <div className="esc-landing-card-actions">
+                  <Link href={shell.href} className="esc-landing-enter esc-pressable">
+                    Enter
+                  </Link>
+                  {shell.tourHref ? (
+                    <Link href={shell.tourHref} className="esc-landing-tour esc-pressable">
+                      Guided tour
+                    </Link>
+                  ) : null}
+                </div>
+              </div>
             ),
           )}
         </div>

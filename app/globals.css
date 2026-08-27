@@ -1778,12 +1778,38 @@
   margin: 0;
 }
 
-.esc-landing-enter {
+.esc-landing-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.esc-landing-enter,
+.esc-landing-tour {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  text-decoration: none;
+}
+
+.esc-landing-enter {
   color: var(--color-accent-strong);
+}
+
+.esc-landing-enter:hover {
+  text-decoration: underline;
+}
+
+.esc-landing-tour {
+  color: var(--color-content-secondary);
+}
+
+.esc-landing-tour:hover {
+  color: var(--color-accent-strong);
+  text-decoration: underline;
 }
 
 .esc-landing-soon {

@@ -12,11 +12,16 @@ Learn, and Progress, plus the global nav shell.
 
 ## Guided tour (recommended)
 
-Open `/` or `/student/today?tour=1`. An overlay dims the app, rings one real
-element, and explains why that element matters. **The only thing a viewer ever
-does is click Next**, or turn on auto-play and do nothing — no step asks for a
-typed value or a guessed click, and the app underneath is deliberately blocked
-while the tour runs.
+From the landing page (`/`), use **Guided tour** on the Student or Teacher card —
+or open `/student/today?tour=1` / `/teacher/briefing?tour=1` directly. An overlay
+dims the app, rings one real element, and explains why that element matters.
+**The only thing a viewer ever does is click Next**, or turn on auto-play and do
+nothing — no step asks for a typed value or a guessed click, and the app
+underneath is deliberately blocked while the tour runs.
+
+Plain **Enter** on the same cards opens the shell freely without the tour.
+
+### Student tour
 
 Six chapters, forward only. A chapter's screen is never shown again once it
 ends, which is why Practice carries three chapters back to back:
@@ -44,6 +49,12 @@ Canonical URL: `/student/today?tour=1`. Code: `lib/tour.ts` (chapters),
 `components/tour-provider.tsx` (state and navigation),
 `components/tour-overlay.tsx` (spotlight and callout).
 
+### Teacher tour
+
+Same interaction model on the staff shell. Canonical URL:
+`/teacher/briefing?tour=1`. Code: `lib/teacher-tour.ts`,
+`components/teacher-tour-provider.tsx`, `components/teacher-tour-overlay.tsx`.
+
 The `?demo=1` harness below is a separate system and shares nothing with it;
 loading `?demo=1` ends the tour rather than stacking on top of it.
 
@@ -63,11 +74,14 @@ warning; in production it refuses traffic rather than running unmetered.
 
 | Route | Screen |
 | --- | --- |
-| `/` | Redirects to `/student/today?tour=1` — guided tour entry |
-| `/practice` | Practice Session |
+| `/` | Shell picker — **Enter** (free explore) or **Guided tour** (`?tour=1`) per card |
+| `/student/today?tour=1` | Student guided tour entry |
+| `/teacher/briefing?tour=1` | Teacher guided tour entry |
+| `/practice` | Practice Session (redirects to `/student/practice`) |
 | `/student/today`, `/student/week` | Today / Week |
 | `/student/learn` | Learn / Course Map |
 | `/student/progress` | Progress |
+| `/teacher/briefing` | Teacher Briefing |
 | `/gate` | Shared-password gate |
 
 ## Demo controls
