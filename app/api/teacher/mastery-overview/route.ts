@@ -21,12 +21,12 @@ export async function GET(request: Request) {
     if (!getRosterStudent(studentId)) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
-    const student = getMasteryOverviewStudent(studentId, spaceFilter);
+    const student = await getMasteryOverviewStudent(studentId, spaceFilter);
     if (!student) {
       return NextResponse.json({ error: "Student not found in scope" }, { status: 404 });
     }
     return NextResponse.json({ student, refreshedAt: new Date().toISOString() });
   }
 
-  return NextResponse.json(buildMasteryOverview(spaceFilter));
+  return NextResponse.json(await buildMasteryOverview(spaceFilter));
 }

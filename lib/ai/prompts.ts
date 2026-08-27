@@ -161,8 +161,8 @@ export function progressAskPrompt(question: string, spaceId?: string): string {
   return `You are answering a grade 8 student's question about her own progress in the "${space.name}" Space (${space.subject}), using ONLY this real data. She is only tracked on this Space — nothing outside it is tracked or assessed here.\n\nSkills tracked:\n${skillLines}\n\nRecent sessions:\n${sessionLines}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If she asks about something not in this list, say plainly that it isn't part of what's being tracked here, rather than inventing an answer. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
-export function overviewAskPrompt(question: string, spaceFilter: string | null): string {
-  const overview = buildMasteryOverview(spaceFilter);
+export async function overviewAskPrompt(question: string, spaceFilter: string | null): Promise<string> {
+  const overview = await buildMasteryOverview(spaceFilter);
   const studentLines = overview.students
     .map((student) => {
       const cells = student.cells

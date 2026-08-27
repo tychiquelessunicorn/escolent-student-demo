@@ -2,8 +2,9 @@ import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 
 /**
- * Upstash is used for rate-limit counters and escalation records only. It is
- * not the application database — there isn't one this phase, by decision.
+ * Upstash is used for rate-limit counters, escalation records, and mastery
+ * overrides. It is not the application database — there isn't one this phase,
+ * by decision.
  */
 let redis: Redis | null = null;
 

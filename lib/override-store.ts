@@ -1,6 +1,9 @@
 /**
  * Teacher mastery overrides — single write path for Overview and Briefing revisit.
  * Baseline seed comes from roster (Elena Cruz); live mutations merge on top.
+ *
+ * Redis-backed like distress-store: serverless instances do not share memory.
+ * Seed writes into Redis on first read when the history list is empty.
  */
 
 import { randomUUID } from "crypto";
@@ -13,6 +16,7 @@ import {
 import { OVERVIEW_SKILL_IDS } from "@/lib/demo-data/overview-skills";
 import { DEMO_SESSION_STAFF_ID } from "@/lib/demo-data/staff";
 import type { MasteryTier } from "@/lib/demo-data/types";
+import { getRedis } from "@/lib/rate-limit";
 
 export type OverrideEntryMethod = "structured" | "conversational";
 export type OverrideKind = "mark_mastered" | "reconfirm";
@@ -38,39 +42,228 @@ type LiveStudentState = {
 const REASON_MIN = 10;
 const REASON_MAX = 200;
 
-let seeded = false;
-let history: OverrideHistoryEntry[] = [];
-const live = new Map<string, LiveStudentState>();
+export const OVERRIDE_HISTORY_KEY = "escolent:overrides:history";
+export const OVERRIDE_HISTORY_CAP = 500;
+const OVERRIDE_LIVE_PREFIX = "escolent:overrides:live:";
 
-function ensureSeeded() {
-  if (seeded) return;
-  seeded = true;
-  for (const student of ROSTER) {
-    if (!student.override) continue;
-    const record = student.override;
-    const entry: OverrideHistoryEntry = {
-      id: `seed-${student.id}-${record.skillId}`,
-      studentId: student.id,
+function liveKey(studentId: string): string {
+  return `${OVERRIDE_LIVE_PREFIX}${studentId}`;
+}
+
+function emptyLive(): LiveStudentState {
+  return { tierPatches: {}, activeBySkill: {} };
+}
+
+function normalizeHistoryEntry(raw: unknown): OverrideHistoryEntry | null {
+  const entry = raw as Partial<OverrideHistoryEntry>;
+  if (!entry || typeof entry !== "object") return null;
+  if (
+    typeof entry.id !== "string" ||
+    typeof entry.studentId !== "string" ||
+    typeof entry.skillId !== "string" ||
+    typeof entry.reason !== "string" ||
+    typeof entry.appliedAt !== "string" ||
+    typeof entry.teacherId !== "string"
+  ) {
+    return null;
+  }
+  return {
+    id: entry.id,
+    studentId: entry.studentId,
+    skillId: entry.skillId,
+    reason: entry.reason,
+    appliedAt: entry.appliedAt,
+    teacherId: entry.teacherId,
+    entryMethod: entry.entryMethod === "conversational" ? "conversational" : "structured",
+    kind: entry.kind === "reconfirm" ? "reconfirm" : "mark_mastered",
+  };
+}
+
+function normalizeLiveState(raw: unknown): LiveStudentState {
+  if (!raw || typeof raw !== "object") return emptyLive();
+  const entry = raw as Partial<LiveStudentState>;
+  const tierPatches: Record<string, MasteryTier> = {};
+  if (entry.tierPatches && typeof entry.tierPatches === "object") {
+    for (const [skillId, tier] of Object.entries(entry.tierPatches)) {
+      if (
+        tier === "not_attempted" ||
+        tier === "struggling" ||
+        tier === "emerging" ||
+        tier === "tentative" ||
+        tier === "durable"
+      ) {
+        tierPatches[skillId] = tier;
+      }
+    }
+  }
+  const activeBySkill: Record<string, MasteryOverrideRecord> = {};
+  if (entry.activeBySkill && typeof entry.activeBySkill === "object") {
+    for (const [skillId, record] of Object.entries(entry.activeBySkill)) {
+      if (
+        record &&
+        typeof record === "object" &&
+        typeof record.skillId === "string" &&
+        typeof record.reason === "string" &&
+        typeof record.appliedAt === "string" &&
+        typeof record.teacherId === "string"
+      ) {
+        activeBySkill[skillId] = {
+          skillId: record.skillId,
+          reason: record.reason,
+          appliedAt: record.appliedAt,
+          teacherId: record.teacherId,
+        };
+      }
+    }
+  }
+  return { tierPatches, activeBySkill };
+}
+
+/** Roster-only fallback when Redis is unavailable — seed shape, no mutations. */
+function rosterFallbackLive(studentId: string): LiveStudentState {
+  const base = getRosterStudent(studentId);
+  if (!base?.override) return emptyLive();
+  return {
+    tierPatches: {},
+    activeBySkill: { [base.override.skillId]: { ...base.override } },
+  };
+}
+
+function rosterFallbackHistory(studentId: string): OverrideHistoryEntry[] {
+  const base = getRosterStudent(studentId);
+  if (!base?.override) return [];
+  const record = base.override;
+  return [
+    {
+      id: `seed-${base.id}-${record.skillId}`,
+      studentId: base.id,
       skillId: record.skillId,
       reason: record.reason,
       appliedAt: record.appliedAt,
       teacherId: record.teacherId,
       entryMethod: "structured",
       kind: "mark_mastered",
-    };
-    history.push(entry);
-    const state = ensureLive(student.id);
-    state.activeBySkill[record.skillId] = { ...record };
+    },
+  ];
+}
+
+/** Seed through the same Redis keys — not a parallel in-memory source. */
+export async function seedOverridesIfEmpty(): Promise<void> {
+  const redis = getRedis();
+  if (!redis) return;
+
+  try {
+    const length = await redis.llen(OVERRIDE_HISTORY_KEY);
+    if (length > 0) return;
+
+    const seeds: { entry: OverrideHistoryEntry; live: LiveStudentState }[] = [];
+    for (const student of ROSTER) {
+      if (!student.override) continue;
+      const record = student.override;
+      const entry: OverrideHistoryEntry = {
+        id: `seed-${student.id}-${record.skillId}`,
+        studentId: student.id,
+        skillId: record.skillId,
+        reason: record.reason,
+        appliedAt: record.appliedAt,
+        teacherId: record.teacherId,
+        entryMethod: "structured",
+        kind: "mark_mastered",
+      };
+      seeds.push({
+        entry,
+        live: {
+          tierPatches: {},
+          activeBySkill: { [record.skillId]: { ...record } },
+        },
+      });
+    }
+
+    // LPUSH in reverse so the array order matches newest-first in the list.
+    for (let i = seeds.length - 1; i >= 0; i -= 1) {
+      const seed = seeds[i];
+      await redis.lpush(OVERRIDE_HISTORY_KEY, JSON.stringify(seed.entry));
+      await redis.set(liveKey(seed.entry.studentId), JSON.stringify(seed.live));
+    }
+    await redis.ltrim(OVERRIDE_HISTORY_KEY, 0, OVERRIDE_HISTORY_CAP - 1);
+    console.info(`[override-store] seeded ${seeds.length} demo override records`);
+  } catch (error) {
+    console.error("[override-store] failed to seed records", error);
   }
 }
 
-function ensureLive(studentId: string): LiveStudentState {
-  let state = live.get(studentId);
-  if (!state) {
-    state = { tierPatches: {}, activeBySkill: {} };
-    live.set(studentId, state);
+async function readAllHistory(): Promise<OverrideHistoryEntry[]> {
+  await seedOverridesIfEmpty();
+  const redis = getRedis();
+  if (!redis) {
+    return ROSTER.flatMap((student) => rosterFallbackHistory(student.id));
   }
-  return state;
+
+  try {
+    const raw = await redis.lrange<string | OverrideHistoryEntry>(
+      OVERRIDE_HISTORY_KEY,
+      0,
+      OVERRIDE_HISTORY_CAP - 1,
+    );
+    return raw
+      .map((entry) =>
+        normalizeHistoryEntry(
+          typeof entry === "string" ? (JSON.parse(entry) as unknown) : entry,
+        ),
+      )
+      .filter((entry): entry is OverrideHistoryEntry => Boolean(entry));
+  } catch (error) {
+    console.error("[override-store] failed to read history", error);
+    return ROSTER.flatMap((student) => rosterFallbackHistory(student.id));
+  }
+}
+
+async function readLive(studentId: string): Promise<LiveStudentState> {
+  await seedOverridesIfEmpty();
+  const redis = getRedis();
+  if (!redis) return rosterFallbackLive(studentId);
+
+  try {
+    const raw = await redis.get<string | LiveStudentState>(liveKey(studentId));
+    if (raw == null) return emptyLive();
+    const parsed = typeof raw === "string" ? (JSON.parse(raw) as unknown) : raw;
+    return normalizeLiveState(parsed);
+  } catch (error) {
+    console.error("[override-store] failed to read live state", error);
+    return rosterFallbackLive(studentId);
+  }
+}
+
+async function writeLive(studentId: string, state: LiveStudentState): Promise<boolean> {
+  const redis = getRedis();
+  if (redis) {
+    try {
+      await redis.set(liveKey(studentId), JSON.stringify(state));
+      return true;
+    } catch (error) {
+      console.error("[override-store] redis live write failed, falling back to log", error);
+    }
+  }
+  console.error(`[OVERRIDE LIVE] ${studentId} ${JSON.stringify(state)}`);
+  return false;
+}
+
+async function pushHistory(entry: OverrideHistoryEntry): Promise<boolean> {
+  const redis = getRedis();
+  if (redis) {
+    try {
+      await redis.lpush(OVERRIDE_HISTORY_KEY, JSON.stringify(entry));
+      await redis.ltrim(OVERRIDE_HISTORY_KEY, 0, OVERRIDE_HISTORY_CAP - 1);
+      console.info(
+        `[override] recorded ${entry.id} student=${entry.studentId} skill=${entry.skillId} kind=${entry.kind}`,
+      );
+      return true;
+    } catch (error) {
+      console.error("[override-store] redis history write failed, falling back to log", error);
+    }
+  }
+  console.error(`[OVERRIDE RECORD] ${JSON.stringify(entry)}`);
+  return false;
 }
 
 export function validateOverrideReason(reason: string): string | null {
@@ -84,17 +277,16 @@ export function validateOverrideReason(reason: string): string | null {
   return null;
 }
 
-export function listOverrideHistory(studentId: string): OverrideHistoryEntry[] {
-  ensureSeeded();
+export async function listOverrideHistory(studentId: string): Promise<OverrideHistoryEntry[]> {
+  const history = await readAllHistory();
   return history
     .filter((entry) => entry.studentId === studentId)
     .sort((a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime());
 }
 
-export function listActiveOverrides(studentId: string): MasteryOverrideRecord[] {
-  ensureSeeded();
-  const state = live.get(studentId);
-  if (!state) {
+export async function listActiveOverrides(studentId: string): Promise<MasteryOverrideRecord[]> {
+  const state = await readLive(studentId);
+  if (Object.keys(state.activeBySkill).length === 0) {
     const base = getRosterStudent(studentId);
     return base?.override ? [base.override] : [];
   }
@@ -103,36 +295,30 @@ export function listActiveOverrides(studentId: string): MasteryOverrideRecord[] 
   );
 }
 
-export function getActiveOverride(
+export async function getActiveOverride(
   studentId: string,
   skillId: string,
-): MasteryOverrideRecord | null {
-  return listActiveOverrides(studentId).find((entry) => entry.skillId === skillId) ?? null;
+): Promise<MasteryOverrideRecord | null> {
+  const active = await listActiveOverrides(studentId);
+  return active.find((entry) => entry.skillId === skillId) ?? null;
 }
 
-/**
- * Roster row with live tier patches + primary `override` (oldest active —
- * drives Briefing 30-day revisit the same way Elena's seed did).
- */
-export function getEffectiveStudent(studentId: string): RosterStudent | null {
-  ensureSeeded();
-  const base = getRosterStudent(studentId);
-  if (!base) return null;
-
-  const state = live.get(studentId);
-  const active = listActiveOverrides(studentId);
+function composeEffectiveStudent(
+  base: RosterStudent,
+  state: LiveStudentState,
+): RosterStudent {
+  const active = Object.values(state.activeBySkill).sort(
+    (a, b) => new Date(b.appliedAt).getTime() - new Date(a.appliedAt).getTime(),
+  );
   const tiers = base.tiers.map((tier, index) => {
     const skillId = OVERVIEW_SKILL_IDS[index];
     if (!skillId) return tier;
-    return state?.tierPatches[skillId] ?? tier;
+    return state.tierPatches[skillId] ?? tier;
   });
-
-  // Primary for Briefing: oldest active override (first due for revisit).
   const primary =
     [...active].sort(
       (a, b) => new Date(a.appliedAt).getTime() - new Date(b.appliedAt).getTime(),
     )[0] ?? null;
-
   return {
     ...base,
     tiers,
@@ -140,9 +326,21 @@ export function getEffectiveStudent(studentId: string): RosterStudent | null {
   };
 }
 
-export function listEffectiveStudents(spaceFilter: string | null): RosterStudent[] {
-  ensureSeeded();
-  return ROSTER.map((student) => getEffectiveStudent(student.id)!)
+/**
+ * Roster row with live tier patches + primary `override` (oldest active —
+ * drives Briefing 30-day revisit the same way Elena's seed did).
+ */
+export async function getEffectiveStudent(studentId: string): Promise<RosterStudent | null> {
+  const base = getRosterStudent(studentId);
+  if (!base) return null;
+  const state = await readLive(studentId);
+  return composeEffectiveStudent(base, state);
+}
+
+export async function listEffectiveStudents(spaceFilter: string | null): Promise<RosterStudent[]> {
+  const students = await Promise.all(ROSTER.map((student) => getEffectiveStudent(student.id)));
+  return students
+    .filter((student): student is RosterStudent => Boolean(student))
     .filter((student) => !spaceFilter || spaceFilter === "all" || student.spaceId === spaceFilter);
 }
 
@@ -167,8 +365,10 @@ export interface ApplyOverrideError {
   status: number;
 }
 
-export function applyOverride(input: ApplyOverrideInput): ApplyOverrideResult | ApplyOverrideError {
-  ensureSeeded();
+export async function applyOverride(
+  input: ApplyOverrideInput,
+): Promise<ApplyOverrideResult | ApplyOverrideError> {
+  await seedOverridesIfEmpty();
   const base = getRosterStudent(input.studentId);
   if (!base) return { ok: false, error: "Student not found", status: 404 };
 
@@ -178,7 +378,7 @@ export function applyOverride(input: ApplyOverrideInput): ApplyOverrideResult | 
   const teacherId = input.teacherId ?? DEMO_SESSION_STAFF_ID;
   const entryMethod = input.entryMethod ?? "structured";
   const now = new Date().toISOString();
-  const state = ensureLive(input.studentId);
+  const state = await readLive(input.studentId);
 
   if (input.kind === "reconfirm") {
     const existing = state.activeBySkill[input.skillId] ?? base.override;
@@ -203,8 +403,9 @@ export function applyOverride(input: ApplyOverrideInput): ApplyOverrideResult | 
       entryMethod,
       kind: "reconfirm",
     };
-    history = [entry, ...history];
-    return { ok: true, entry, student: getEffectiveStudent(input.studentId)! };
+    await writeLive(input.studentId, state);
+    await pushHistory(entry);
+    return { ok: true, entry, student: composeEffectiveStudent(base, state) };
   }
 
   // mark_mastered (also used for "reassess" when an override already exists)
@@ -238,14 +439,8 @@ export function applyOverride(input: ApplyOverrideInput): ApplyOverrideResult | 
     entryMethod,
     kind: "mark_mastered",
   };
-  history = [entry, ...history];
+  await writeLive(input.studentId, state);
+  await pushHistory(entry);
 
-  return { ok: true, entry, student: getEffectiveStudent(input.studentId)! };
-}
-
-/** Test / harness helper — not used by UI. */
-export function resetOverrideStoreForTests() {
-  seeded = false;
-  history = [];
-  live.clear();
+  return { ok: true, entry, student: composeEffectiveStudent(base, state) };
 }

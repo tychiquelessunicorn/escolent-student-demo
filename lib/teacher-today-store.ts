@@ -197,7 +197,7 @@ export async function buildTeacherTodaySchedule(options?: {
 }): Promise<TeacherTodaySchedule> {
   const spaceFilter = options?.spaceFilter ?? null;
   const escalations = (await listPendingEscalationItems(spaceFilter)).map(fromEscalation);
-  const overrides = listOverrideRevisitItems(spaceFilter).map(fromOverride);
+  const overrides = (await listOverrideRevisitItems(spaceFilter)).map(fromOverride);
   const curation = curationItem(spaceFilter);
   const lms = teacherLmsItemsForSpace(spaceFilter).map(fromLms);
 

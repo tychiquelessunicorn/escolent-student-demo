@@ -193,7 +193,7 @@ export async function POST(request: Request) {
         const text = await complete({
           model: MODEL_DEFAULT,
           system: ASK_LOOKUP_SYSTEM,
-          prompt: overviewAskPrompt(question, spaceFilter),
+          prompt: await overviewAskPrompt(question, spaceFilter),
           maxTokens: 500,
         });
         return NextResponse.json({ text: sanitizeAiText(text) });

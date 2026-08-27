@@ -88,19 +88,20 @@ function toAffected(students: RosterStudent[]): BriefingAffectedStudent[] {
   }));
 }
 
-function matchRosterByName(fullName: string): RosterStudent | null {
-  return listEffectiveStudents(null).find((student) => student.fullName === fullName) ?? null;
+async function matchRosterByName(fullName: string): Promise<RosterStudent | null> {
+  const roster = await listEffectiveStudents(null);
+  return roster.find((student) => student.fullName === fullName) ?? null;
 }
 
-function buildEscalationItems(
+async function buildEscalationItems(
   records: EscalationRecord[],
   spaceFilter: string | null,
-): BriefingItem[] {
+): Promise<BriefingItem[]> {
   const pending = records.filter((record) => !record.acknowledgedBy);
   const items: BriefingItem[] = [];
 
   for (const record of pending) {
-    const roster = matchRosterByName(record.student);
+    const roster = await matchRosterByName(record.student);
     if (spaceFilter && roster && roster.spaceId !== spaceFilter) continue;
     if (spaceFilter && !roster) continue;
 
@@ -127,12 +128,14 @@ function buildEscalationItems(
   return items;
 }
 
-function buildMisconceptionItems(spaceFilter: string | null): BriefingItem[] {
+async function buildMisconceptionItems(spaceFilter: string | null): Promise<BriefingItem[]> {
   const items: BriefingItem[] = [];
 
   for (const aggregate of OVERVIEW_MISCONCEPTION_AGGREGATES) {
-    const students = aggregate.studentIds
-      .map((id) => getEffectiveStudent(id) ?? getRosterStudent(id))
+    const resolved = await Promise.all(
+      aggregate.studentIds.map(async (id) => (await getEffectiveStudent(id)) ?? getRosterStudent(id)),
+    );
+    const students = resolved
       .filter((student): student is RosterStudent => Boolean(student))
       .filter((student) => !spaceFilter || student.spaceId === spaceFilter);
 
@@ -165,8 +168,8 @@ function buildMisconceptionItems(spaceFilter: string | null): BriefingItem[] {
   return items;
 }
 
-function buildStrugglingItems(spaceFilter: string | null): BriefingItem[] {
-  const roster = listEffectiveStudents(spaceFilter);
+async function buildStrugglingItems(spaceFilter: string | null): Promise<BriefingItem[]> {
+  const roster = await listEffectiveStudents(spaceFilter);
   const groups = new Map<string, { skillId: string; spaceId: string; students: RosterStudent[] }>();
 
   for (const student of roster) {
@@ -215,11 +218,11 @@ function buildStrugglingItems(spaceFilter: string | null): BriefingItem[] {
   return items;
 }
 
-function buildOverrideItems(spaceFilter: string | null): BriefingItem[] {
+async function buildOverrideItems(spaceFilter: string | null): Promise<BriefingItem[]> {
   const now = Date.now();
   const items: BriefingItem[] = [];
 
-  for (const student of listEffectiveStudents(spaceFilter)) {
+  for (const student of await listEffectiveStudents(spaceFilter)) {
     if (!student.override) continue;
     const ageMs = now - new Date(student.override.appliedAt).getTime();
     if (!Number.isFinite(ageMs) || ageMs < OVERRIDE_REVISIT_DAYS * MS_PER_DAY) continue;
@@ -241,9 +244,9 @@ function buildOverrideItems(spaceFilter: string | null): BriefingItem[] {
   return items;
 }
 
-function buildLowPriority(spaceFilter: string | null): BriefingItem[] {
+async function buildLowPriority(spaceFilter: string | null): Promise<BriefingItem[]> {
   // Soft signal for all_clear: someone tentative on a mid-unit skill, not urgent.
-  const candidates = listEffectiveStudents(spaceFilter).filter((student) => {
+  const candidates = (await listEffectiveStudents(spaceFilter)).filter((student) => {
     const multiStep = student.tiers[4];
     return multiStep === "emerging" || multiStep === "tentative";
   });
@@ -297,9 +300,9 @@ export async function listPendingEscalationItems(
 /**
  * Overrides past the revisit window — same builder Briefing uses.
  */
-export function listOverrideRevisitItems(
+export async function listOverrideRevisitItems(
   spaceFilter: string | null = null,
-): BriefingItem[] {
+): Promise<BriefingItem[]> {
   return buildOverrideItems(spaceFilter);
 }
 
@@ -339,15 +342,15 @@ export async function buildTeacherBriefing(options: {
       scopeLabel,
       computedAt,
       items: [],
-      lowPriority: buildLowPriority(spaceFilter),
+      lowPriority: await buildLowPriority(spaceFilter),
     };
   }
 
   const items = sortItems([
     ...(await listPendingEscalationItems(spaceFilter)),
-    ...buildStrugglingItems(spaceFilter),
-    ...buildMisconceptionItems(spaceFilter),
-    ...listOverrideRevisitItems(spaceFilter),
+    ...(await buildStrugglingItems(spaceFilter)),
+    ...(await buildMisconceptionItems(spaceFilter)),
+    ...(await listOverrideRevisitItems(spaceFilter)),
   ]);
 
   // Forced populated harness: keep real items even if somehow empty.
@@ -358,7 +361,7 @@ export async function buildTeacherBriefing(options: {
         scopeLabel,
         computedAt,
         items: [],
-        lowPriority: buildLowPriority(spaceFilter),
+        lowPriority: await buildLowPriority(spaceFilter),
       };
     }
     return {

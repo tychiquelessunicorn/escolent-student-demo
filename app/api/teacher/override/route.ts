@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "studentId and skillId are required" }, { status: 400 });
   }
 
-  const result = applyOverride({
+  const result = await applyOverride({
     studentId,
     skillId,
     reason,
