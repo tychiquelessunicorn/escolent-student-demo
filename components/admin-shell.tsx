@@ -14,7 +14,7 @@ const NAV_ITEMS: {
   {
     label: "Briefing",
     href: "/admin/briefing",
-    match: ["/admin/briefing", "/admin"],
+    match: ["/admin/briefing"],
   },
   {
     label: "Today",
@@ -55,7 +55,14 @@ const NAV_ITEMS: {
 
 function isActive(pathname: string, match: string[] | undefined) {
   if (!match) return false;
-  return match.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  return match.some((path) => {
+    if (pathname === path) return true;
+    // Prefix-match nested routes only — never treat a section root like /admin as active
+    // for every sibling under /admin/*.
+    const segments = path.split("/").filter(Boolean);
+    if (segments.length < 2) return false;
+    return pathname.startsWith(`${path}/`);
+  });
 }
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
