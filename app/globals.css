@@ -4435,3 +4435,212 @@
 .esc-teacher-today-item-billing {
   border-left-color: oklch(53% 0.09 230);
 }
+
+.esc-admin-users-screen {
+  padding-bottom: 88px;
+}
+
+.esc-admin-users-command {
+  display: grid;
+  gap: 10px;
+}
+
+.esc-admin-users-result {
+  padding: 12px 14px;
+  border-radius: var(--radius-staff-control);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.esc-admin-users-result-draft {
+  border: 1.5px solid color-mix(in oklch, var(--color-staff-interactive) 40%, transparent);
+  background: var(--color-staff-interactive-subtle);
+  color: var(--color-staff-interactive);
+}
+
+.esc-admin-users-result-refusal {
+  border: 1.5px solid var(--color-warning);
+  background: color-mix(in oklch, var(--color-warning) 10%, transparent);
+}
+
+.esc-admin-users-result-clarify {
+  border: 1.5px solid var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+}
+
+.esc-admin-users-result-error {
+  border: 1.5px solid var(--color-staff-border);
+  background: var(--color-staff-surface-raised);
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-users-deletion-link {
+  display: inline-block;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.esc-admin-users-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.esc-admin-users-form {
+  display: grid;
+  gap: 12px;
+}
+
+.esc-admin-users-form-grid {
+  display: grid;
+  gap: 12px;
+}
+
+@media (min-width: 760px) {
+  .esc-admin-users-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.esc-admin-users-review {
+  display: grid;
+  gap: 10px;
+}
+
+.esc-admin-users-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.esc-admin-users-row {
+  display: grid;
+  gap: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.esc-admin-users-row-focused {
+  border-color: var(--color-staff-interactive-border);
+}
+
+.esc-admin-users-row-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.esc-admin-users-row-main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.esc-admin-users-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.esc-admin-users-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.esc-admin-users-you {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: var(--color-staff-border);
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-users-email {
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-users-meta {
+  font-size: 12px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-users-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.esc-admin-users-status-active {
+  color: oklch(40% 0.1 150);
+  background: color-mix(in oklch, oklch(40% 0.1 150) 12%, transparent);
+}
+
+.esc-admin-users-status-invited {
+  color: oklch(48% 0.15 60);
+  background: color-mix(in oklch, oklch(48% 0.15 60) 12%, transparent);
+}
+
+.esc-admin-users-status-deactivated {
+  color: var(--color-staff-content-muted);
+  background: var(--color-staff-border);
+}
+
+.esc-admin-users-role-select {
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.esc-admin-users-role-fixed {
+  font-size: 13px;
+  color: var(--color-staff-content-secondary);
+  width: 90px;
+  flex-shrink: 0;
+}
+
+.esc-admin-users-resend,
+.esc-admin-users-deactivate {
+  margin: 0 16px 12px;
+  justify-self: start;
+}
+
+.esc-admin-users-audit-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.esc-admin-users-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: var(--radius-staff-control);
+  background: var(--color-staff-surface-raised);
+  border: 1.5px solid var(--color-staff-border);
+  font-size: 14px;
+  z-index: 20;
+}

@@ -3,15 +3,15 @@
  *
  * This slice ships escalation oversight (15.7) from `distress-store`. Pilot
  * progress, data-subject requests, and teachers without a Space are omitted until
- * their backing systems exist (14a, 17). Billing renewal appears on Today/Week (15c);
- * Briefing billing cards remain deferred until that synthesis is extended.
+ * their backing systems exist (17). Billing renewal appears on Today/Week (15c);
+ * user/role management lives at /admin/users (14a). Briefing cards for those
+ * signals remain deferred until that synthesis is extended.
  *
  * Standing rules for the Admin phase:
  * - Req 15b.5 (LMS integration setup) and 15c.3 (billing plan changes) stay
  *   structured-only forever — no plain-language AI assist on either action.
- * - Req 37.7 ("another admin already has this open") should land as one shared
- *   utility when 14a/17 arrive, reusing the views-array pattern on Escalations
- *   — not separate implementations per surface.
+ * - Req 37.7 shared record views live in lib/shared-record-views.ts (deletion +
+ *   user-role management); Escalations keep their existing views[] until migrated.
  *
  * Req 15.5: when activity exists but triage confidence is low, Briefing should
  * default to school-wide Analytics (15a). `BriefingScreen` redirects to

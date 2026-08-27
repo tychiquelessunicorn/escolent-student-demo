@@ -2,7 +2,8 @@
  * Generic shared "recently viewed" tracking — Req 37.7 / design §14d.
  *
  * Redis-backed from the start, keyed by recordType + recordId so deletion
- * requests and future role-management can share one mechanism.
+ * requests (data_rights_request) and user-role management (user_role) share
+ * one mechanism.
  *
  * Escalations keep their existing views[] on distress records — migrating that
  * path to this module is a separate, safety-adjacent slice (do not do here).

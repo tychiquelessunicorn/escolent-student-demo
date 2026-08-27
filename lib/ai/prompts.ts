@@ -244,6 +244,32 @@ export async function adminBillingAskPrompt(question: string): Promise<string> {
 }
 
 /**
+ * Req 14a.1 — plain language → draft invite/role/deactivate fields only.
+ * Data-deletion routing is handled before this prompt runs (parseDeletionIntent).
+ */
+export const ADMIN_USER_COMMAND_SYSTEM = `You draft structured user-management actions from plain language for a school admin on a Users & Roles screen. Respond with ONLY strict JSON — no markdown, no prose. Never handle student data deletion here.`;
+
+export function adminUserCommandPrompt(text: string, rosterLines: string): string {
+  return `Classify this admin request into one action and extract fields.
+
+Known staff (for role_change or deactivate — match names only from this list):
+${rosterLines}
+
+Actions:
+- invite: inviting a NEW person not already in the list (needs fullName; email if given; role teacher or admin; optional gradeLabel like "Grade 8")
+- role_change: change an EXISTING listed person's role (needs resolvable fullName from list; newRole teacher or admin)
+- deactivate: deactivate an EXISTING listed person's login access (needs resolvable fullName)
+- unclear: read-only questions, missing critical details, or ambiguous intent
+
+If the person is already in the known staff list, do NOT classify as invite.
+
+Return ONLY strict JSON:
+{"action":"invite"|"role_change"|"deactivate"|"unclear","fullName":string|null,"email":string|null,"role":"teacher"|"admin"|null,"newRole":"teacher"|"admin"|null,"gradeLabel":string|null,"clarificationNeeded":string|null}
+
+Request: "${text.replace(/"/g, '\\"')}"`;
+}
+
+/**
  * Req 12 — weekly digest body. Delivery is a labeled preview; this prompt
  * produces real prose from computed metrics (never a fill-in template).
  */
