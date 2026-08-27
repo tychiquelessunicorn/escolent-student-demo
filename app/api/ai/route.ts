@@ -5,6 +5,7 @@ import {
   hintPrompt,
   introPrompt,
   learnAskPrompt,
+  overviewAskPrompt,
   practiceAskPrompt,
   problemsFor,
   progressAskPrompt,
@@ -54,6 +55,12 @@ function readSpaceId(body: Body): string | undefined {
   const value = body.spaceId;
   if (typeof value !== "string") return undefined;
   return DEMO_SPACES.some((space) => space.id === value) ? value : undefined;
+}
+
+function readSpaceFilter(body: Body): string | null {
+  const value = body.spaceFilter;
+  if (value === "algebra_8a" || value === "remediation_8a") return value;
+  return null;
 }
 
 export async function POST(request: Request) {
@@ -176,6 +183,19 @@ export async function POST(request: Request) {
           typeof parsed.feedback === "string" ? parsed.feedback.trim() : "";
         if (!tier) return badRequest("Grader returned an unusable tier");
         return NextResponse.json({ tier, feedback });
+      }
+
+      case "overview_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const spaceFilter = readSpaceFilter(body);
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: overviewAskPrompt(question, spaceFilter),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
       }
 
       case "today_ask":

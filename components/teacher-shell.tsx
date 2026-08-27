@@ -12,7 +12,11 @@ const NAV_ITEMS: {
 }[] = [
   { label: "Briefing", soon: true },
   { label: "Today", soon: true },
-  { label: "Overview", soon: true },
+  {
+    label: "Overview",
+    href: "/teacher/overview",
+    match: ["/teacher/overview"],
+  },
   {
     label: "Escalations",
     href: "/teacher/escalations",
@@ -131,12 +135,22 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
                   fontWeight: active ? 800 : 600,
                   letterSpacing: active ? "-0.02em" : "0",
                   padding: "12px 16px",
-                  borderRadius: "var(--radius-control)",
+                  borderRadius: "var(--radius-staff-control)",
                   textDecoration: "none",
-                  background: active ? "var(--color-escalation-subtle)" : "transparent",
-                  color: active ? "var(--color-escalation-fg)" : "var(--color-content-secondary)",
+                  background: active
+                    ? item.href.includes("/escalations")
+                      ? "var(--color-escalation-subtle)"
+                      : "var(--color-staff-interactive-subtle)"
+                    : "transparent",
+                  color: active
+                    ? item.href.includes("/escalations")
+                      ? "var(--color-escalation-fg)"
+                      : "var(--color-staff-interactive)"
+                    : "var(--color-staff-content-secondary)",
                   border: active
-                    ? "1.5px solid var(--color-escalation-border)"
+                    ? item.href.includes("/escalations")
+                      ? "1.5px solid var(--color-escalation-border)"
+                      : "1.5px solid var(--color-staff-interactive-border)"
                     : "1.5px solid transparent",
                   display: "flex",
                   alignItems: "center",
@@ -149,7 +163,11 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
                     width: 8,
                     height: 8,
                     borderRadius: 3,
-                    background: active ? "var(--color-escalation)" : "var(--color-border)",
+                    background: active
+                      ? item.href.includes("/escalations")
+                        ? "var(--color-escalation)"
+                        : "var(--color-staff-interactive)"
+                      : "var(--color-staff-border)",
                     flexShrink: 0,
                   }}
                 />

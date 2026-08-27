@@ -11,6 +11,7 @@ import {
   prerequisiteOf,
   type PracticeProblem,
 } from "@/lib/demo-data";
+import { buildMasteryOverview } from "@/lib/mastery-overview-store";
 
 /**
  * Every prompt below is the prototype's prompt, moved server-side unchanged.
@@ -154,6 +155,33 @@ export function progressAskPrompt(question: string, spaceId?: string): string {
     .join("\n");
 
   return `You are answering a grade 8 student's question about her own progress in the "${space.name}" Space (${space.subject}), using ONLY this real data. She is only tracked on this Space — nothing outside it is tracked or assessed here.\n\nSkills tracked:\n${skillLines}\n\nRecent sessions:\n${sessionLines}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If she asks about something not in this list, say plainly that it isn't part of what's being tracked here, rather than inventing an answer. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export function overviewAskPrompt(question: string, spaceFilter: string | null): string {
+  const overview = buildMasteryOverview(spaceFilter);
+  const studentLines = overview.students
+    .map((student) => {
+      const cells = student.cells
+        .map(
+          (cell) =>
+            `${cell.skillShort}=${cell.label}(${cell.fillPct}%)${cell.isGap ? " [prerequisite gap]" : ""}${cell.isOverride ? " [teacher override]" : ""}`,
+        )
+        .join(", ");
+      const misc =
+        student.misconceptions.length > 0
+          ? ` | misconceptions: ${student.misconceptions.map((m) => m.label).join("; ")}`
+          : "";
+      return `- ${student.fullName} (${student.spaceShort}): ${cells}${misc}`;
+    })
+    .join("\n");
+  const gapLines = overview.gapAlerts
+    .map((gap) => `- ${gap.studentName}: ${gap.skillName}`)
+    .join("\n");
+  const miscLines = overview.misconceptions
+    .map((m) => `- ${m.label} (${m.studentCount} students)`)
+    .join("\n");
+
+  return `You are answering a teacher's question about her Mastery Overview grid, using ONLY this real per-student, per-skill data. Percentages map approximate mastery depth: Durable=92%, Tentative=72%, Emerging=48%, Struggling=25%, Not attempted=0%.\n\nScope: ${overview.scopeLabel}\n\nStudents:\n${studentLines}\n\nPrerequisite gap alerts:\n${gapLines || "- none"}\n\nMisconceptions this week:\n${miscLines || "- none"}\n\nHer question: "${question}"\n\nAnswer directly using real student names from the data above. If she asks about a threshold like "below 60%", use the percentages given. If nothing matches, say so plainly rather than inventing anything. Keep it to a few sentences or a short plain list of names. Respond with ONLY the plain answer — no markdown, no labels, no emojis.`;
 }
 
 /**
