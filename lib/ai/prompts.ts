@@ -23,6 +23,14 @@ import {
   type AdminAnalyticsDateRangePreset,
 } from "@/lib/admin-analytics-store";
 import {
+  buildAdminBriefing,
+  adminBriefingAskGroundingLines,
+} from "@/lib/admin-briefing-store";
+import {
+  buildAdminTodaySchedule,
+  adminTodayAskGroundingLines,
+} from "@/lib/admin-today-store";
+import {
   adminBillingAskGroundingLines,
   getAdminBillingSnapshot,
 } from "@/lib/admin-billing-store";
@@ -241,6 +249,27 @@ export async function adminBillingAskPrompt(question: string): Promise<string> {
   const dataLines = adminBillingAskGroundingLines(billing).join("\n");
 
   return `You are answering an Admin's question about the school's Escolent subscription billing, using ONLY these real billing fields. Do not invent plan prices, seat counts, renewal dates, or dollar amounts absent from the data. If they ask to change the plan, say plainly that plan changes must use the structured form on the Billing page — you cannot change plans from this ask box.\n\nBilling data:\n${dataLines}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the billing data above. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminBriefingAskPrompt(question: string): Promise<string> {
+  const briefing = await buildAdminBriefing({ demoState: "auto" });
+  const dataLines = adminBriefingAskGroundingLines(briefing).join("\n");
+
+  return `You are answering an Admin's question about the Daily Briefing, using ONLY these real synthesized briefing items. Do not invent escalations, data requests, rollout gaps, or billing signals absent from the data.\n\nScope: ${briefing.scopeLabel}\nBriefing state: ${briefing.state}\n\nBriefing items:\n${dataLines || "- none listed"}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the items above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminTodayAskPrompt(
+  question: string,
+  view: "today" | "week",
+): Promise<string> {
+  const schedule = await buildAdminTodaySchedule();
+  const dataLines = adminTodayAskGroundingLines(schedule).join("\n");
+  const viewNote =
+    view === "week"
+      ? schedule.weekNote
+      : `Today is ${schedule.todayShortLabel}.`;
+
+  return `You are answering an Admin's question about the school-wide backlog (${view} view), using ONLY this real backlog data. Do not invent compliance deadlines, billing events, or curation counts absent from the data.\n\nScope: ${schedule.scopeLabel}\n${viewNote}\n\nBacklog items:\n${dataLines || "- none listed"}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
 /**

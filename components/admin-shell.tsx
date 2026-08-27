@@ -36,20 +36,11 @@ const NAV_ITEMS: {
     href: "/admin/data-requests",
     match: ["/admin/data-requests"],
   },
-  {
-    label: "Pilot",
-    href: "/admin/pilot",
-    match: ["/admin/pilot"],
-  },
+  // Demo-hidden — routes remain at /admin/pilot and /admin/billing for reversibility.
   {
     label: "Users",
     href: "/admin/users",
     match: ["/admin/users"],
-  },
-  {
-    label: "Billing",
-    href: "/admin/billing",
-    match: ["/admin/billing"],
   },
 ];
 

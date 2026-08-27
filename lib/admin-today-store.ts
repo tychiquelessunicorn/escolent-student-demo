@@ -1,8 +1,10 @@
 /**
  * Admin Today / Week — Req 15b (minus LMS setup).
  *
- * Escalation backlog, curation backlog, and billing renewal (15c) are real.
- * Compliance deadlines stay omitted until their backing systems exist.
+ * Escalation backlog and curation backlog are real. Billing renewal (15c) stays
+ * implemented in admin-billing-store but its Today/Week card is demo-hidden until
+ * Billing is in the investor demo again. Compliance deadlines stay omitted until
+ * their backing systems exist.
  */
 
 import { buildBillingRenewalEventCopy } from "@/lib/admin-billing-store";
@@ -18,6 +20,9 @@ import {
 } from "@/lib/demo-data/teacher-schedule";
 
 export type AdminTodayKind = "escalation_backlog" | "billing_event" | "curation_backlog";
+
+/** Demo-visible Today/Week cards — billing hidden until /admin/billing is in the demo again. */
+const SHOW_BILLING_TODAY_ITEM = false;
 
 export interface AdminTodayUnmatchedEntry {
   id: string;
@@ -133,7 +138,7 @@ function sortItems(items: AdminTodayItem[]): AdminTodayItem[] {
 export async function buildAdminTodaySchedule(): Promise<AdminTodaySchedule> {
   const [escalation, billing] = await Promise.all([
     buildEscalationBacklogItem(),
-    buildBillingEventItem(),
+    SHOW_BILLING_TODAY_ITEM ? buildBillingEventItem() : Promise.resolve(null),
   ]);
   const curation = buildCurationBacklogItem();
   const items = sortItems([
@@ -151,4 +156,16 @@ export async function buildAdminTodaySchedule(): Promise<AdminTodaySchedule> {
     weekNote:
       "These are school-wide standing counts, not events scheduled on a particular day — a day-by-day calendar would invent dates that are not in the data.",
   };
+}
+
+/** Flat grounding lines for the Admin Today/Week ask box — same items the UI shows. */
+export function adminTodayAskGroundingLines(schedule: AdminTodaySchedule): string[] {
+  return schedule.items.map((item) => {
+    const base = `- ${item.kind} | scope: ${item.scopeLabel} | title: ${item.title} | detail: ${item.detail} | due: ${item.dueMeta}`;
+    if (item.unmatchedEntries?.length) {
+      const names = item.unmatchedEntries.map((entry) => entry.fullName).join(", ");
+      return `${base} | unmatched students: ${names}`;
+    }
+    return base;
+  });
 }

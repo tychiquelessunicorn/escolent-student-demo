@@ -3932,6 +3932,10 @@
   border-top: 1.5px solid var(--color-staff-border);
 }
 
+.esc-admin-ask {
+  margin-bottom: 24px;
+}
+
 .esc-admin-today-week-note {
   margin: 0 0 20px;
   padding: 14px 16px;

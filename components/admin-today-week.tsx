@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { AdminAskBox } from "@/components/admin-ask-box";
 import { hapticTap } from "@/lib/haptics";
 import type { AdminTodayItem, AdminTodaySchedule } from "@/lib/admin-today-store";
 import type { LmsIntegrationStatusPayload } from "@/lib/lms-integration-store";
@@ -186,6 +187,16 @@ export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
         <div className="esc-screen-top-aside">
           <ViewTabs view={view} />
         </div>
+      </div>
+
+      <div className="esc-teacher-today-ask">
+        <AdminAskBox
+          task="admin_today_ask"
+          view={view}
+          label="Ask about this backlog"
+          placeholder='Ask the backlog… e.g. "how many escalations are open school-wide"'
+          loadingLabel="Checking the backlog…"
+        />
       </div>
 
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}

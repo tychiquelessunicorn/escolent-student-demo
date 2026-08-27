@@ -16,6 +16,8 @@ import {
   spaceCoauthorPrompt,
   adminAnalyticsAskPrompt,
   adminBillingAskPrompt,
+  adminBriefingAskPrompt,
+  adminTodayAskPrompt,
   teacherBriefingAskPrompt,
   teacherTodayAskPrompt,
   todayAskPrompt,
@@ -258,6 +260,32 @@ export async function POST(request: Request) {
           model: MODEL_DEFAULT,
           system: ASK_LOOKUP_SYSTEM,
           prompt: await adminBillingAskPrompt(question),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_briefing_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminBriefingAskPrompt(question),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_today_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const viewRaw = body.view;
+        const view = viewRaw === "week" ? "week" : "today";
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminTodayAskPrompt(question, view),
           maxTokens: 500,
         });
         return NextResponse.json({ text: sanitizeAiText(text) });

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { AdminAskBox } from "@/components/admin-ask-box";
 import { getPrimaryAdmin } from "@/lib/demo-data/staff";
 import type { AdminBriefingItem, AdminBriefing } from "@/lib/admin-briefing-store";
 
@@ -172,6 +173,17 @@ function AdminBriefingInner() {
 
       {initialLoading ? <p className="esc-staff-body">Loading…</p> : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
+
+      {data && !initialLoading && !error ? (
+        <div className="esc-briefing-ask">
+          <AdminAskBox
+            task="admin_briefing_ask"
+            label="Ask about this briefing"
+            placeholder='Ask the briefing… e.g. "how many escalations are overdue"'
+            loadingLabel="Checking the briefing…"
+          />
+        </div>
+      ) : null}
 
       {data && !initialLoading && !error ? (
         <div

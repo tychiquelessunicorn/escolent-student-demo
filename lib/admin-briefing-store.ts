@@ -3,9 +3,8 @@
  *
  * This slice ships escalation oversight (15.7) from `distress-store`. Pilot
  * progress, data-subject requests, and teachers without a Space are omitted until
- * their backing systems exist (17). Billing renewal appears on Today/Week (15c);
- * user/role management lives at /admin/users (14a). Briefing cards for those
- * signals remain deferred until that synthesis is extended.
+ * their backing systems exist (17). Billing renewal is implemented (15c) but its
+ * Today/Week card is demo-hidden; user/role management lives at /admin/users (14a).
  *
  * Standing rules for the Admin phase:
  * - Req 15b.5 (LMS integration setup) and 15c.3 (billing plan changes) stay
@@ -139,4 +138,23 @@ export async function buildAdminBriefing(options?: {
     computedAt,
     items,
   };
+}
+
+/** Flat grounding lines for the Admin Briefing ask box — same synthesis the UI shows. */
+export function adminBriefingAskGroundingLines(briefing: AdminBriefing): string[] {
+  if (briefing.state === "no_rollout") {
+    return ["- state: no_rollout | no briefing items — teachers have not created Spaces yet"];
+  }
+  if (briefing.state === "insufficient_data") {
+    return [
+      "- state: insufficient_data | triage confidence too low — school-wide Analytics is the recommended next step",
+    ];
+  }
+  if (briefing.state === "all_clear") {
+    return ["- state: all_clear | no urgent or informational briefing items right now"];
+  }
+  return briefing.items.map(
+    (item) =>
+      `- ${item.category} | urgency: ${item.urgency} | scope: ${item.scopeLabel} | title: ${item.title} | detail: ${item.detail}`,
+  );
 }
