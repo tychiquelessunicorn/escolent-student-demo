@@ -14,6 +14,7 @@ import {
   rubricGradePrompt,
   sanitizeAiText,
   spaceCoauthorPrompt,
+  adminAnalyticsAskPrompt,
   teacherBriefingAskPrompt,
   teacherTodayAskPrompt,
   todayAskPrompt,
@@ -229,6 +230,21 @@ export async function POST(request: Request) {
           model: MODEL_DEFAULT,
           system: ASK_LOOKUP_SYSTEM,
           prompt: await teacherBriefingAskPrompt(question, spaceFilter),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_analytics_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const rangeRaw = body.dateRange;
+        const dateRange =
+          rangeRaw === "14d" || rangeRaw === "all" || rangeRaw === "7d" ? rangeRaw : "7d";
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminAnalyticsAskPrompt(question, dateRange),
           maxTokens: 500,
         });
         return NextResponse.json({ text: sanitizeAiText(text) });

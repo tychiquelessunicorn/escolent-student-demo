@@ -17,7 +17,11 @@ const NAV_ITEMS: {
     match: ["/admin/briefing", "/admin"],
   },
   { label: "Today", soon: true },
-  { label: "Analytics", soon: true },
+  {
+    label: "Analytics",
+    href: "/admin/analytics",
+    match: ["/admin/analytics"],
+  },
   { label: "Pilot", soon: true },
   { label: "Users", soon: true },
   { label: "Billing", soon: true },

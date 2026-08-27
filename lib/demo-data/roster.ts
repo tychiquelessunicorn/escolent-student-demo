@@ -100,10 +100,34 @@ export const ROSTER: RosterStudent[] = [
     activityLabel: "12 min ago",
     lastActivityAt: minutesAgo(12),
     recentSessions: [
-      { date: "Aug 18", title: "Two-step equations", result: "4 problems · used a hint once" },
-      { date: "Aug 16", title: "Two-step equations", result: "3 problems · first attempt" },
-      { date: "Aug 15", title: "One-step equations", result: "5 of 5 correct — crossed to tentative" },
-      { date: "Aug 12", title: "Integer operations", result: "1 of 3 correct — flagged as a gap" },
+      {
+        date: "Aug 18",
+        title: "Two-step equations",
+        result: "4 problems · used a hint once",
+        durationMinutes: 22,
+        problemsAttempted: 4,
+      },
+      {
+        date: "Aug 16",
+        title: "Two-step equations",
+        result: "3 problems · first attempt",
+        durationMinutes: 18,
+        problemsAttempted: 3,
+      },
+      {
+        date: "Aug 15",
+        title: "One-step equations",
+        result: "5 of 5 correct — crossed to tentative",
+        durationMinutes: 25,
+        problemsAttempted: 5,
+      },
+      {
+        date: "Aug 12",
+        title: "Integer operations",
+        result: "1 of 3 correct — flagged as a gap",
+        durationMinutes: 14,
+        problemsAttempted: 3,
+      },
     ],
     escalationNote: "Active escalation records exist in the shared distress store.",
   }),
@@ -120,8 +144,20 @@ export const ROSTER: RosterStudent[] = [
     isLive: true,
     lastActivityAt: minutesAgo(2),
     recentSessions: [
-      { date: "Aug 19", title: "Variables on both sides", result: "2 of 3 correct — emerging" },
-      { date: "Aug 17", title: "Multi-step equations", result: "4 of 4 first-try — crossed to tentative" },
+      {
+        date: "Aug 19",
+        title: "Variables on both sides",
+        result: "2 of 3 correct — emerging",
+        durationMinutes: 16,
+        problemsAttempted: 3,
+      },
+      {
+        date: "Aug 17",
+        title: "Multi-step equations",
+        result: "4 of 4 first-try — crossed to tentative",
+        durationMinutes: 28,
+        problemsAttempted: 4,
+      },
     ],
   }),
   row("zainab_osei", "Zainab Osei", "algebra_8a", [
@@ -144,8 +180,20 @@ export const ROSTER: RosterStudent[] = [
       },
     ],
     recentSessions: [
-      { date: "Aug 17", title: "Two-step equations", result: "3 of 5 correct — sign errors on negatives" },
-      { date: "Aug 14", title: "One-step equations", result: "4 of 4 correct" },
+      {
+        date: "Aug 17",
+        title: "Two-step equations",
+        result: "3 of 5 correct — sign errors on negatives",
+        durationMinutes: 24,
+        problemsAttempted: 5,
+      },
+      {
+        date: "Aug 14",
+        title: "One-step equations",
+        result: "4 of 4 correct",
+        durationMinutes: 20,
+        problemsAttempted: 4,
+      },
     ],
   }),
   row("marcus_diaz", "Marcus Diaz", "algebra_8a", [
@@ -161,8 +209,20 @@ export const ROSTER: RosterStudent[] = [
     isLive: true,
     lastActivityAt: minutesAgo(1),
     recentSessions: [
-      { date: "Aug 19", title: "Two-step equations", result: "1 of 4 correct — stuck 4+ days" },
-      { date: "Aug 15", title: "Two-step equations", result: "2 of 4 correct" },
+      {
+        date: "Aug 19",
+        title: "Two-step equations",
+        result: "1 of 4 correct — stuck 4+ days",
+        durationMinutes: 21,
+        problemsAttempted: 4,
+      },
+      {
+        date: "Aug 15",
+        title: "Two-step equations",
+        result: "2 of 4 correct",
+        durationMinutes: 19,
+        problemsAttempted: 4,
+      },
     ],
   }),
   row("elena_cruz", "Elena Cruz", "algebra_8a", [
@@ -183,8 +243,20 @@ export const ROSTER: RosterStudent[] = [
       teacherId: "sarah_mokoena",
     },
     recentSessions: [
-      { date: "Aug 16", title: "One-step equations", result: "3 of 4 correct" },
-      { date: "Aug 10", title: "Integer operations", result: "Override applied after class observation" },
+      {
+        date: "Aug 16",
+        title: "One-step equations",
+        result: "3 of 4 correct",
+        durationMinutes: 17,
+        problemsAttempted: 4,
+      },
+      {
+        date: "Aug 10",
+        title: "Integer operations",
+        result: "Override applied after class observation",
+        durationMinutes: 12,
+        problemsAttempted: 3,
+      },
     ],
   }),
   row("priya_chen", "Priya Chen", "algebra_8a", [
@@ -335,8 +407,20 @@ export const ROSTER: RosterStudent[] = [
     escalationNote:
       "Resolved escalation from 12 days ago — acknowledged and closed the same day. Historical record for continuity with Escalations.",
     recentSessions: [
-      { date: "Aug 18", title: "One-step equations", result: "3 of 4 correct" },
-      { date: "Aug 15", title: "Integer operations", result: "4 of 5 correct" },
+      {
+        date: "Aug 18",
+        title: "One-step equations",
+        result: "3 of 4 correct",
+        durationMinutes: 18,
+        problemsAttempted: 4,
+      },
+      {
+        date: "Aug 15",
+        title: "Integer operations",
+        result: "4 of 5 correct",
+        durationMinutes: 16,
+        problemsAttempted: 5,
+      },
     ],
   }),
   row("noah_whitfield", "Noah Whitfield", "remediation_8a", [
@@ -353,8 +437,20 @@ export const ROSTER: RosterStudent[] = [
     lastActivityAt: hoursAgo(3),
     escalationNote: "Open escalation from Tuesday's check-in — see Escalations.",
     recentSessions: [
-      { date: "Aug 17", title: "Integer operations", result: "1 of 3 correct — flagged" },
-      { date: "Aug 14", title: "Equation basics", result: "2 of 4 correct" },
+      {
+        date: "Aug 17",
+        title: "Integer operations",
+        result: "1 of 3 correct — flagged",
+        durationMinutes: 15,
+        problemsAttempted: 3,
+      },
+      {
+        date: "Aug 14",
+        title: "Equation basics",
+        result: "2 of 4 correct",
+        durationMinutes: 18,
+        problemsAttempted: 4,
+      },
     ],
   }),
   row("destiny_moore", "Destiny Moore", "remediation_8a", [

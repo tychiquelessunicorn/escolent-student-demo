@@ -88,4 +88,8 @@ export interface SessionRecord {
   date: string;
   title: string;
   result: string;
+  /** Wall-clock practice time for adoption metrics (Req 15a). */
+  durationMinutes: number;
+  /** Problems attempted in the session — drives total practice-problem counts. */
+  problemsAttempted: number;
 }

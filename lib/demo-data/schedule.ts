@@ -135,20 +135,28 @@ export const RECENT_SESSIONS: SessionRecord[] = [
     date: "Aug 18",
     title: "Two-step equations",
     result: "4 problems · used a hint once",
+    durationMinutes: 22,
+    problemsAttempted: 4,
   },
   {
     date: "Aug 16",
     title: "Two-step equations",
     result: "3 problems · first attempt",
+    durationMinutes: 18,
+    problemsAttempted: 3,
   },
   {
     date: "Aug 15",
     title: "One-step equations",
     result: "5 of 5 correct — crossed to tentative",
+    durationMinutes: 25,
+    problemsAttempted: 5,
   },
   {
     date: "Aug 12",
     title: "Integer operations",
     result: "1 of 3 correct — flagged as a gap",
+    durationMinutes: 14,
+    problemsAttempted: 3,
   },
 ];

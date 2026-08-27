@@ -14,10 +14,8 @@
  *   — not separate implementations per surface.
  *
  * Req 15.5: when activity exists but triage confidence is low, Briefing should
- * default to school-wide Analytics (15a). Analytics is not built yet — mirror
- * Teacher Briefing's insufficient-data honesty (see `buildTeacherBriefing` and
- * `BriefingScreen`) but do not redirect to `/admin/analytics` until that route
- * exists. Harness `insufficient_data` renders inline copy only.
+ * default to school-wide Analytics (15a). `BriefingScreen` redirects to
+ * `/admin/analytics?from=briefing-insufficient` — same pattern as Teacher → Overview.
  */
 
 import {

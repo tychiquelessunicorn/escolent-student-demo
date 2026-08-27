@@ -18,6 +18,11 @@ import {
   briefingAskGroundingLines,
 } from "@/lib/briefing-store";
 import {
+  buildAdminAnalytics,
+  adminAnalyticsAskGroundingLines,
+  type AdminAnalyticsDateRangePreset,
+} from "@/lib/admin-analytics-store";
+import {
   computeWeeklyDigestMetrics,
   weeklyDigestGroundingLines,
 } from "@/lib/digest-store";
@@ -215,6 +220,16 @@ export async function teacherBriefingAskPrompt(
   const dataLines = briefingAskGroundingLines(briefing).join("\n");
 
   return `You are answering a teacher's question about her Daily Briefing, using ONLY these real synthesized briefing items for the current scope. Do not invent reasons, student situations, or flags that are not listed.\n\nScope: ${briefing.scopeLabel}\nBriefing state: ${briefing.state}\n\nBriefing items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the items above. If she asks why a student is flagged, use only items that name that student. If nothing matches, say so plainly rather than inventing an explanation. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminAnalyticsAskPrompt(
+  question: string,
+  dateRange: AdminAnalyticsDateRangePreset,
+): Promise<string> {
+  const analytics = await buildAdminAnalytics({ dateRange });
+  const dataLines = adminAnalyticsAskGroundingLines(analytics).join("\n");
+
+  return `You are answering an Admin's question about school-wide pilot analytics, using ONLY these real computed metrics. Do not invent adoption numbers, mastery counts, student names, or trends absent from the data.\n\nMetrics:\n${dataLines}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the metrics above. If they ask about a teacher, class, or metric not present in the data, say plainly that the data does not include it. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
 }
 
 /**

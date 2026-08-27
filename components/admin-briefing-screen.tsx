@@ -117,6 +117,20 @@ function AdminBriefingInner() {
     };
   }, [demoState]);
 
+  useEffect(() => {
+    if (data?.state === "insufficient_data") {
+      router.replace("/admin/analytics?from=briefing-insufficient");
+    }
+  }, [data?.state, router]);
+
+  if (data?.state === "insufficient_data") {
+    return (
+      <div className="esc-screen">
+        <p className="esc-staff-body">Opening school-wide Analytics — not enough signal yet…</p>
+      </div>
+    );
+  }
+
   const dateLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
     month: "long",
@@ -150,7 +164,7 @@ function AdminBriefingInner() {
             <option value="auto">Auto (live synthesis)</option>
             <option value="populated">Populated</option>
             <option value="no_rollout">No rollout yet (15.4)</option>
-            <option value="insufficient_data">Insufficient data (15.5 — Analytics not built)</option>
+            <option value="insufficient_data">Insufficient data → Analytics (15.5)</option>
             <option value="all_clear">Nothing urgent</option>
           </select>
         </div>
@@ -175,18 +189,6 @@ function AdminBriefingInner() {
               <p className="esc-staff-body">
                 Once your teachers create their first Spaces, your Briefing will start showing up
                 here.
-              </p>
-            </div>
-          ) : null}
-
-          {data.state === "insufficient_data" ? (
-            <div className="esc-staff-panel esc-briefing-edge">
-              <h2 className="esc-briefing-edge-title">Still learning about your school.</h2>
-              <p className="esc-staff-body">
-                It&apos;s early in the pilot — not enough signal yet to brief you on anything
-                meaningful. When Analytics ships, this state will open school-wide Analytics
-                automatically — that route does not exist yet, so we stay here instead of
-                redirecting.
               </p>
             </div>
           ) : null}
