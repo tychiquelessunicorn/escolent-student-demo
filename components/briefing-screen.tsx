@@ -64,7 +64,11 @@ function BriefingItemCard({
         <button type="button" className="esc-briefing-item-button" onClick={onToggle}>
           {body}
           <span className="esc-briefing-item-hint">
-            {expanded ? "Hide students" : `Choose among ${item.affectedStudents.length} students`}
+            {expanded
+              ? "Hide students"
+              : item.affectedStudents.length === 1
+                ? "Open student"
+                : `Choose among ${item.affectedStudents.length} students`}
           </span>
         </button>
         {expanded ? (
@@ -134,7 +138,8 @@ function BriefingInner() {
   const showDemo = searchParams.get("demo") === "1";
 
   const [data, setData] = useState<TeacherBriefing | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -155,30 +160,41 @@ function BriefingInner() {
     [pathname, router, searchParams],
   );
 
-  const refresh = useCallback(async () => {
-    try {
-      const params = new URLSearchParams();
-      if (spaceFilter !== "all") params.set("space", spaceFilter);
-      if (demoState !== "auto") params.set("briefingState", demoState);
-      const query = params.toString();
-      const response = await fetch(
-        `/api/teacher/briefing${query ? `?${query}` : ""}`,
-      );
-      if (!response.ok) throw new Error(`status ${response.status}`);
-      const payload = (await response.json()) as TeacherBriefing;
-      setData(payload);
-      setError(null);
-    } catch {
-      setError("Could not load your briefing right now.");
-    } finally {
-      setLoading(false);
-    }
-  }, [demoState, spaceFilter]);
-
   useEffect(() => {
-    setLoading(true);
-    void refresh();
-  }, [refresh]);
+    let cancelled = false;
+
+    async function load() {
+      setRefreshing(true);
+      setExpandedId(null);
+      try {
+        const params = new URLSearchParams();
+        if (spaceFilter !== "all") params.set("space", spaceFilter);
+        if (demoState !== "auto") params.set("briefingState", demoState);
+        const query = params.toString();
+        const response = await fetch(
+          `/api/teacher/briefing${query ? `?${query}` : ""}`,
+        );
+        if (!response.ok) throw new Error(`status ${response.status}`);
+        const payload = (await response.json()) as TeacherBriefing;
+        if (cancelled) return;
+        setData(payload);
+        setError(null);
+      } catch {
+        if (cancelled) return;
+        setError("Could not load your briefing right now.");
+      } finally {
+        if (!cancelled) {
+          setInitialLoading(false);
+          setRefreshing(false);
+        }
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, [demoState, spaceFilter]);
 
   useEffect(() => {
     if (data?.state === "insufficient_data") {
@@ -212,7 +228,7 @@ function BriefingInner() {
         </div>
         <div className="esc-mastery-space-switch" role="tablist" aria-label="Space filter">
           {[
-            { id: "all" as const, label: "Both Spaces" },
+            { id: "all" as const, label: "All Spaces" },
             { id: "algebra_8a" as const, label: "Grade 8A Algebra" },
             { id: "remediation_8a" as const, label: "Grade 8A Remediation" },
           ].map((option) => (
@@ -254,11 +270,19 @@ function BriefingInner() {
         </div>
       ) : null}
 
-      {loading ? <p className="esc-staff-body">Loading…</p> : null}
+      {initialLoading ? <p className="esc-staff-body">Loading…</p> : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
-      {data && !loading && !error ? (
-        <>
+      {data && !initialLoading && !error ? (
+        <div
+          className={[
+            "esc-briefing-body",
+            refreshing ? "esc-briefing-body-refreshing" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          aria-busy={refreshing}
+        >
           {data.state === "no_spaces" ? (
             <div className="esc-staff-panel esc-briefing-edge">
               <h2 className="esc-briefing-edge-title">No Spaces yet.</h2>
@@ -305,7 +329,7 @@ function BriefingInner() {
               ))}
             </div>
           ) : null}
-        </>
+        </div>
       ) : null}
 
       {!showDemo ? (

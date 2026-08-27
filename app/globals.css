@@ -2685,6 +2685,15 @@
   gap: 14px;
 }
 
+.esc-briefing-body {
+  transition: opacity var(--duration-staff) ease;
+}
+
+.esc-briefing-body-refreshing {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 .esc-briefing-item {
   background: var(--color-staff-surface-raised);
   border: 1px solid var(--color-staff-border);

@@ -124,7 +124,7 @@ function MasteryOverviewInner() {
         </div>
         <div className="esc-mastery-space-switch" role="tablist" aria-label="Space filter">
           {[
-            { id: "all" as const, label: "Both Spaces" },
+            { id: "all" as const, label: "All Spaces" },
             { id: "algebra_8a" as const, label: "Grade 8A Algebra" },
             { id: "remediation_8a" as const, label: "Grade 8A Remediation" },
           ].map((option) => (
