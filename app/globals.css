@@ -2021,6 +2021,17 @@
 
 /* Teacher visual foundation reference — /teacher/foundation */
 .esc-staff-foundation {
+  /*
+    Foundation-only chroma pass (same discipline as Student foundation warming):
+    raise interactive tokens to match Student brand blue values, without aliasing
+    to --color-accent* and without changing global :root staff tokens yet.
+    Neutrals and escalation red stay as-is.
+  */
+  --color-staff-interactive: oklch(48.8% 0.217 264.4);
+  --color-staff-interactive-hover: oklch(40% 0.22 264.4);
+  --color-staff-interactive-subtle: oklch(92% 0.055 264.4);
+  --color-staff-interactive-border: oklch(72% 0.12 264.4);
+
   min-height: 100vh;
   background: var(--color-staff-surface);
   color: var(--color-staff-content-primary);
