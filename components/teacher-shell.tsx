@@ -191,6 +191,87 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
 
         <div className="esc-shell-main">{children}</div>
       </div>
+
+      <nav
+        id="app-bottomnav"
+        aria-label="Teacher navigation"
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background:
+            "color-mix(in oklch, var(--color-staff-surface-raised) 92%, transparent)",
+          backdropFilter: "blur(10px)",
+          borderTop: "1.5px solid var(--color-staff-border)",
+          zIndex: 10,
+          paddingBottom: "env(safe-area-inset-bottom, 0)",
+        }}
+      >
+        {NAV_ITEMS.map((item) => {
+          if (item.soon || !item.href) {
+            return (
+              <div
+                key={item.label}
+                className="esc-teacher-bottomnav-disabled"
+                aria-disabled="true"
+                title="Coming soon"
+              >
+                <span aria-hidden className="esc-teacher-bottomnav-dot" />
+                {item.label}
+              </div>
+            );
+          }
+          const active = isActive(pathname, item.match);
+          const isEscalations = item.href.includes("/escalations");
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="esc-pressable"
+              style={{
+                flex: 1,
+                height: 56,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                textDecoration: "none",
+                fontFamily: "var(--font-display)",
+                fontSize: 11,
+                fontWeight: active ? 800 : 600,
+                letterSpacing: "-0.01em",
+                color: active
+                  ? isEscalations
+                    ? "var(--color-escalation-fg)"
+                    : "var(--color-staff-interactive)"
+                  : "var(--color-staff-content-muted)",
+                background: active
+                  ? isEscalations
+                    ? "var(--color-escalation-subtle)"
+                    : "var(--color-staff-interactive-subtle)"
+                  : "transparent",
+              }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 2,
+                  background: active
+                    ? isEscalations
+                      ? "var(--color-escalation)"
+                      : "var(--color-staff-interactive)"
+                    : "transparent",
+                }}
+              />
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

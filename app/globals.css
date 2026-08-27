@@ -1823,6 +1823,33 @@
   border-right-color: var(--color-staff-border) !important;
 }
 
+.esc-staff-shell #app-bottomnav {
+  border-top-color: var(--color-staff-border);
+}
+
+.esc-staff-shell .esc-teacher-bottomnav-disabled {
+  flex: 1;
+  height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-staff-content-muted);
+  opacity: 0.55;
+}
+
+.esc-staff-shell .esc-teacher-bottomnav-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: transparent;
+}
+
 .esc-staff-shell .esc-teacher-nav-disabled {
   color: var(--color-staff-content-muted);
   font-size: var(--text-staff-base);
