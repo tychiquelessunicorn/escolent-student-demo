@@ -81,7 +81,7 @@ function row(
 }
 
 /**
- * Sarah's full roster — 16 in Grade 8A Algebra, 8 in Grade 8A Remediation.
+ * Sarah's full roster — 17 in Grade 8A Algebra, 8 in Grade 8A Remediation.
  * Named students carry the established demo stories; fillers are plausible
  * but unremarkable.
  */
@@ -320,6 +320,24 @@ export const ROSTER: RosterStudent[] = [
     activityLabel: "Yesterday",
     lastActivityAt: daysAgo(1),
   }),
+  row("aiden_foster", "Aiden Foster", "algebra_8a", [
+    "durable",
+    "tentative",
+    "tentative",
+    "emerging",
+    "not_attempted",
+    "not_attempted",
+    "not_attempted",
+  ], {
+    activityLabel: "Yesterday",
+    lastActivityAt: daysAgo(1),
+    escalationNote:
+      "Resolved escalation from 12 days ago — acknowledged and closed the same day. Historical record for continuity with Escalations.",
+    recentSessions: [
+      { date: "Aug 18", title: "One-step equations", result: "3 of 4 correct" },
+      { date: "Aug 15", title: "Integer operations", result: "4 of 5 correct" },
+    ],
+  }),
   row("noah_whitfield", "Noah Whitfield", "remediation_8a", [
     "tentative",
     "struggling",
@@ -468,4 +486,33 @@ export function masteryForStudent(student: RosterStudent, skillId: string): Mast
   const index = OVERVIEW_SKILL_IDS.indexOf(skillId);
   if (index < 0) return null;
   return student.tiers[index] ?? null;
+}
+
+/**
+ * Drill-down misconceptions: personal entries plus any aggregate the student
+ * is counted in. Prefer a personal entry when both cover the same skill so
+ * Zainab keeps her specific wording while aggregate counts stay consistent.
+ */
+export function misconceptionsForStudent(student: RosterStudent): StudentMisconception[] {
+  const merged: StudentMisconception[] = [...student.misconceptions];
+  const seen = new Set(
+    merged.map((entry) => `${entry.skillId}::${entry.label.toLowerCase()}`),
+  );
+  const personalSkillIds = new Set(merged.map((entry) => entry.skillId));
+
+  for (const aggregate of OVERVIEW_MISCONCEPTION_AGGREGATES) {
+    if (!(aggregate.studentIds as readonly string[]).includes(student.id)) continue;
+    if (personalSkillIds.has(aggregate.skillId)) continue;
+    const key = `${aggregate.skillId}::${aggregate.label.toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    merged.push({
+      skillId: aggregate.skillId,
+      skillName: aggregate.skillName,
+      label: aggregate.label,
+      observedAt: daysAgo(4),
+    });
+  }
+
+  return merged;
 }

@@ -2,6 +2,7 @@ import {
   OVERVIEW_MISCONCEPTION_AGGREGATES,
   ROSTER_LMS_FRESHNESS,
   type RosterStudent,
+  misconceptionsForStudent,
   rosterStudentsForSpace,
 } from "@/lib/demo-data/roster";
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
@@ -124,7 +125,7 @@ export function buildMasteryOverview(spaceFilter: string | null): MasteryOvervie
         buildCell(student, skill.id, student.tiers[index] ?? "not_attempted"),
       ),
       flaggedSkillIds: student.flaggedSkillIds,
-      misconceptions: student.misconceptions,
+      misconceptions: misconceptionsForStudent(student),
       override: student.override,
       recentSessions: student.recentSessions,
       escalationNote: student.escalationNote,
