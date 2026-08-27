@@ -26,6 +26,11 @@ const NAV_ITEMS: {
     href: "/admin/analytics",
     match: ["/admin/analytics"],
   },
+  {
+    label: "LMS",
+    href: "/admin/lms-setup",
+    match: ["/admin/lms-setup"],
+  },
   { label: "Pilot", soon: true },
   { label: "Users", soon: true },
   { label: "Billing", soon: true },

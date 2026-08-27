@@ -3942,3 +3942,144 @@
   border-radius: var(--radius-staff-shell);
   background: var(--color-staff-surface-sunken);
 }
+
+/* Admin LMS setup — structured credentials only (Req 15b.5). */
+.esc-admin-lms-screen {
+  max-width: 720px;
+}
+
+.esc-admin-lms-scope {
+  display: grid;
+  gap: 10px;
+}
+
+.esc-admin-lms-phase-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-lms-panels {
+  display: grid;
+  gap: 20px;
+}
+
+.esc-admin-lms-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.esc-admin-lms-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.esc-admin-lms-provider-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.esc-admin-lms-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.esc-admin-lms-badge-connected {
+  color: oklch(38% 0.1 150);
+  background: oklch(93% 0.03 150);
+}
+
+.esc-admin-lms-badge-idle {
+  color: var(--color-staff-content-secondary);
+  background: var(--color-staff-surface-sunken);
+}
+
+.esc-admin-lms-badge-error {
+  color: oklch(45% 0.11 25);
+  background: oklch(95% 0.03 25);
+}
+
+.esc-admin-lms-steps {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-lms-capabilities {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-lms-meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-lms-form {
+  display: grid;
+  gap: 12px;
+}
+
+.esc-admin-lms-field {
+  display: grid;
+  gap: 6px;
+}
+
+.esc-admin-lms-functions {
+  margin: 0;
+  padding: 0;
+  border: none;
+  display: grid;
+  gap: 8px;
+}
+
+.esc-admin-lms-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-staff-content-secondary);
+}
+
+.esc-admin-lms-success {
+  margin: 0;
+  font-size: 13px;
+  color: oklch(38% 0.1 150);
+}
+
+.esc-admin-lms-oauth {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px dashed var(--color-staff-border);
+  border-radius: var(--radius-staff-control);
+  background: var(--color-staff-surface-sunken);
+}
+
+.esc-admin-lms-oauth-toast {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-staff-content-muted);
+}
+
+.esc-admin-lms-strip {
+  display: grid;
+  gap: 0;
+}

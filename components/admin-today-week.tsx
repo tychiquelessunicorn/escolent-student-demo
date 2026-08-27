@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { hapticTap } from "@/lib/haptics";
 import type { AdminTodayItem, AdminTodaySchedule } from "@/lib/admin-today-store";
+import type { LmsIntegrationStatusPayload } from "@/lib/lms-integration-store";
 
 const KIND_LABEL: Record<AdminTodayItem["kind"], string> = {
   escalation_backlog: "Escalation backlog",
@@ -136,6 +137,7 @@ function AdminTodayItemCard({
 
 export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
   const [schedule, setSchedule] = useState<AdminTodaySchedule | null>(null);
+  const [lmsStatus, setLmsStatus] = useState<LmsIntegrationStatusPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -143,10 +145,16 @@ export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
     setError(null);
     try {
       const path = view === "today" ? "/api/admin/today" : "/api/admin/week";
-      const response = await fetch(path);
-      if (!response.ok) throw new Error("load failed");
-      const data = (await response.json()) as AdminTodaySchedule;
+      const [scheduleResponse, lmsResponse] = await Promise.all([
+        fetch(path),
+        fetch("/api/admin/lms/status"),
+      ]);
+      if (!scheduleResponse.ok) throw new Error("load failed");
+      const data = (await scheduleResponse.json()) as AdminTodaySchedule;
       setSchedule(data);
+      if (lmsResponse.ok) {
+        setLmsStatus((await lmsResponse.json()) as LmsIntegrationStatusPayload);
+      }
     } catch {
       setError("Could not load the backlog right now.");
       setSchedule(null);
@@ -177,6 +185,20 @@ export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
 
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
       {!schedule && !error ? <p className="esc-teacher-today-empty">Loading…</p> : null}
+
+      {lmsStatus ? (
+        <div className="esc-staff-panel esc-admin-lms-strip" style={{ marginBottom: 20 }}>
+          <p className="esc-staff-body" style={{ margin: "0 0 10px" }}>
+            {lmsStatus.integrations.find((entry) => entry.lmsType === "canvas")?.status ===
+            "authorized"
+              ? "Canvas is connected — Student and Teacher due-date rows already come from this integration."
+              : "Connect your school's LMS so Teachers and Students can see due dates from Canvas, Moodle, or Google Classroom."}
+          </p>
+          <Link href="/admin/lms-setup" className="esc-staff-btn esc-staff-btn-secondary esc-pressable">
+            Manage LMS connections
+          </Link>
+        </div>
+      ) : null}
 
       {schedule && view === "week" ? (
         <p className="esc-admin-today-week-note">{schedule.weekNote}</p>
