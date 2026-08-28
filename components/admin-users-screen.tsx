@@ -9,6 +9,7 @@ import type {
   AdminUserInviteDraft,
   AdminUserRoleChangeDraft,
 } from "@/lib/admin-user-command";
+import { useAdminTour } from "@/components/admin-tour-provider";
 import type { AdminUserPublic, AdminUsersPayload, UserManagementAuditEntry } from "@/lib/admin-users-store";
 import type { StaffRole } from "@/lib/demo-data/staff";
 
@@ -64,8 +65,28 @@ function AdminUsersInner() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { stage } = useAdminTour();
   const demoMode = searchParams.get("demo") === "1";
   const focusedId = searchParams.get("user") ?? null;
+
+  const tourDeletionIntent = stage?.showDeletionIntentDemo ?? false;
+  const tourRoleReview = stage?.showRoleChangeReviewDemo ?? false;
+  const tourDeletionResult: AdminUserCommandResult | null = tourDeletionIntent
+    ? {
+        kind: "deletion_redirect",
+        message:
+          "That reads like a request to delete a person's data, not manage their role or access — use the data deletion flow instead. I won't run it as a role-management action.",
+        deletionRoute: "/admin/data-requests",
+        matchedStudentName: "Mia Ndlovu",
+      }
+    : null;
+  const tourRoleDraft = tourRoleReview ? (stage?.roleChangeDraft ?? null) : null;
+  const tourCmdText = tourDeletionIntent
+    ? (stage?.deletionIntentText ?? "")
+    : tourRoleReview
+      ? "make Sarah Mokoena an admin for the school"
+      : null;
+  const commandReadOnly = tourDeletionIntent || tourRoleReview;
 
   const [payload, setPayload] = useState<AdminUsersPayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -88,6 +109,10 @@ function AdminUsersInner() {
   const [roleDraft, setRoleDraft] = useState<AdminUserRoleChangeDraft | null>(null);
   const [deactivateDraft, setDeactivateDraft] = useState<AdminUserDeactivateDraft | null>(null);
   const [pendingPlainLanguage, setPendingPlainLanguage] = useState<string | null>(null);
+
+  const displayCmdText = tourCmdText ?? cmdText;
+  const displayCmdResult = tourDeletionResult ?? cmdResult;
+  const displayRoleDraft = tourRoleDraft ?? roleDraft;
 
   useEffect(() => {
     if (!toast) return;
@@ -124,6 +149,12 @@ function AdminUsersInner() {
     },
     [pathname, router, searchParams],
   );
+
+  useEffect(() => {
+    if (tourRoleReview && stage?.roleChangeDraft) {
+      focusUser(stage.roleChangeDraft.userId);
+    }
+  }, [focusUser, stage?.roleChangeDraft, tourRoleReview]);
 
   useEffect(() => {
     if (!focusedId) return;
@@ -236,7 +267,7 @@ function AdminUsersInner() {
   };
 
   const confirmRoleChange = async () => {
-    if (!roleDraft) return;
+    if (!roleDraft || tourRoleReview) return;
     try {
       const response = await fetch(`/api/admin/users/${roleDraft.userId}`, {
         method: "PUT",
@@ -341,7 +372,7 @@ function AdminUsersInner() {
         </section>
       ) : null}
 
-      <section className="esc-staff-panel esc-admin-users-command" style={{ marginBottom: 24 }}>
+      <section className="esc-staff-panel esc-admin-users-command" style={{ marginBottom: 24 }} data-tour="admin-users-command">
         <p className="esc-staff-section-label" style={{ marginBottom: 8 }}>
           Plain-language command
         </p>
@@ -350,23 +381,24 @@ function AdminUsersInner() {
             type="text"
             className="esc-mastery-ask-input"
             placeholder='e.g. "invite Jane Smith as a teacher, jane@teneo.edu"'
-            value={cmdText}
+            value={displayCmdText}
+            readOnly={commandReadOnly}
             onChange={(event) => setCmdText(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") void runCommand();
             }}
           />
-          {cmdText.trim() ? (
+          {displayCmdText.trim() && !commandReadOnly ? (
             <button type="button" className="esc-staff-btn esc-staff-btn-primary" onClick={() => void runCommand()}>
               Run
             </button>
           ) : null}
         </div>
         {cmdLoading ? <p className="esc-mastery-ask-status">Reading that…</p> : null}
-        {cmdResult ? (
-          <div className={["esc-admin-users-result", resultClassName(cmdResult.kind)].join(" ")}>
-            <p style={{ margin: 0 }}>{cmdResult.message}</p>
-            {cmdResult.kind === "deletion_redirect" ? (
+        {displayCmdResult ? (
+          <div className={["esc-admin-users-result", resultClassName(displayCmdResult.kind)].join(" ")}>
+            <p style={{ margin: 0 }}>{displayCmdResult.message}</p>
+            {displayCmdResult.kind === "deletion_redirect" ? (
               <Link href="/admin/data-requests" className="esc-admin-users-deletion-link">
                 Open data deletion flow →
               </Link>
@@ -457,18 +489,32 @@ function AdminUsersInner() {
         </section>
       ) : null}
 
-      {roleDraft ? (
-        <section className="esc-staff-panel esc-admin-users-review" style={{ marginBottom: 16 }}>
+      {displayRoleDraft ? (
+        <section
+          className="esc-staff-panel esc-admin-users-review"
+          style={{ marginBottom: 16 }}
+          data-tour="admin-users-role-review"
+        >
           <h2 className="esc-admin-billing-panel-title">Confirm role change</h2>
           <p className="esc-staff-body">
-            {roleDraft.fullName}: {ROLE_LABEL[roleDraft.currentRole]} →{" "}
-            {ROLE_LABEL[roleDraft.newRole]}
+            {displayRoleDraft.fullName}: {ROLE_LABEL[displayRoleDraft.currentRole]} →{" "}
+            {ROLE_LABEL[displayRoleDraft.newRole]}
           </p>
           <div className="esc-admin-billing-change-actions">
-            <button type="button" className="esc-staff-btn esc-staff-btn-primary" onClick={() => void confirmRoleChange()}>
+            <button
+              type="button"
+              className="esc-staff-btn esc-staff-btn-primary"
+              disabled={tourRoleReview}
+              onClick={() => void confirmRoleChange()}
+            >
               Confirm change
             </button>
-            <button type="button" className="esc-staff-btn esc-staff-btn-secondary" onClick={() => setRoleDraft(null)}>
+            <button
+              type="button"
+              className="esc-staff-btn esc-staff-btn-secondary"
+              disabled={tourRoleReview}
+              onClick={() => setRoleDraft(null)}
+            >
               Cancel
             </button>
           </div>
@@ -500,7 +546,7 @@ function AdminUsersInner() {
       {loading ? <p className="esc-staff-body">Loading…</p> : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
-      <ul className="esc-admin-users-list">
+      <ul className="esc-admin-users-list" data-tour="admin-users-list">
         {payload?.users.map((user) => {
           const viewers = otherViewers[user.id] ?? [];
           const isFocused = focusedId === user.id;

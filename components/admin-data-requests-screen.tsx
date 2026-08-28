@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getPrimaryAdmin } from "@/lib/demo-data/staff";
+import { useAdminTour } from "@/components/admin-tour-provider";
 import { parseDeletionIntent } from "@/lib/deletion-intent";
 import type { DataDeletionRequest } from "@/lib/student-data-store";
 import { DELETION_HOLD_MS } from "@/lib/student-data-store";
@@ -76,6 +77,8 @@ function AdminDataRequestsInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const admin = getPrimaryAdmin();
+  const { stage } = useAdminTour();
+  const tourDeletionDemo = Boolean(stage?.showDeletionConfirmDemo);
   const demoMode = searchParams.get("demo") === "1";
   const selectedId = searchParams.get("request") ?? null;
 
@@ -111,6 +114,18 @@ function AdminDataRequestsInner() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  useEffect(() => {
+    if (!tourDeletionDemo || !payload?.students.length) return;
+    const mia =
+      payload.students.find((student) => student.id === "mia_ndlovu") ??
+      payload.students[0];
+    if (!mia) return;
+    setStudentId(mia.id);
+    setConfirmPhrase(`DELETE ${mia.fullName}`);
+    setIntentRouting(null);
+    setPlainLanguage("");
+  }, [payload?.students, tourDeletionDemo]);
 
   const selectedRequest = useMemo(
     () => payload?.requests.find((request) => request.id === selectedId) ?? null,
@@ -315,7 +330,11 @@ function AdminDataRequestsInner() {
         </section>
       ) : null}
 
-      <section className="esc-staff-panel esc-admin-data-section" style={{ marginBottom: 24 }}>
+      <section
+        className="esc-staff-panel esc-admin-data-section"
+        style={{ marginBottom: 24 }}
+        data-tour="admin-data-export"
+      >
         <h2 className="esc-staff-section-title">Export (Requirement 16)</h2>
         <p className="esc-staff-body">
           Three CSV files from current roster and session data — ready for regulatory or parent
@@ -341,7 +360,7 @@ function AdminDataRequestsInner() {
       </section>
 
       <div className="esc-admin-data-layout">
-        <section className="esc-staff-panel esc-admin-data-section">
+        <section className="esc-staff-panel esc-admin-data-section" data-tour="admin-data-deletion">
           <h2 className="esc-staff-section-title">Delete student data (Requirement 17)</h2>
           <p className="esc-staff-body">
             Plain-language requests route here — they never delete in one click. Confirm with the
@@ -355,13 +374,14 @@ function AdminDataRequestsInner() {
               className="esc-mastery-ask-input"
               placeholder='e.g. "remove this graduated student&apos;s account"'
               value={plainLanguage}
+              readOnly={tourDeletionDemo}
               onChange={(event) => setPlainLanguage(event.target.value)}
             />
           </label>
           <button
             type="button"
             className="esc-staff-btn esc-staff-btn-secondary"
-            disabled={!plainLanguage.trim()}
+            disabled={!plainLanguage.trim() || tourDeletionDemo}
             onClick={routePlainLanguage}
           >
             Route to structured flow
@@ -397,25 +417,29 @@ function AdminDataRequestsInner() {
           </label>
 
           {expectedPhrase ? (
-            <label className="esc-admin-data-field">
-              <span className="esc-staff-section-label">
-                Type exactly: <code className="esc-landing-code">{expectedPhrase}</code>
-              </span>
-              <input
-                type="text"
-                className="esc-mastery-ask-input"
-                value={confirmPhrase}
-                onChange={(event) => setConfirmPhrase(event.target.value)}
-                autoComplete="off"
-                spellCheck={false}
-              />
-            </label>
+            <div data-tour="admin-data-deletion-confirm">
+              <label className="esc-admin-data-field">
+                <span className="esc-staff-section-label">
+                  Type exactly: <code className="esc-landing-code">{expectedPhrase}</code>
+                </span>
+                <input
+                  type="text"
+                  className="esc-mastery-ask-input"
+                  value={confirmPhrase}
+                  readOnly={tourDeletionDemo}
+                  onChange={(event) => setConfirmPhrase(event.target.value)}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </label>
+            </div>
           ) : null}
 
           <button
             type="button"
             className="esc-staff-btn esc-staff-btn-primary"
             disabled={
+              tourDeletionDemo ||
               submitting ||
               !confirmPhrase.trim() ||
               (!intentRouting && !studentId) ||

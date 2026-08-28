@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AdminAskBox } from "@/components/admin-ask-box";
+import { useAdminTour } from "@/components/admin-tour-provider";
 import { getPrimaryAdmin } from "@/lib/demo-data/staff";
 import type { AdminBriefingItem, AdminBriefing } from "@/lib/admin-briefing-store";
 
@@ -56,6 +57,9 @@ function AdminBriefingInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const admin = getPrimaryAdmin();
+  const { stage } = useAdminTour();
+  const scriptedAsk =
+    stage?.scriptedAsk?.screen === "briefing" ? stage.scriptedAsk : undefined;
 
   const briefingStateParam = (searchParams.get("briefingState") as DemoState | null) ?? "auto";
   const demoState: DemoState =
@@ -175,12 +179,13 @@ function AdminBriefingInner() {
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {data && !initialLoading && !error ? (
-        <div className="esc-briefing-ask">
+        <div className="esc-briefing-ask" data-tour="admin-briefing-ask">
           <AdminAskBox
             task="admin_briefing_ask"
             label="Ask about this briefing"
             placeholder='Ask the briefing… e.g. "how many escalations are overdue"'
             loadingLabel="Checking the briefing…"
+            scripted={scriptedAsk}
           />
         </div>
       ) : null}
@@ -216,7 +221,7 @@ function AdminBriefingInner() {
           ) : null}
 
           {data.state === "populated" ? (
-            <div className="esc-briefing-list">
+            <div className="esc-briefing-list" data-tour="admin-briefing-list">
               {data.items.map((item) => (
                 <AdminBriefingItemCard key={item.id} item={item} />
               ))}

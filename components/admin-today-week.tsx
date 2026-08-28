@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AdminAskBox } from "@/components/admin-ask-box";
+import { useAdminTour } from "@/components/admin-tour-provider";
 import { hapticTap } from "@/lib/haptics";
 import type { AdminTodayItem, AdminTodaySchedule } from "@/lib/admin-today-store";
 import type { LmsIntegrationStatusPayload } from "@/lib/lms-integration-store";
@@ -87,9 +88,16 @@ function AdminTodayItemCard({
     .filter(Boolean)
     .join(" ");
 
+  const tourTarget =
+    item.kind === "escalation_backlog"
+      ? "admin-today-escalation"
+      : item.kind === "curation_backlog"
+        ? "admin-today-curation"
+        : undefined;
+
   if (needsExpand && onToggle) {
     return (
-      <div className={className}>
+      <div className={className} data-tour={tourTarget}>
         <button type="button" className="esc-teacher-today-item-button" onClick={onToggle}>
           {body}
           <span className="esc-teacher-today-item-hint">
@@ -129,6 +137,7 @@ function AdminTodayItemCard({
       <Link
         href={item.actionRoute}
         className={`${className} esc-teacher-today-item-link esc-pressable`}
+        data-tour={tourTarget}
       >
         <div style={{ flex: 1, minWidth: 0 }}>{body}</div>
         <span className="esc-teacher-today-chevron" aria-hidden>
@@ -138,10 +147,14 @@ function AdminTodayItemCard({
     );
   }
 
-  return <div className={className}>{body}</div>;
+  return <div className={className} data-tour={tourTarget}>{body}</div>;
 }
 
 export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
+  const { stage } = useAdminTour();
+  const scriptedAsk =
+    stage?.scriptedAsk?.screen === "today" ? stage.scriptedAsk : undefined;
+
   const [schedule, setSchedule] = useState<AdminTodaySchedule | null>(null);
   const [lmsStatus, setLmsStatus] = useState<LmsIntegrationStatusPayload | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -171,6 +184,12 @@ export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
     void load();
   }, [load]);
 
+  useEffect(() => {
+    if (!stage?.expandCuration || !schedule) return;
+    const curation = schedule.items.find((item) => item.kind === "curation_backlog");
+    if (curation) setExpandedId(curation.id);
+  }, [schedule, stage?.expandCuration]);
+
   const onToggle = (id: string) => {
     hapticTap();
     setExpandedId((current) => (current === id ? null : id));
@@ -189,13 +208,14 @@ export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
         </div>
       </div>
 
-      <div className="esc-teacher-today-ask">
+      <div className="esc-teacher-today-ask" data-tour="admin-today-ask">
         <AdminAskBox
           task="admin_today_ask"
           view={view}
           label="Ask about this backlog"
           placeholder='Ask the backlog… e.g. "how many escalations are open school-wide"'
           loadingLabel="Checking the backlog…"
+          scripted={scriptedAsk}
         />
       </div>
 
@@ -221,7 +241,7 @@ export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
       ) : null}
 
       {schedule ? (
-        <div className="esc-teacher-today-list">
+        <div className="esc-teacher-today-list" data-tour={view === "week" ? "admin-week-backlog" : undefined}>
           {schedule.items.length === 0 ? (
             <p className="esc-teacher-today-empty">
               Nothing in the school-wide backlog right now.

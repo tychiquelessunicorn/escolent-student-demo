@@ -2,6 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useAdminTour } from "@/components/admin-tour-provider";
 import type {
   AdminAnalyticsDateRangePreset,
   AdminAnalyticsPayload,
@@ -11,15 +12,22 @@ type DateRangePreset = AdminAnalyticsDateRangePreset;
 
 function AdminAnalyticsAskBox({
   dateRange,
+  scripted,
 }: {
   dateRange: DateRangePreset;
+  scripted?: { question: string; answer: string };
 }) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const shownQuestion = scripted ? scripted.question : question;
+  const shownAnswer = scripted ? scripted.answer : answer;
+  const shownLoading = scripted ? false : loading;
+
   const submit = async () => {
+    if (scripted) return;
     const trimmed = question.trim();
     if (!trimmed || loading) return;
     setLoading(true);
@@ -46,7 +54,7 @@ function AdminAnalyticsAskBox({
   };
 
   return (
-    <div className="esc-mastery-ask esc-admin-analytics-ask">
+    <div className="esc-mastery-ask esc-admin-analytics-ask" data-tour="admin-analytics-ask">
       <p className="esc-staff-section-label" style={{ marginBottom: 8 }}>
         Ask about these metrics
       </p>
@@ -54,22 +62,23 @@ function AdminAnalyticsAskBox({
         <input
           type="text"
           className="esc-mastery-ask-input"
-          value={question}
+          value={shownQuestion}
+          readOnly={Boolean(scripted)}
           placeholder='e.g. "how many students practiced this week"'
           onChange={(event) => setQuestion(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") void submit();
           }}
         />
-        {question.trim() ? (
+        {!scripted && question.trim() ? (
           <button type="button" className="esc-staff-btn esc-staff-btn-primary" onClick={() => void submit()}>
             Ask
           </button>
         ) : null}
       </div>
-      {loading ? <p className="esc-mastery-ask-status">Checking the metrics…</p> : null}
-      {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
-      {answer ? <div className="esc-mastery-ask-answer">{answer}</div> : null}
+      {shownLoading ? <p className="esc-mastery-ask-status">Checking the metrics…</p> : null}
+      {error && !scripted ? <p className="esc-mastery-ask-error">{error}</p> : null}
+      {shownAnswer ? <div className="esc-mastery-ask-answer">{shownAnswer}</div> : null}
     </div>
   );
 }
@@ -78,6 +87,9 @@ function AdminAnalyticsInner() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { stage } = useAdminTour();
+  const scriptedAsk =
+    stage?.scriptedAsk?.screen === "analytics" ? stage.scriptedAsk : undefined;
   const fromBriefing = searchParams.get("from") === "briefing-insufficient";
 
   const rangeParam = searchParams.get("range");
@@ -180,7 +192,11 @@ function AdminAnalyticsInner() {
 
       {data && !loading && !error ? (
         <>
-          <section className="esc-admin-analytics-section" aria-labelledby="admin-adoption-heading">
+          <section
+            className="esc-admin-analytics-section"
+            aria-labelledby="admin-adoption-heading"
+            data-tour="admin-analytics-adoption"
+          >
             <h2 id="admin-adoption-heading" className="esc-staff-section-label">
               Adoption
             </h2>
@@ -239,7 +255,7 @@ function AdminAnalyticsInner() {
               </div>
             </div>
 
-            <div className="esc-staff-panel esc-admin-analytics-distribution">
+            <div className="esc-staff-panel esc-admin-analytics-distribution" data-tour="admin-analytics-tiers">
               <p className="esc-staff-section-label" style={{ marginBottom: 14 }}>
                 Tier distribution
               </p>
@@ -268,7 +284,7 @@ function AdminAnalyticsInner() {
             </div>
           </section>
 
-          <AdminAnalyticsAskBox dateRange={dateRange} />
+          <AdminAnalyticsAskBox dateRange={dateRange} scripted={scriptedAsk} />
         </>
       ) : null}
     </div>

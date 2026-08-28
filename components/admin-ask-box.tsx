@@ -10,19 +10,26 @@ export function AdminAskBox({
   placeholder,
   loadingLabel,
   label,
+  scripted,
 }: {
   task: AdminAskTask;
   view?: "today" | "week";
   placeholder: string;
   loadingLabel: string;
   label: string;
+  scripted?: { question: string; answer: string };
 }) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const shownQuestion = scripted ? scripted.question : question;
+  const shownAnswer = scripted ? scripted.answer : answer;
+  const shownLoading = scripted ? false : loading;
+
   const submit = async () => {
+    if (scripted) return;
     const trimmed = question.trim();
     if (!trimmed || loading) return;
     setLoading(true);
@@ -57,22 +64,23 @@ export function AdminAskBox({
         <input
           type="text"
           className="esc-mastery-ask-input"
-          value={question}
+          value={shownQuestion}
+          readOnly={Boolean(scripted)}
           placeholder={placeholder}
           onChange={(event) => setQuestion(event.target.value)}
           onKeyDown={(event) => {
             if (event.key === "Enter") void submit();
           }}
         />
-        {question.trim() ? (
+        {!scripted && question.trim() ? (
           <button type="button" className="esc-staff-btn esc-staff-btn-primary" onClick={() => void submit()}>
             Ask
           </button>
         ) : null}
       </div>
-      {loading ? <p className="esc-mastery-ask-status">{loadingLabel}</p> : null}
-      {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
-      {answer ? <div className="esc-mastery-ask-answer">{answer}</div> : null}
+      {shownLoading ? <p className="esc-mastery-ask-status">{loadingLabel}</p> : null}
+      {error && !scripted ? <p className="esc-mastery-ask-error">{error}</p> : null}
+      {shownAnswer ? <div className="esc-mastery-ask-answer">{shownAnswer}</div> : null}
     </div>
   );
 }

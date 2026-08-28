@@ -83,7 +83,7 @@ function CanvasPanel({
   };
 
   return (
-    <section className="esc-staff-panel esc-admin-lms-panel">
+    <section className="esc-staff-panel esc-admin-lms-panel" data-tour="admin-lms-canvas">
       <div className="esc-admin-lms-panel-head">
         <h2 className="esc-admin-lms-provider-title">Canvas</h2>
         <StatusBadge status={integration.status} />
