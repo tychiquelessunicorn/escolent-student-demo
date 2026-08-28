@@ -112,27 +112,32 @@ function seedSpaceEnabled(): SpaceEnabledMap {
   };
 }
 
+/** Process-local overlay — keeps toggles and enforcement aligned when Redis is absent. */
+let runtimeSpaceEnabled: SpaceEnabledMap | null = null;
+
 async function readSpaceEnabled(): Promise<SpaceEnabledMap> {
   const redis = getRedis();
   const seed = seedSpaceEnabled();
-  if (!redis) return seed;
+  if (!redis) return runtimeSpaceEnabled ?? seed;
   try {
     const raw = await redis.get<string | SpaceEnabledMap>(SPACE_ENABLED_KEY);
-    if (raw == null) return seed;
+    if (raw == null) return runtimeSpaceEnabled ?? seed;
     const parsed = typeof raw === "string" ? (JSON.parse(raw) as SpaceEnabledMap) : raw;
-    return {
+    runtimeSpaceEnabled = {
       algebra_8a: parsed.algebra_8a !== false,
       remediation_8a: parsed.remediation_8a !== false,
     };
+    return runtimeSpaceEnabled;
   } catch (error) {
     console.error("[admin-pilot-store] failed to read space enabled flags", error);
-    return seed;
+    return runtimeSpaceEnabled ?? seed;
   }
 }
 
 async function writeSpaceEnabled(map: SpaceEnabledMap): Promise<boolean> {
+  runtimeSpaceEnabled = { ...map };
   const redis = getRedis();
-  if (!redis) return false;
+  if (!redis) return true;
   try {
     await redis.set(SPACE_ENABLED_KEY, JSON.stringify(map));
     return true;
@@ -312,7 +317,7 @@ async function buildDay21Presentation(): Promise<PilotDay21Presentation> {
 }
 
 export async function buildAdminPilotPayload(): Promise<AdminPilotPayload> {
-  const [enabledMap, staffAccounts, demoAtDay21] = await Promise.all([
+  const [, staffAccounts, demoAtDay21] = await Promise.all([
     readSpaceEnabled(),
     listStaffAccountRecords(),
     isPilotDemoAtDay21(),
@@ -328,7 +333,7 @@ export async function buildAdminPilotPayload(): Promise<AdminPilotPayload> {
         shortName: seed.shortName,
         grade: seed.grade,
         teacherName: teacher?.shortName ?? "Unknown teacher",
-        enabled: enabledMap[seed.id as PilotSpaceId],
+        enabled: await isPilotSpaceEnabled(seed.id),
         studentCount: studentIds.length,
       };
     }),

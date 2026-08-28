@@ -17,8 +17,13 @@ import {
   seedEscalationsIfEmpty,
 } from "@/lib/distress-store";
 import { clientIp, getRedis, shouldClassifyDistress } from "@/lib/rate-limit";
+import {
+  checkStudentShellAccess,
+  studentShellAccessDeniedBody,
+} from "@/lib/student-shell-access";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const MAX_TEXT_LENGTH = 2000;
 const CLASSIFIER_TIMEOUT_MS = 12_000;
@@ -47,6 +52,11 @@ async function classify(text: string): Promise<boolean | null> {
 }
 
 export async function POST(request: Request) {
+  const access = await checkStudentShellAccess();
+  if (!access.allowed) {
+    return NextResponse.json(studentShellAccessDeniedBody(access), { status: 403 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;

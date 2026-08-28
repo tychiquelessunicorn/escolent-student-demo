@@ -28,8 +28,14 @@ import {
 import { checkAiRateLimit, clientIp } from "@/lib/rate-limit";
 import { DEMO_SPACES, VARIABLES_BOTH_SIDES_PROBLEMS } from "@/lib/demo-data";
 import { sanitizeSpaceCoauthorDraft } from "@/lib/space-store";
+import {
+  checkStudentShellAccess,
+  isStudentAiTask,
+  studentShellAccessDeniedBody,
+} from "@/lib/student-shell-access";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const MAX_QUESTION_LENGTH = 500;
 const SKILL_KEYS: SkillKey[] = ["two_step", "variables_both_sides"];
@@ -87,6 +93,13 @@ export async function POST(request: Request) {
 
   const task = typeof body.task === "string" ? body.task : null;
   if (!task) return badRequest("Missing task");
+
+  if (isStudentAiTask(task)) {
+    const access = await checkStudentShellAccess();
+    if (!access.allowed) {
+      return NextResponse.json(studentShellAccessDeniedBody(access), { status: 403 });
+    }
+  }
 
   // Rate limiting is per-IP and applies to every task on this route. Distress
   // classification deliberately does not live here — see /api/distress.
