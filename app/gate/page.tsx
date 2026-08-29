@@ -5,7 +5,7 @@ export default async function GatePage({
 }: {
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
-  const { next = "/practice", error } = await searchParams;
+  const { next = "/student/practice", error } = await searchParams;
 
   return (
     <main

@@ -78,13 +78,7 @@ interface State {
   wrongAnswers: number[];
   answerInput: string;
   sessionCompleted: number;
-  /**
-   * Unscored first-try-correct answers in a row, and the evidence behind the
-   * mastery-tier crossing. Not a streak mechanic: it is never shown as a
-   * number, never persisted, resets the moment a scaffold is needed, and resets
-   * again once it has fired. The constitution forbids streak mechanics; a tier
-   * crossing is one of the two moments it explicitly allows.
-   */
+  /** In-session first-try correct count for mastery crossing — not persisted. */
   consecutiveFirstTry: number;
   showMasteryMsg: boolean;
   breakthrough: boolean;
@@ -192,6 +186,115 @@ function baseState(phase: Phase): State {
 }
 
 /**
+ * Harness variants remount PracticeSessionInner. Initial paint must already
+ * match the demo route — waiting for enterSession() in an effect flashes the
+ * wrong phase (intro before scaffold, etc.) and makes the tour flicker.
+ */
+function initialHarnessState(params: URLSearchParams): State {
+  const skillParam = params.get("skill");
+  const entryVariant = (params.get("entryVariant") ??
+    (skillParam && skillParam !== "variables_both_sides"
+      ? "returning"
+      : "first_exposure")) as EntryVariant;
+  const problemDemo = params.get("problemDemo") ?? "standard";
+  const directOpenDemo = params.get("directOpenDemo") ?? "not_applicable";
+  const notificationPreviewDemo =
+    params.get("notificationPreviewDemo") ?? "not_applicable";
+  const interruptionDemo = params.get("interruptionDemo") ?? "none";
+
+  const isRubricDemo = problemDemo === "no_solution_rubric";
+  const isScaffoldDemo = problemDemo === "wrong_answer_scaffold";
+  const isMasteryDemo = problemDemo === "mastery_moment";
+  const isOneStepRemediation = skillParam === "one_step";
+  const isVariablesSkill =
+    skillParam === "variables_both_sides" ||
+    (!skillParam && entryVariant === "first_exposure");
+  const isUnsupportedSkill = Boolean(
+    skillParam && !isPlayablePracticeSkill(skillParam),
+  );
+
+  if (notificationPreviewDemo === "shown") {
+    return baseState("notificationPreview");
+  }
+  if (directOpenDemo === "no_valid_session") {
+    return baseState("noValidSession");
+  }
+  if (directOpenDemo === "valid_session") {
+    return baseState("checkingSession");
+  }
+  if (isRubricDemo) {
+    return {
+      ...baseState("active"),
+      problemIndex: 0,
+      wrongAnswers: [],
+      answerInput: "",
+      rubricTier: null,
+      rubricFeedback: "",
+    };
+  }
+  if (isScaffoldDemo) {
+    return {
+      ...baseState("active"),
+      problemIndex: 0,
+      wrongAnswers: [8, 3],
+      answerInput: "",
+      ladderExhausted: false,
+      socraticHintLoading: false,
+      socraticHintText: hintForAttempt(2),
+    };
+  }
+  if (isMasteryDemo) {
+    return {
+      ...baseState("correct"),
+      problemIndex: 0,
+      wrongAnswers: [],
+      answerInput: "",
+      sessionCompleted: 1,
+      breakthrough: true,
+    };
+  }
+  if (isUnsupportedSkill) {
+    return baseState("skillUnavailable");
+  }
+  if (
+    interruptionDemo === "recent" &&
+    entryVariant !== "first_exposure" &&
+    !isVariablesSkill
+  ) {
+    return baseState("resumePrompt");
+  }
+  if (entryVariant === "nothing_due") {
+    return baseState("gate");
+  }
+  if (isOneStepRemediation) {
+    return {
+      ...baseState("active"),
+      problemIndex: 0,
+      wrongAnswers: [],
+      answerInput: "",
+    };
+  }
+  if (isVariablesSkill) {
+    if (isVariablesCompleted()) {
+      return {
+        ...baseState("active"),
+        problemIndex: 0,
+        wrongAnswers: [],
+        answerInput: "",
+        introText: "",
+        introLoading: false,
+      };
+    }
+    return {
+      ...baseState("intro"),
+      introLoading: false,
+      introText: INTRO_FALLBACK,
+    };
+  }
+  return baseState("active");
+}
+
+/**
  * Changing a harness variant has to restart Entry, not patch a running session,
  * so the inner component is keyed on the variant signature and remounts.
  */
@@ -226,7 +329,7 @@ function PracticeSessionInner() {
 
   // Test-harness variants. Query params are the mechanism, the demo panel is
   // the discoverable way to drive them.
-  // Bare /practice defaults to first-exposure variables. An explicit ?skill=
+  // Bare /student/practice defaults to first-exposure variables. An explicit ?skill=
   // always wins so Progress / schedule links don't get overridden.
   const skillParam = params.get("skill");
   const entryVariant = (params.get("entryVariant") ??
@@ -271,7 +374,7 @@ function PracticeSessionInner() {
   const isInvestorDemo =
     isVariablesSkill && getProblems().length === 1 && !isRubricDemo;
 
-  const [state, setState] = useState<State>(() => baseState("intro"));
+  const [state, setState] = useState<State>(() => initialHarnessState(params));
   const [submitFlash, setSubmitFlash] = useState<"ok" | "miss" | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -786,13 +889,13 @@ function PracticeSessionInner() {
 
         if (correct) {
           const firstTry = s.wrongAnswers.length === 0;
-          let run = firstTry ? s.consecutiveFirstTry + 1 : 0;
-          const crossedMastery = run >= 3;
-          if (crossedMastery) run = 0;
+          let nextFirstTry = firstTry ? s.consecutiveFirstTry + 1 : 0;
+          const crossedMastery = nextFirstTry >= 3;
+          if (crossedMastery) nextFirstTry = 0;
           return {
             connectivity: offline ? s.connectivity : "fresh",
             phase: "correct" as Phase,
-            consecutiveFirstTry: run,
+            consecutiveFirstTry: nextFirstTry,
             showMasteryMsg: crossedMastery,
             breakthrough: isFirstExposure && !firstTry,
             sessionCompleted: s.sessionCompleted + 1,
@@ -1102,7 +1205,7 @@ function PracticeSessionInner() {
             Mockup — preview of a system notification, not a live send
           </div>
           <a
-            href="/practice?skill=variables_both_sides"
+            href="/student/practice?skill=variables_both_sides"
             style={{
               display: "block",
               textDecoration: "none",
@@ -1266,7 +1369,7 @@ function PracticeSessionInner() {
           ) : null}
           <div className="esc-ended-actions">
             <Link
-              href="/practice?skill=variables_both_sides"
+              href="/student/practice?skill=variables_both_sides"
               className="esc-btn-primary esc-pressable"
             >
               Practice today&rsquo;s skill
@@ -1456,7 +1559,7 @@ function PracticeSessionInner() {
             extra={
               isOneStepRemediation ? (
                 <Link
-                  href="/practice?skill=variables_both_sides"
+                  href="/student/practice?skill=variables_both_sides"
                   className="esc-btn-secondary esc-pressable"
                 >
                   Return to variables practice

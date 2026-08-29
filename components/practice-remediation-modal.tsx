@@ -29,7 +29,7 @@ export function PracticeRemediationModal({
           foundation before returning to variables on both sides.
         </div>
         <div className="esc-ended-actions">
-          <Link href="/practice?skill=one_step" className="esc-btn-primary esc-pressable">
+          <Link href="/student/practice?skill=one_step" className="esc-btn-primary esc-pressable">
             Open 1-step practice
           </Link>
           <button type="button" className="esc-btn-secondary esc-pressable" onClick={onStay}>

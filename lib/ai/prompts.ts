@@ -11,6 +11,37 @@ import {
   prerequisiteOf,
   type PracticeProblem,
 } from "@/lib/demo-data";
+import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
+import { buildMasteryOverview } from "@/lib/mastery-overview-store";
+import {
+  buildTeacherBriefing,
+  briefingAskGroundingLines,
+} from "@/lib/briefing-store";
+import {
+  buildAdminAnalytics,
+  adminAnalyticsAskGroundingLines,
+  type AdminAnalyticsDateRangePreset,
+} from "@/lib/admin-analytics-store";
+import {
+  buildAdminBriefing,
+  adminBriefingAskGroundingLines,
+} from "@/lib/admin-briefing-store";
+import {
+  buildAdminTodaySchedule,
+  adminTodayAskGroundingLines,
+} from "@/lib/admin-today-store";
+import {
+  adminBillingAskGroundingLines,
+  getAdminBillingSnapshot,
+} from "@/lib/admin-billing-store";
+import {
+  computeWeeklyDigestMetrics,
+  weeklyDigestGroundingLines,
+} from "@/lib/digest-store";
+import {
+  buildTeacherTodaySchedule,
+  teacherTodayAskGroundingLines,
+} from "@/lib/teacher-today-store";
 
 /**
  * Every prompt below is the prototype's prompt, moved server-side unchanged.
@@ -154,6 +185,169 @@ export function progressAskPrompt(question: string, spaceId?: string): string {
     .join("\n");
 
   return `You are answering a grade 8 student's question about her own progress in the "${space.name}" Space (${space.subject}), using ONLY this real data. She is only tracked on this Space — nothing outside it is tracked or assessed here.\n\nSkills tracked:\n${skillLines}\n\nRecent sessions:\n${sessionLines}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-3 sentences), grounded only in the data above. If she asks about something not in this list, say plainly that it isn't part of what's being tracked here, rather than inventing an answer. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function overviewAskPrompt(question: string, spaceFilter: string | null): Promise<string> {
+  const overview = await buildMasteryOverview(spaceFilter);
+  const studentLines = overview.students
+    .map((student) => {
+      const cells = student.cells
+        .map(
+          (cell) =>
+            `${cell.skillShort}=${cell.label}(${cell.fillPct}%)${cell.isGap ? " [prerequisite gap]" : ""}${cell.isOverride ? " [teacher override]" : ""}`,
+        )
+        .join(", ");
+      const misc =
+        student.misconceptions.length > 0
+          ? ` | misconceptions: ${student.misconceptions.map((m) => m.label).join("; ")}`
+          : "";
+      return `- ${student.fullName} (${student.spaceShort}): ${cells}${misc}`;
+    })
+    .join("\n");
+  const gapLines = overview.gapAlerts
+    .map((gap) => `- ${gap.studentName}: ${gap.skillName}`)
+    .join("\n");
+  const miscLines = overview.misconceptions
+    .map((m) => `- ${m.label} (${m.studentCount} students)`)
+    .join("\n");
+
+  return `You are answering a teacher's question about her Mastery Overview grid, using ONLY this real per-student, per-skill data. Percentages map approximate mastery depth: Durable=92%, Tentative=72%, Emerging=48%, Struggling=25%, Not attempted=0%.\n\nScope: ${overview.scopeLabel}\n\nStudents:\n${studentLines}\n\nPrerequisite gap alerts:\n${gapLines || "- none"}\n\nMisconceptions this week:\n${miscLines || "- none"}\n\nHer question: "${question}"\n\nAnswer directly using real student names from the data above. If she asks about a threshold like "below 60%", use the percentages given. If nothing matches, say so plainly rather than inventing anything. Keep it to a few sentences or a short plain list of names. Respond with ONLY the plain answer — no markdown, no labels, no emojis.`;
+}
+
+export async function teacherTodayAskPrompt(
+  question: string,
+  spaceFilter: string | null,
+): Promise<string> {
+  const schedule = await buildTeacherTodaySchedule({ spaceFilter });
+  const dataLines = teacherTodayAskGroundingLines(schedule).join("\n");
+
+  return `You are answering a teacher's question about what's due across her Spaces, using ONLY this real due-items data (today is ${schedule.todayShortLabel}).\n\nScope: ${schedule.scopeLabel}\n\nDue items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If she asks about a Space like Remediation or Algebra, filter to those items. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function teacherBriefingAskPrompt(
+  question: string,
+  spaceFilter: string | null,
+): Promise<string> {
+  const briefing = await buildTeacherBriefing({ spaceFilter, demoState: "auto" });
+  const dataLines = briefingAskGroundingLines(briefing).join("\n");
+
+  return `You are answering a teacher's question about her Daily Briefing, using ONLY these real synthesized briefing items for the current scope. Do not invent reasons, student situations, or flags that are not listed.\n\nScope: ${briefing.scopeLabel}\nBriefing state: ${briefing.state}\n\nBriefing items:\n${dataLines || "- none listed"}\n\nHer question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the items above. If she asks why a student is flagged, use only items that name that student. If nothing matches, say so plainly rather than inventing an explanation. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminAnalyticsAskPrompt(
+  question: string,
+  dateRange: AdminAnalyticsDateRangePreset,
+): Promise<string> {
+  const analytics = await buildAdminAnalytics({ dateRange });
+  const dataLines = adminAnalyticsAskGroundingLines(analytics).join("\n");
+
+  return `You are answering an Admin's question about school-wide pilot analytics, using ONLY these real computed metrics. Do not invent adoption numbers, mastery counts, student names, or trends absent from the data.\n\nMetrics:\n${dataLines}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the metrics above. If they ask about a teacher, class, or metric not present in the data, say plainly that the data does not include it. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminBillingAskPrompt(question: string): Promise<string> {
+  const billing = await getAdminBillingSnapshot();
+  const dataLines = adminBillingAskGroundingLines(billing).join("\n");
+
+  return `You are answering an Admin's question about the school's Escolent subscription billing, using ONLY these real billing fields. Do not invent plan prices, seat counts, renewal dates, or dollar amounts absent from the data. If they ask to change the plan, say plainly that plan changes must use the structured form on the Billing page — you cannot change plans from this ask box.\n\nBilling data:\n${dataLines}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the billing data above. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminBriefingAskPrompt(question: string): Promise<string> {
+  const briefing = await buildAdminBriefing({ demoState: "auto" });
+  const dataLines = adminBriefingAskGroundingLines(briefing).join("\n");
+
+  return `You are answering an Admin's question about the Daily Briefing, using ONLY these real synthesized briefing items. Do not invent escalations, data requests, rollout gaps, or billing signals absent from the data.\n\nScope: ${briefing.scopeLabel}\nBriefing state: ${briefing.state}\n\nBriefing items:\n${dataLines || "- none listed"}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the items above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function adminTodayAskPrompt(
+  question: string,
+  view: "today" | "week",
+): Promise<string> {
+  const schedule = await buildAdminTodaySchedule();
+  const dataLines = adminTodayAskGroundingLines(schedule).join("\n");
+  const viewNote =
+    view === "week"
+      ? schedule.weekNote
+      : `Today is ${schedule.todayShortLabel}.`;
+
+  return `You are answering an Admin's question about the school-wide backlog (${view} view), using ONLY this real backlog data. Do not invent compliance deadlines, billing events, or curation counts absent from the data.\n\nScope: ${schedule.scopeLabel}\n${viewNote}\n\nBacklog items:\n${dataLines || "- none listed"}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+/**
+ * Req 14a.1 — plain language → draft invite/role/deactivate fields only.
+ * Data-deletion routing is handled before this prompt runs (parseDeletionIntent).
+ */
+export const ADMIN_USER_COMMAND_SYSTEM = `You draft structured user-management actions from plain language for a school admin on a Users & Roles screen. Respond with ONLY strict JSON — no markdown, no prose. Never handle student data deletion here.`;
+
+export function adminUserCommandPrompt(text: string, rosterLines: string): string {
+  return `Classify this admin request into one action and extract fields.
+
+Known staff (for role_change or deactivate — match names only from this list):
+${rosterLines}
+
+Actions:
+- invite: inviting a NEW person not already in the list (needs fullName; email if given; role teacher or admin; optional gradeLabel like "Grade 8")
+- role_change: change an EXISTING listed person's role (needs resolvable fullName from list; newRole teacher or admin)
+- deactivate: deactivate an EXISTING listed person's login access (needs resolvable fullName)
+- unclear: read-only questions, missing critical details, or ambiguous intent
+
+If the person is already in the known staff list, do NOT classify as invite.
+
+Return ONLY strict JSON:
+{"action":"invite"|"role_change"|"deactivate"|"unclear","fullName":string|null,"email":string|null,"role":"teacher"|"admin"|null,"newRole":"teacher"|"admin"|null,"gradeLabel":string|null,"clarificationNeeded":string|null}
+
+Request: "${text.replace(/"/g, '\\"')}"`;
+}
+
+/**
+ * Req 12 — weekly digest body. Delivery is a labeled preview; this prompt
+ * produces real prose from computed metrics (never a fill-in template).
+ */
+export const WEEKLY_DIGEST_SYSTEM = `You write a warm, professional weekly email digest for a grade-8 math teacher summarizing progress across her Spaces. Use ONLY the metrics in the user message. Never invent a statistic, student name, misconception, Space name, or detail that is not present. If a count is zero, say so plainly rather than padding. Respond with ONLY the email body prose — no subject line, no markdown headings, no labels, no emojis.`;
+
+export async function weeklyDigestPrompt(): Promise<string> {
+  const metrics = await computeWeeklyDigestMetrics();
+  const dataLines = weeklyDigestGroundingLines(metrics).join("\n");
+
+  return `Write this week's Teacher digest email body from ONLY the grounding data below.
+
+Grounding data:
+${dataLines}
+
+Requirements:
+- Warm, professional prose a teacher would want to skim on Friday afternoon
+- Cover durable mastery this week, flagged prerequisite gaps, and the most common misconceptions
+- Name Spaces from the list when relevant
+- You may name students only when they appear in the grounding data
+- Do not invent numbers, names, or details absent above
+- 2–4 short paragraphs, plain sentences only`;
+}
+
+/**
+ * Req 9.8 / 31-style co-authoring: plain language → draft skill ids + difficulty
+ * only. Name and description stay manual. Grounded on OVERVIEW_SKILL_COLUMNS.
+ */
+export const SPACE_COAUTHOR_SYSTEM = `You help a teacher draft Space skill boundaries and difficulty from a plain-language description. Suggest only from the skill list in the user message. Never invent skill ids. Respond with ONLY strict JSON — no markdown, no prose.`;
+
+export function spaceCoauthorPrompt(description: string): string {
+  const skillLines = OVERVIEW_SKILL_COLUMNS.map(
+    (skill) => `- ${skill.id}: ${skill.name}`,
+  ).join("\n");
+
+  return `A grade-8 math teacher is creating a practice Space. From her description, suggest which skills from this list to include and a difficulty range (integers 1–5, min ≤ max).
+
+Available skills (use only these ids):
+${skillLines}
+
+Her description: "${description.replace(/"/g, '\\"')}"
+
+Respond with ONLY strict JSON:
+{"skillIds":["s0","s1"],"difficultyMin":1,"difficultyMax":3}
+
+Rules:
+- skillIds must be a non-empty subset of the ids listed above
+- difficultyMin and difficultyMax are integers from 1 to 5 with min ≤ max
+- Do not suggest a name or description
+- Do not invent skills outside the list`;
 }
 
 /**

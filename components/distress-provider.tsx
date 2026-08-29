@@ -10,6 +10,7 @@ import {
 import {
   DISTRESS_SCRIPTED_MESSAGE,
   type DistressSurface,
+  type HelpReasonLabel,
 } from "@/lib/distress";
 
 interface DistressContextValue {
@@ -17,8 +18,11 @@ interface DistressContextValue {
   escalated: boolean;
   /** True when we could not reach the server to raise one. */
   deliveryFailed: boolean;
-  /** The zero-friction "I need help" path. No confirmation step. */
-  requestHelp: () => void;
+  /**
+   * One-tap student-initiated path. Choosing a reason IS sending — no
+   * confirmation step and no free-text field.
+   */
+  requestHelp: (helpReason: HelpReasonLabel) => void;
   /** Passive detection. Call from every free-text surface, never awaited. */
   checkFreeText: (surface: DistressSurface, text: string) => void;
 }
@@ -27,8 +31,8 @@ const DistressContext = createContext<DistressContextValue | null>(null);
 
 /**
  * The single shared detection function behind all five Student free-text
- * surfaces plus the help button (Requirement 18.1, 18.6). There is exactly one
- * copy of this logic; surfaces call into it rather than reimplementing it.
+ * surfaces plus the one-tap help reasons (Requirement 18.1, 18.6). There is
+ * exactly one copy of this logic; surfaces call into it rather than reimplementing it.
  *
  * State lives at the shell layout, so once the message appears it persists
  * across problem advances, panel closes, and navigation between screens.
@@ -42,6 +46,7 @@ export function DistressProvider({ children }: { children: React.ReactNode }) {
       method: "passive_pattern" | "student_initiated";
       surface: DistressSurface;
       text?: string;
+      helpReason?: HelpReasonLabel;
     }) => {
       try {
         const response = await fetch("/api/distress", {
@@ -82,22 +87,24 @@ export function DistressProvider({ children }: { children: React.ReactNode }) {
     [raise],
   );
 
-  const requestHelp = useCallback(() => {
-    void (async () => {
-      const sent = await raise({
-        method: "student_initiated",
-        surface: "need_help_button",
-      });
-      if (sent) return;
-      const retried = await raise({
-        method: "student_initiated",
-        surface: "need_help_button",
-      });
-      // Honest about the failure rather than showing the scripted message,
-      // which would promise a notification that never happened.
-      if (!retried) setDeliveryFailed(true);
-    })();
-  }, [raise]);
+  const requestHelp = useCallback(
+    (helpReason: HelpReasonLabel) => {
+      void (async () => {
+        const payload = {
+          method: "student_initiated" as const,
+          surface: "need_help_button" as const,
+          helpReason,
+        };
+        const sent = await raise(payload);
+        if (sent) return;
+        const retried = await raise(payload);
+        // Honest about the failure rather than showing the scripted message,
+        // which would promise a notification that never happened.
+        if (!retried) setDeliveryFailed(true);
+      })();
+    },
+    [raise],
+  );
 
   const value = useMemo(
     () => ({ escalated, deliveryFailed, requestHelp, checkFreeText }),

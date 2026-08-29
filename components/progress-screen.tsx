@@ -108,7 +108,7 @@ export function ProgressScreen() {
                 {skill.progressDetail}
               </div>
               <Link
-                href={`/practice?skill=${skill.slug}`}
+                href={`/student/practice?skill=${skill.slug}`}
                 className="esc-pressable"
                 style={{
                   display: "inline-block",

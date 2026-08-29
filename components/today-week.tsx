@@ -16,12 +16,9 @@ import {
   TODAY_KEY,
   type ScheduleItem,
 } from "@/lib/demo-data";
-import {
-  getDailyProgressLabel,
-  isVariablesCompleted,
-  subscribeDemoPersist,
-} from "@/lib/demo-persistence";
+import { getDailyProgressLabel, isVariablesCompleted, subscribeDemoPersist } from "@/lib/demo-persistence";
 import { hapticTap } from "@/lib/haptics";
+import { STUDENT_PRACTICE_PATH } from "@/lib/routes";
 
 /**
  * Requirement 7a.2: an LMS item is shown so the student sees one honest picture
@@ -169,7 +166,7 @@ function EscolentItem({
   compact?: boolean;
   complete?: boolean;
 }) {
-  const href = item.actionRoute ?? "/practice";
+  const href = item.actionRoute ?? STUDENT_PRACTICE_PATH;
   const accent = complete ? "oklch(55% 0.14 150)" : "var(--color-area-today)";
 
   if (compact) {

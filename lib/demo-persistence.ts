@@ -12,14 +12,6 @@ const TOUR_MODE_KEY = "esc_demo_tour";
 const LEGACY_PITCH_MODE_KEY = "esc_demo_pitch";
 const MIRROR_PREFIX = "esc_mirror_";
 
-/**
- * Consecutive-day counters written by builds that shipped the streak badge.
- * Nothing reads them any more; they are listed only so purgeStreakState can
- * clear them out of a browser that ran one of those builds. Do not reintroduce
- * a reader — see the no-gamification principle in the project constitution.
- */
-const REMOVED_STREAK_KEYS = ["streak", "demoStreak"];
-
 export const DEMO_TOTAL_DAILY_TASKS = 3;
 export const DEMO_PERSIST_EVENT = "esc-demo-persist";
 
@@ -89,19 +81,19 @@ export function isVariablesCompleted(): boolean {
   }
 }
 
-/**
- * One-time cleanup of the removed streak counters. Called on shell mount so a
- * browser that ran an earlier build does not keep a stale value on disk — the
- * point is that the mechanic is gone, not merely unread.
- */
-export function purgeStreakState(): void {
-  if (typeof window === "undefined") return;
-  for (const key of REMOVED_STREAK_KEYS) mirrorRemove(key);
-}
-
 function notifyPersist(): void {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new Event(DEMO_PERSIST_EVENT));
+}
+
+const LEGACY_STREAK_KEYS = ["streak", "demoStreak"] as const;
+
+/** Remove gamification keys left by earlier demo builds. Safe to call on every load. */
+export function purgeLegacyGamificationKeys(): void {
+  if (typeof window === "undefined") return;
+  for (const key of LEGACY_STREAK_KEYS) {
+    mirrorRemove(key);
+  }
 }
 
 export function completeVictoryLoop(): void {
@@ -119,7 +111,7 @@ export function seedDemoState(seed: DemoSeed): void {
     mirrorRemove(COMPLETED_KEY);
     mirrorRemove(LEGACY_MASTERED_KEY);
   }
-  purgeStreakState();
+  purgeLegacyGamificationKeys();
   // Pitch seeds should not inherit a leftover offline block.
   try {
     sessionStorage.removeItem(OFFLINE_SESSION_KEY);
@@ -258,22 +250,22 @@ export const RELATED_PRACTICE_FOR_SKILL: Record<
   { href: string; label: string; blurb: string }
 > = {
   equation_basics: {
-    href: "/practice?skill=two_step",
+    href: "/student/practice?skill=two_step",
     label: "Two-step equations",
     blurb: "Balance skills stay sharp through two-step practice.",
   },
   integer_operations: {
-    href: "/practice?skill=one_step",
+    href: "/student/practice?skill=one_step",
     label: "One-step equations",
     blurb: "Integer fluency shows up first in one-step moves.",
   },
   multi_step: {
-    href: "/practice?skill=two_step",
+    href: "/student/practice?skill=two_step",
     label: "Two-step equations",
     blurb: "Multi-step builds on the two-step ladder you're already on.",
   },
   inequalities: {
-    href: "/practice?skill=variables_both_sides",
+    href: "/student/practice?skill=variables_both_sides",
     label: "Variables on both sides",
     blurb: "Inequalities come after variables on both sides in Equations.",
   },

@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { DistressNotice, useDistress } from "@/components/distress-provider";
 import { useShellState } from "@/components/shell-context";
 import { useTour } from "@/components/tour-provider";
 import { CONNECTIVITY_LABELS } from "@/lib/demo-data";
+import { HELP_REASON_LABELS, type HelpReasonLabel } from "@/lib/distress";
+import { STUDENT_PRACTICE_PATH } from "@/lib/routes";
 import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
+import { ShellExitLink } from "@/components/shell-exit-link";
+import { useIsEmbed } from "@/lib/embed";
 
 const NAV_ITEMS: {
   label: string;
@@ -23,7 +28,7 @@ const NAV_ITEMS: {
     area: "today",
   },
   { label: "Learn", href: "/student/learn", match: ["/student/learn"], area: "learn" },
-  { label: "Practice", href: "/practice", match: ["/practice"], area: "practice" },
+  { label: "Practice", href: STUDENT_PRACTICE_PATH, match: [STUDENT_PRACTICE_PATH], area: "practice" },
   {
     label: "Progress",
     href: "/student/progress",
@@ -72,47 +77,119 @@ function activeArea(pathname: string): AreaTone {
 }
 
 /**
- * The always-available help button (Requirement 18.6). It lives here, in the
- * shell, so it is present on every Student screen rather than only on Practice
- * Session. Zero friction by design: one tap, no confirmation step, no form.
- * Styled on the brand accent — same family as primary actions — so it does not
- * read as a separate muddy chrome control.
+ * Always-available student-initiated help (Requirement 18.6). Lives in the
+ * shell so it is on every Student screen. On Practice the control is the hint
+ * drawer; everywhere else one "I need help" button opens five reasons — picking
+ * one IS sending, with no confirmation step and no free-text field.
  */
-function HelpButton() {
+function HelpControls() {
   const { requestHelp } = useDistress();
   const { openPracticeHelp } = useShellState();
   const { stage } = useTour();
   const pathname = usePathname();
-  // On Practice this button is the hint drawer. The tour's safety-net chapter
-  // runs on Practice and is about the other one, so it asks for the escalation
-  // form explicitly rather than the chapter pretending to be somewhere else.
-  const onPractice = pathname.startsWith("/practice") && !stage?.helpButtonEscalates;
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const onPractice =
+    pathname.startsWith(STUDENT_PRACTICE_PATH) && !stage?.helpButtonEscalates;
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onPointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Node;
+      if (menuRef.current && !menuRef.current.contains(target)) {
+        closeMenu();
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeMenu();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen, closeMenu]);
+
+  const helpButtonStyle = {
+    fontFamily: "var(--font-body)",
+    fontSize: 12,
+    fontWeight: 700,
+    padding: "8px 16px",
+    borderRadius: "var(--radius-control)",
+    border: "1.5px solid var(--color-accent-subtle-border)",
+    background: "var(--color-accent-subtle)",
+    color: "var(--color-accent-strong)",
+    cursor: "pointer",
+    whiteSpace: "nowrap" as const,
+  };
+
+  if (onPractice) {
+    return (
+      <button
+        type="button"
+        className="esc-pressable"
+        data-tour="help-button"
+        onClick={() => {
+          hapticTap();
+          openPracticeHelp();
+        }}
+        style={helpButtonStyle}
+      >
+        Need a hint?
+      </button>
+    );
+  }
+
+  const sendReason = (label: HelpReasonLabel) => {
+    hapticTap();
+    closeMenu();
+    requestHelp(label);
+  };
 
   return (
-    <button
-      type="button"
-      className="esc-pressable"
-      data-tour="help-button"
-      onClick={() => {
-        hapticTap();
-        if (onPractice) openPracticeHelp();
-        else requestHelp();
-      }}
-      style={{
-        fontFamily: "var(--font-body)",
-        fontSize: 12,
-        fontWeight: 700,
-        padding: "8px 16px",
-        borderRadius: "var(--radius-control)",
-        border: "1.5px solid var(--color-accent-subtle-border)",
-        background: "var(--color-accent-subtle)",
-        color: "var(--color-accent-strong)",
-        cursor: "pointer",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {onPractice ? "Need a hint?" : "I need help"}
-    </button>
+    <div className="esc-help-menu" ref={menuRef}>
+      <button
+        type="button"
+        className="esc-help-trigger esc-pressable"
+        data-tour="help-button"
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        aria-controls="esc-help-menu-panel"
+        onClick={() => {
+          hapticTap();
+          setMenuOpen((open) => !open);
+        }}
+        style={helpButtonStyle}
+      >
+        I need help
+      </button>
+      {menuOpen ? (
+        <div
+          id="esc-help-menu-panel"
+          className="esc-help-menu-panel"
+          role="menu"
+          aria-label="Tell your teacher you need help"
+        >
+          {HELP_REASON_LABELS.map((label) => (
+            <button
+              key={label}
+              type="button"
+              role="menuitem"
+              className="esc-help-menu-option esc-pressable"
+              onClick={() => sendReason(label)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -120,6 +197,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { connectivity, headerNote, demoOffline, toggleDemoOffline } =
     useShellState();
+  const isEmbed = useIsEmbed();
   const area = activeArea(pathname);
   const tone = AREA_ACTIVE[area];
   const headerBorder = `1.5px solid color-mix(in oklch, ${tone.border} 55%, transparent)`;
@@ -171,47 +249,80 @@ export function NavShell({ children }: { children: React.ReactNode }) {
               flexShrink: 0,
             }}
           />
-          <button
-            type="button"
-            className="esc-conn-toggle esc-pressable"
-            data-tour="connectivity"
-            title="Toggle offline demo"
-            onClick={() => {
-              hapticTap();
-              toggleDemoOffline();
-            }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              minWidth: 0,
-              border: "none",
-              background: "transparent",
-              padding: 0,
-              cursor: "pointer",
-              font: "inherit",
-            }}
-          >
-            <ConnectivityGlyph
-              state={connectivity}
-              demoOffline={offlineDisplay && demoOffline}
-            />
-            <span
-              className="esc-shell-connectivity-label"
+          {isEmbed ? (
+            <div
+              className="esc-conn-toggle"
+              data-tour="connectivity"
               style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: connectivityColor,
-                whiteSpace: "nowrap",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                minWidth: 0,
+                border: "none",
+                background: "transparent",
+                padding: 0,
+                font: "inherit",
               }}
             >
-              {connectivityLabel}
-            </span>
-          </button>
+              <ConnectivityGlyph
+                state={connectivity}
+                demoOffline={offlineDisplay && demoOffline}
+              />
+              <span
+                className="esc-shell-connectivity-label"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: connectivityColor,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {connectivityLabel}
+              </span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="esc-conn-toggle esc-pressable"
+              data-tour="connectivity"
+              title="Toggle offline demo"
+              onClick={() => {
+                hapticTap();
+                toggleDemoOffline();
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                minWidth: 0,
+                border: "none",
+                background: "transparent",
+                padding: 0,
+                cursor: "pointer",
+                font: "inherit",
+              }}
+            >
+              <ConnectivityGlyph
+                state={connectivity}
+                demoOffline={offlineDisplay && demoOffline}
+              />
+              <span
+                className="esc-shell-connectivity-label"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: connectivityColor,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {connectivityLabel}
+              </span>
+            </button>
+          )}
         </div>
 
         <div className="esc-shell-header-actions">
-          <HelpButton />
+          <HelpControls />
           {headerNote ? (
             <span
               className="esc-shell-header-note"
@@ -224,6 +335,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
               {headerNote}
             </span>
           ) : null}
+          <ShellExitLink variant="student" />
         </div>
       </header>
 

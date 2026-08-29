@@ -2,22 +2,40 @@ import { NextResponse } from "next/server";
 import { MODEL_DEFAULT, complete } from "@/lib/ai/models";
 import {
   ASK_LOOKUP_SYSTEM,
+  SPACE_COAUTHOR_SYSTEM,
+  WEEKLY_DIGEST_SYSTEM,
   hintPrompt,
   introPrompt,
   learnAskPrompt,
+  overviewAskPrompt,
   practiceAskPrompt,
   problemsFor,
   progressAskPrompt,
   rubricGradePrompt,
   sanitizeAiText,
+  spaceCoauthorPrompt,
+  adminAnalyticsAskPrompt,
+  adminBillingAskPrompt,
+  adminBriefingAskPrompt,
+  adminTodayAskPrompt,
+  teacherBriefingAskPrompt,
+  teacherTodayAskPrompt,
   todayAskPrompt,
+  weeklyDigestPrompt,
   workedLensPrompt,
   type SkillKey,
 } from "@/lib/ai/prompts";
 import { checkAiRateLimit, clientIp } from "@/lib/rate-limit";
 import { DEMO_SPACES, VARIABLES_BOTH_SIDES_PROBLEMS } from "@/lib/demo-data";
+import { sanitizeSpaceCoauthorDraft } from "@/lib/space-store";
+import {
+  checkStudentShellAccess,
+  isStudentAiTask,
+  studentShellAccessDeniedBody,
+} from "@/lib/student-shell-access";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const MAX_QUESTION_LENGTH = 500;
 const SKILL_KEYS: SkillKey[] = ["two_step", "variables_both_sides"];
@@ -56,6 +74,15 @@ function readSpaceId(body: Body): string | undefined {
   return DEMO_SPACES.some((space) => space.id === value) ? value : undefined;
 }
 
+function readSpaceFilter(body: Body): string | null {
+  const value = body.spaceFilter;
+  if (value === "algebra_8a" || value === "remediation_8a") return value;
+  // Dynamic Spaces created via Requirement 9 — accept any non-empty string;
+  // overview grounding filters students by effective spaceId at ask time.
+  if (typeof value === "string" && value.length > 0 && value !== "all") return value;
+  return null;
+}
+
 export async function POST(request: Request) {
   let body: Body;
   try {
@@ -66,6 +93,13 @@ export async function POST(request: Request) {
 
   const task = typeof body.task === "string" ? body.task : null;
   if (!task) return badRequest("Missing task");
+
+  if (isStudentAiTask(task)) {
+    const access = await checkStudentShellAccess();
+    if (!access.allowed) {
+      return NextResponse.json(studentShellAccessDeniedBody(access), { status: 403 });
+    }
+  }
 
   // Rate limiting is per-IP and applies to every task on this route. Distress
   // classification deliberately does not live here — see /api/distress.
@@ -176,6 +210,147 @@ export async function POST(request: Request) {
           typeof parsed.feedback === "string" ? parsed.feedback.trim() : "";
         if (!tier) return badRequest("Grader returned an unusable tier");
         return NextResponse.json({ tier, feedback });
+      }
+
+      case "overview_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const spaceFilter = readSpaceFilter(body);
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await overviewAskPrompt(question, spaceFilter),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "teacher_today_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const spaceFilter = readSpaceFilter(body);
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await teacherTodayAskPrompt(question, spaceFilter),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "teacher_briefing_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const spaceFilter = readSpaceFilter(body);
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await teacherBriefingAskPrompt(question, spaceFilter),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_analytics_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const rangeRaw = body.dateRange;
+        const dateRange =
+          rangeRaw === "14d" || rangeRaw === "all" || rangeRaw === "7d" ? rangeRaw : "7d";
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminAnalyticsAskPrompt(question, dateRange),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_billing_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminBillingAskPrompt(question),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_briefing_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminBriefingAskPrompt(question),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "admin_today_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const viewRaw = body.view;
+        const view = viewRaw === "week" ? "week" : "today";
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt: await adminTodayAskPrompt(question, view),
+          maxTokens: 500,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "teacher_weekly_digest": {
+        // Req 12 — real LLM prose grounded in computed metrics. Delivery is
+        // a labeled preview elsewhere; this task never sends email.
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: WEEKLY_DIGEST_SYSTEM,
+          prompt: await weeklyDigestPrompt(),
+          maxTokens: 700,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "space_coauthor": {
+        // Req 9.8 — draft skill ids + difficulty only. Never invents name/
+        // description; never auto-saves. Unknown skill ids filtered out.
+        const description = readQuestion({ question: body.description });
+        if (!description) return badRequest("Invalid description");
+        const raw = await complete({
+          model: MODEL_DEFAULT,
+          system: SPACE_COAUTHOR_SYSTEM,
+          prompt: spaceCoauthorPrompt(description),
+          maxTokens: 300,
+        });
+        const cleaned = raw
+          .trim()
+          .replace(/^```(json)?/i, "")
+          .replace(/```$/, "")
+          .trim();
+        let parsed: {
+          skillIds?: unknown;
+          difficultyMin?: unknown;
+          difficultyMax?: unknown;
+        };
+        try {
+          parsed = JSON.parse(cleaned) as typeof parsed;
+        } catch {
+          return badRequest("Co-author returned unusable JSON");
+        }
+        const draft = sanitizeSpaceCoauthorDraft(parsed);
+        if (!draft) {
+          return badRequest("Co-author suggested no valid skills from the graph");
+        }
+        return NextResponse.json({
+          includedSkillIds: draft.includedSkillIds,
+          difficultyMin: draft.difficultyMin,
+          difficultyMax: draft.difficultyMax,
+        });
       }
 
       case "today_ask":

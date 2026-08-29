@@ -6,7 +6,6 @@ import {
   useLayoutEffect,
   useRef,
   useState,
-  type CSSProperties,
 } from "react";
 import { useTour } from "@/components/tour-provider";
 import { DISTRESS_SCRIPTED_MESSAGE } from "@/lib/distress";
@@ -14,14 +13,12 @@ import { hapticTap } from "@/lib/haptics";
 import {
   TOUR_CHAPTERS,
   TOUR_SAFETY_DEMO_LABEL,
+  tourPositionAt,
   type TourDemoCardKind,
 } from "@/lib/tour";
 
 /** Breathing room between the spotlight ring and the element it surrounds. */
 const SPOT_PAD = 8;
-const CALLOUT_GAP = 16;
-/** Below this the callout docks: an anchored card would cover the screen anyway. */
-const ANCHOR_MIN_WIDTH = 760;
 
 interface SpotRect {
   top: number;
@@ -61,6 +58,31 @@ function sameRect(a: SpotRect | null, b: SpotRect | null): boolean {
   );
 }
 
+function litFromRect(
+  rect: SpotRect,
+  viewport: { width: number; height: number },
+) {
+  const top = Math.max(0, Math.min(rect.top - SPOT_PAD, viewport.height));
+  const left = Math.max(0, Math.min(rect.left - SPOT_PAD, viewport.width));
+  return {
+    top,
+    left,
+    bottom: Math.max(
+      top,
+      Math.min(rect.top + rect.height + SPOT_PAD, viewport.height),
+    ),
+    right: Math.max(
+      left,
+      Math.min(rect.left + rect.width + SPOT_PAD, viewport.width),
+    ),
+  };
+}
+
+function elementInViewport(element: Element): boolean {
+  const box = element.getBoundingClientRect();
+  return box.top >= 48 && box.bottom <= window.innerHeight - 48;
+}
+
 /**
  * Chapter 4 shows the two distress surfaces without touching the live path:
  * these are rendered by the tour from the same scripted constant the product
@@ -86,7 +108,7 @@ function SafetyDemoCard({ kind }: { kind: TourDemoCardKind }) {
       <div className="esc-tour-demo-notice">{DISTRESS_SCRIPTED_MESSAGE}</div>
       <div className="esc-tour-demo-foot">
         {kind === "help_button"
-          ? "That one sentence is a constant in the code. It is never reworded, never generated at the point of display, and identical whichever path raised it."
+          ? "Five fixed reasons, one tap each — choosing is sending, with no confirmation and no free-text field. That one sentence is a constant in the code: never reworded, never generated at the point of display, and identical whichever path raised it."
           : "The answer and the notice arrive together. Detection never gates the reply, because making every question wait on a slower safety model would be a worse experience for no safety gain."}
       </div>
     </div>
@@ -99,10 +121,12 @@ export function TourOverlay() {
     position,
     chapterCount,
     index,
+    isFirst,
     isLast,
     autoPlay,
     toggleAutoPlay,
     next,
+    back,
     restart,
     exit,
   } = useTour();
@@ -110,10 +134,28 @@ export function TourOverlay() {
   const step = position?.step ?? null;
   const target = step?.target ?? null;
 
-  const [rect, setRect] = useState<SpotRect | null>(null);
+  /** Last measured spotlight — kept across step changes so the ring can animate. */
+  const [displayRect, setDisplayRect] = useState<SpotRect | null>(null);
+  /** Caption updates only after the new target is painted and measured. */
+  const [contentIndex, setContentIndex] = useState(index);
   const [viewport, setViewport] = useState({ width: 1024, height: 768 });
-  const [calloutSize, setCalloutSize] = useState({ width: 420, height: 280 });
   const calloutRef = useRef<HTMLDivElement | null>(null);
+
+  const contentPosition = tourPositionAt(contentIndex);
+  const contentStep = contentPosition.step;
+  const {
+    chapter: contentChapter,
+    chapterNumber: contentChapterNumber,
+    stepNumber: contentStepNumber,
+    stepCount: contentStepCount,
+  } = contentPosition;
+
+  useEffect(() => {
+    if (!active) {
+      setDisplayRect(null);
+      setContentIndex(0);
+    }
+  }, [active]);
 
   useEffect(() => {
     const onResize = () =>
@@ -123,8 +165,9 @@ export function TourOverlay() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Targets appear asynchronously (a route change, an AI-backed card settling),
-  // so the rect is re-read on a loop rather than measured once per step.
+  // Targets appear asynchronously (route change, expanded cards settling). Keep
+  // the previous rect until the new one is found so the spotlight never flashes
+  // to full-screen dim between steps.
   useEffect(() => {
     if (!active) return;
     let frame = 0;
@@ -133,7 +176,9 @@ export function TourOverlay() {
       if (now - last > 120) {
         last = now;
         const found = readRect(target);
-        setRect((current) => (sameRect(current, found) ? current : found));
+        if (found) {
+          setDisplayRect((current) => (sameRect(current, found) ? current : found));
+        }
       }
       frame = requestAnimationFrame(tick);
     };
@@ -141,46 +186,81 @@ export function TourOverlay() {
     return () => cancelAnimationFrame(frame);
   }, [active, target]);
 
-  // Same reason: keep trying to bring the target into view for a moment after
-  // the step starts, instead of scrolling to wherever it was at step change.
+  // Steps with no anchor ease to full dim once the ring has finished moving.
   useEffect(() => {
-    if (!active) return;
-    const delays = [0, 220, 600, 1200];
-    const timers = delays.map((delay) =>
-      window.setTimeout(() => {
-        const element = target
-          ? document.querySelector<HTMLElement>(`[data-tour="${target}"]`)
-          : null;
-        if (element) element.scrollIntoView({ block: "center", behavior: "smooth" });
-        else if (delay === 0) window.scrollTo({ top: 0, behavior: "smooth" });
-      }, delay),
-    );
-    return () => timers.forEach((timer) => window.clearTimeout(timer));
+    if (!active || target) return;
+    const timer = window.setTimeout(() => setDisplayRect(null), 320);
+    return () => window.clearTimeout(timer);
   }, [active, index, target]);
 
-  useLayoutEffect(() => {
-    const element = calloutRef.current;
-    if (!element) return;
-    const measure = () => {
-      const box = element.getBoundingClientRect();
-      setCalloutSize((current) =>
-        Math.abs(current.width - box.width) < 1 &&
-        Math.abs(current.height - box.height) < 1
-          ? current
-          : { width: box.width, height: box.height },
-      );
+  // Defer caption updates until the new target exists — prevents the callout
+  // from describing step N+1 while the spotlight is still on step N.
+  useEffect(() => {
+    if (!active) return;
+    if (index === contentIndex) return;
+
+    if (!target) {
+      const timer = window.setTimeout(() => setContentIndex(index), 320);
+      return () => window.clearTimeout(timer);
+    }
+
+    let cancelled = false;
+    let attempts = 0;
+    const settle = () => {
+      if (cancelled) return;
+      const found = readRect(target);
+      if (found) {
+        setDisplayRect((current) => (sameRect(current, found) ? current : found));
+        requestAnimationFrame(() => {
+          if (!cancelled) setContentIndex(index);
+        });
+        return;
+      }
+      attempts += 1;
+      if (attempts < 48) {
+        requestAnimationFrame(settle);
+      } else {
+        setContentIndex(index);
+      }
     };
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [active, index]);
+    requestAnimationFrame(settle);
+    return () => {
+      cancelled = true;
+    };
+  }, [active, contentIndex, index, target]);
+
+  // Same-route steps often have the target already painted — measure immediately.
+  useLayoutEffect(() => {
+    if (!active || !target) return;
+    const found = readRect(target);
+    if (found) {
+      setDisplayRect((current) => (sameRect(current, found) ? current : found));
+    }
+  }, [active, index, target]);
+
+  // Scroll only when the target is off-screen — mid-page jumps fight the overlay.
+  useEffect(() => {
+    if (!active || !target) return;
+    const timer = window.setTimeout(() => {
+      const element = document.querySelector<HTMLElement>(`[data-tour="${target}"]`);
+      if (element && !elementInViewport(element)) {
+        element.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    }, 280);
+    return () => window.clearTimeout(timer);
+  }, [active, index, target]);
 
   const advance = useCallback(() => {
     hapticTap();
     if (isLast) exit();
     else next();
   }, [exit, isLast, next]);
+
+  const goBack = useCallback(() => {
+    if (isFirst) return;
+    hapticTap();
+    back();
+  }, [back, isFirst]);
 
   useEffect(() => {
     if (!active) return;
@@ -196,66 +276,29 @@ export function TourOverlay() {
       if (event.key === "ArrowRight") {
         event.preventDefault();
         advance();
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goBack();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [active, advance, exit]);
+  }, [active, advance, exit, goBack]);
 
   if (!active || !step || !position) return null;
 
-  const { chapter, chapterNumber, stepNumber, stepCount } = position;
-  // A step with its own demo card needs the width; anchoring it beside a
-  // header button would squeeze the thing it exists to show.
-  const mustDock =
-    !rect || viewport.width < ANCHOR_MIN_WIDTH || Boolean(step.demoCard);
-
-  /**
-   * The lit area, padded and clamped to the viewport. Dimming is four panels
-   * around this box rather than one huge box-shadow, because a shadow that
-   * wide is at the mercy of whichever ancestor happens to be clipping.
-   */
-  const lit = rect
-    ? (() => {
-        const top = Math.max(0, Math.min(rect.top - SPOT_PAD, viewport.height));
-        const left = Math.max(0, Math.min(rect.left - SPOT_PAD, viewport.width));
-        return {
-          top,
-          left,
-          bottom: Math.max(
-            top,
-            Math.min(rect.top + rect.height + SPOT_PAD, viewport.height),
-          ),
-          right: Math.max(
-            left,
-            Math.min(rect.left + rect.width + SPOT_PAD, viewport.width),
-          ),
-        };
-      })()
-    : null;
-
-  let anchored: CSSProperties | undefined;
-  if (!mustDock && rect) {
-    const below = rect.top + rect.height + SPOT_PAD + CALLOUT_GAP;
-    const above = rect.top - SPOT_PAD - CALLOUT_GAP - calloutSize.height;
-    const top =
-      below + calloutSize.height + CALLOUT_GAP <= viewport.height
-        ? below
-        : above >= CALLOUT_GAP
-          ? above
-          : null;
-    if (top !== null) {
-      const centred = rect.left + rect.width / 2 - calloutSize.width / 2;
-      const maxLeft = Math.max(
-        CALLOUT_GAP,
-        viewport.width - calloutSize.width - CALLOUT_GAP,
-      );
-      anchored = { top, left: Math.min(Math.max(CALLOUT_GAP, centred), maxLeft) };
-    }
-  }
-  // A target taller than the viewport leaves no room either side of it, and
-  // docking clips its bottom edge rather than covering its middle.
-  const docked = !anchored;
+  const { chapterNumber, stepNumber, stepCount } = position;
+  const showRing = Boolean(displayRect && target);
+  const lit = displayRect
+    ? litFromRect(displayRect, viewport)
+    : {
+        top: 0,
+        left: 0,
+        bottom: viewport.height,
+        right: viewport.width,
+      };
 
   return (
     <>
@@ -265,64 +308,65 @@ export function TourOverlay() {
         chapter 4 from ever reaching the real escalation endpoint.
       */}
       <div className="esc-tour-block" aria-hidden />
-      {lit ? (
-        <>
-          <div
-            className="esc-tour-shade"
-            aria-hidden
-            style={{ top: 0, left: 0, right: 0, height: lit.top }}
-          />
-          <div
-            className="esc-tour-shade"
-            aria-hidden
-            style={{ top: lit.bottom, left: 0, right: 0, bottom: 0 }}
-          />
-          <div
-            className="esc-tour-shade"
-            aria-hidden
-            style={{
-              top: lit.top,
-              height: lit.bottom - lit.top,
-              left: 0,
-              width: lit.left,
-            }}
-          />
-          <div
-            className="esc-tour-shade"
-            aria-hidden
-            style={{
-              top: lit.top,
-              height: lit.bottom - lit.top,
-              left: lit.right,
-              right: 0,
-            }}
-          />
-          <div
-            className="esc-tour-ring"
-            aria-hidden
-            style={{
-              top: lit.top,
-              left: lit.left,
-              width: lit.right - lit.left,
-              height: lit.bottom - lit.top,
-              borderRadius: `calc(${rect?.radius ?? "16px"} + ${SPOT_PAD}px)`,
-            }}
-          />
-        </>
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{ top: 0, left: 0, right: 0, height: lit.top }}
+      />
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{ top: lit.bottom, left: 0, right: 0, bottom: 0 }}
+      />
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{
+          top: lit.top,
+          height: lit.bottom - lit.top,
+          left: 0,
+          width: lit.left,
+        }}
+      />
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{
+          top: lit.top,
+          height: lit.bottom - lit.top,
+          left: lit.right,
+          right: 0,
+        }}
+      />
+      {showRing ? (
+        <div
+          className="esc-tour-ring"
+          aria-hidden
+          style={{
+            top: lit.top,
+            left: lit.left,
+            width: lit.right - lit.left,
+            height: lit.bottom - lit.top,
+            borderRadius: `calc(${displayRect?.radius ?? "16px"} + ${SPOT_PAD}px)`,
+          }}
+        />
       ) : (
         <div
-          className="esc-tour-shade"
+          className="esc-tour-ring esc-tour-ring-hidden"
           aria-hidden
-          style={{ top: 0, left: 0, right: 0, bottom: 0 }}
+          style={{
+            top: lit.top,
+            left: lit.left,
+            width: Math.max(0, lit.right - lit.left),
+            height: Math.max(0, lit.bottom - lit.top),
+            borderRadius: `calc(${displayRect?.radius ?? "16px"} + ${SPOT_PAD}px)`,
+          }}
         />
       )}
 
       <div
         ref={calloutRef}
-        className={
-          docked ? "esc-tour-callout esc-tour-callout-docked" : "esc-tour-callout"
-        }
-        style={anchored}
+        className="esc-tour-callout esc-tour-callout-docked"
         role="region"
         aria-label="Guided tour"
       >
@@ -353,21 +397,23 @@ export function TourOverlay() {
         <div className="esc-tour-body" aria-live="polite">
           <div className="esc-tour-meta">
             <span className="esc-tour-badge">
-              Chapter {chapterNumber} of {chapterCount}
+              Chapter {contentChapterNumber} of {chapterCount}
             </span>
-            <span className="esc-tour-chapter-name">{chapter.title}</span>
+            <span className="esc-tour-chapter-name">{contentChapter.title}</span>
             <span className="esc-tour-screen">
-              {step.screen ?? chapter.screen}
+              {contentStep.screen ?? contentChapter.screen}
             </span>
             <span className="esc-tour-substep">
-              Step {stepNumber} of {stepCount}
+              Step {contentStepNumber} of {contentStepCount}
             </span>
           </div>
 
-          <h2 className="esc-tour-title">{step.title}</h2>
-          <p className="esc-tour-caption">{step.caption}</p>
+          <h2 className="esc-tour-title">{contentStep.title}</h2>
+          <p className="esc-tour-caption">{contentStep.caption}</p>
 
-          {step.demoCard ? <SafetyDemoCard kind={step.demoCard} /> : null}
+          {contentStep.demoCard ? (
+            <SafetyDemoCard kind={contentStep.demoCard} />
+          ) : null}
         </div>
 
         {autoPlay && !isLast ? (
@@ -381,6 +427,14 @@ export function TourOverlay() {
         ) : null}
 
         <div className="esc-tour-actions">
+          <button
+            type="button"
+            className="esc-tour-back esc-pressable"
+            onClick={goBack}
+            disabled={isFirst}
+          >
+            Back
+          </button>
           <button
             type="button"
             className="esc-tour-next esc-pressable"

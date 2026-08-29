@@ -4,37 +4,29 @@ import { distressPrompt } from "@/lib/ai/prompts";
 import { STUDENT } from "@/lib/demo-data";
 import {
   DISTRESS_SURFACES,
+  isHelpReasonLabel,
   type DetectionMethod,
   type DistressSurface,
   type EscalationRecord,
+  type HelpReasonLabel,
 } from "@/lib/distress";
+import {
+  getEscalationById,
+  listEscalations,
+  recordEscalation,
+  seedEscalationsIfEmpty,
+} from "@/lib/distress-store";
 import { clientIp, getRedis, shouldClassifyDistress } from "@/lib/rate-limit";
+import {
+  checkStudentShellAccess,
+  studentShellAccessDeniedBody,
+} from "@/lib/student-shell-access";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const MAX_TEXT_LENGTH = 2000;
 const CLASSIFIER_TIMEOUT_MS = 12_000;
-const ESCALATION_KEY = "escolent:escalations";
-const ESCALATION_CAP = 200;
-
-/**
- * Requirement 18 / 19.5, and the single most safety-critical path in the app.
- *
- * Three properties this route exists to guarantee:
- *
- * 1. It is never rate limited. A student in distress cannot be told to come
- *    back later. The spend valve in shouldClassifyDistress() caps model cost
- *    without ever changing what the student gets.
- *
- * 2. It fails open. Any classifier failure — error, timeout, unparseable
- *    output, or the budget valve — takes the exact same path as a confirmed
- *    positive, because Requirement 18.4 says err toward over-triggering.
- *
- * 3. Detection and record creation are inseparable. They are one call, and
- *    escalated:true is returned only after a record has been durably written.
- *    A student is never told help is coming without a reviewable record
- *    existing, which would be worse than the silent gap this replaces.
- */
 
 /** Returns true for distress, false for clean, null when it could not decide. */
 async function classify(text: string): Promise<boolean | null> {
@@ -59,31 +51,12 @@ async function classify(text: string): Promise<boolean | null> {
   }
 }
 
-/**
- * Writes the escalation record and resolves only once it is durably stored.
- * Redis first; if that fails for any reason the full record goes to the server
- * log, which Vercel retains. There is no path where this returns without a
- * record existing somewhere a person can read it.
- */
-async function recordEscalation(record: EscalationRecord): Promise<void> {
-  const redis = getRedis();
-  if (redis) {
-    try {
-      await redis.lpush(ESCALATION_KEY, JSON.stringify(record));
-      await redis.ltrim(ESCALATION_KEY, 0, ESCALATION_CAP - 1);
-      console.info(
-        `[escalation] recorded ${record.id} method=${record.method} surface=${record.surface} classifierFailed=${record.classifierFailed}`,
-      );
-      return;
-    } catch (error) {
-      console.error("[api/distress] redis write failed, falling back to log", error);
-    }
+export async function POST(request: Request) {
+  const access = await checkStudentShellAccess();
+  if (!access.allowed) {
+    return NextResponse.json(studentShellAccessDeniedBody(access), { status: 403 });
   }
 
-  console.error(`[ESCALATION RECORD] ${JSON.stringify(record)}`);
-}
-
-export async function POST(request: Request) {
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;
@@ -104,6 +77,14 @@ export async function POST(request: Request) {
   const rawText = typeof body.text === "string" ? body.text.trim() : "";
   const text = rawText ? rawText.slice(0, MAX_TEXT_LENGTH) : null;
 
+  let helpReason: HelpReasonLabel | null = null;
+  if (method === "student_initiated") {
+    if (!isHelpReasonLabel(body.helpReason)) {
+      return NextResponse.json({ error: "Invalid help reason" }, { status: 400 });
+    }
+    helpReason = body.helpReason;
+  }
+
   const buildRecord = (classifierFailed: boolean): EscalationRecord => ({
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
@@ -111,10 +92,13 @@ export async function POST(request: Request) {
     method,
     surface,
     text,
+    helpReason,
     classifierFailed,
+    acknowledgedBy: null,
+    acknowledgedAt: null,
+    views: [],
   });
 
-  // Student-initiated: zero friction, no classification, no confirmation step.
   if (method === "student_initiated") {
     await recordEscalation(buildRecord(false));
     return NextResponse.json({ escalated: true });
@@ -127,7 +111,6 @@ export async function POST(request: Request) {
   const withinBudget = await shouldClassifyDistress(clientIp(request));
   const verdict = withinBudget ? await classify(text) : null;
 
-  // null means we could not confirm — treat it exactly as a positive.
   if (verdict === false) {
     return NextResponse.json({ escalated: false });
   }
@@ -136,12 +119,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ escalated: true });
 }
 
-/**
- * Reads back recent escalation records. No Teacher screen exists this phase, so
- * this is how a record is actually reviewable. It sits behind the same password
- * gate as everything else.
- */
-export async function GET() {
+export async function GET(request: Request) {
   const redis = getRedis();
   if (!redis) {
     return NextResponse.json({
@@ -150,11 +128,19 @@ export async function GET() {
     });
   }
 
+  await seedEscalationsIfEmpty();
+
+  const id = new URL(request.url).searchParams.get("id");
+  if (id) {
+    const record = await getEscalationById(id);
+    if (!record) {
+      return NextResponse.json({ error: "Escalation not found" }, { status: 404 });
+    }
+    return NextResponse.json({ record });
+  }
+
   try {
-    const raw = await redis.lrange<string | EscalationRecord>(ESCALATION_KEY, 0, 49);
-    const records = raw.map((entry) =>
-      typeof entry === "string" ? (JSON.parse(entry) as EscalationRecord) : entry,
-    );
+    const records = await listEscalations();
     return NextResponse.json({ records });
   } catch (error) {
     console.error("[api/distress] failed to read records", error);

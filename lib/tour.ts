@@ -41,8 +41,9 @@ export interface TourStage {
   /** Skill row Learn opens by itself, so the lesson content is already visible. */
   openSkillId?: string;
   /**
-   * Render the shell help button in its escalation form. On Practice that same
-   * button is the hint drawer, and the safety-net chapter is about the other one.
+   * Render the shell help controls in their escalation form (five one-tap
+   * reasons). On Practice that same slot is the hint drawer, and the safety-net
+   * chapter is about the other one.
    */
   helpButtonEscalates?: boolean;
 }
@@ -76,8 +77,8 @@ export interface TourChapter {
   steps: TourStep[];
 }
 
-const PRACTICE_VARIABLES = "/practice?skill=variables_both_sides";
-const PRACTICE_TWO_STEP = "/practice?skill=two_step&entryVariant=returning";
+const PRACTICE_VARIABLES = "/student/practice?skill=variables_both_sides";
+const PRACTICE_TWO_STEP = "/student/practice?skill=two_step&entryVariant=returning";
 
 export const TOUR_CHAPTERS: TourChapter[] = [
   {
@@ -211,7 +212,7 @@ export const TOUR_CHAPTERS: TourChapter[] = [
         target: "help-button",
         title: "One tap, nothing else asked of her",
         caption:
-          "The help button lives in the shell, so it is on every screen rather than only where the platform expects trouble. No confirmation step and no form, because every extra tap is another chance to give up — and the record is written and confirmed before she is ever told a teacher has been notified.",
+          "One I need help button opens five reasons in the shell, so they are on every screen rather than only where the platform expects trouble. Choosing a reason is sending — no confirmation step and no form — because every extra tap is another chance to give up. The record is written and confirmed before she is ever told a teacher has been notified.",
         ms: 15000,
         stage: { helpButtonEscalates: true },
         demoCard: "help_button",

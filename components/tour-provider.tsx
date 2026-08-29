@@ -33,6 +33,8 @@ interface TourValue {
   autoPlay: boolean;
   toggleAutoPlay: () => void;
   next: () => void;
+  back: () => void;
+  isFirst: boolean;
   restart: () => void;
   exit: () => void;
 }
@@ -48,6 +50,8 @@ const EMPTY: TourValue = {
   autoPlay: false,
   toggleAutoPlay: () => undefined,
   next: () => undefined,
+  back: () => undefined,
+  isFirst: true,
   restart: () => undefined,
   exit: () => undefined,
 };
@@ -71,6 +75,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   const position = active ? tourPositionAt(index) : null;
   const step = position?.step ?? null;
   const isLast = index >= TOUR_STEP_COUNT - 1;
+  const isFirst = index <= 0;
 
   /**
    * Guards the navigation effect: a push is attempted at most once per step, so
@@ -111,7 +116,13 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   }, [active, step]);
 
   const next = useCallback(() => {
+    navigatedFor.current = null;
     setIndex((current) => Math.min(current + 1, TOUR_STEP_COUNT - 1));
+  }, []);
+
+  const back = useCallback(() => {
+    navigatedFor.current = null;
+    setIndex((current) => Math.max(current - 1, 0));
   }, []);
 
   useEffect(() => {
@@ -145,6 +156,8 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
       autoPlay,
       toggleAutoPlay,
       next,
+      back,
+      isFirst,
       restart,
       exit,
     }),
@@ -152,8 +165,10 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
       active,
       autoPlay,
       index,
+      isFirst,
       isLast,
       next,
+      back,
       position,
       restart,
       exit,
