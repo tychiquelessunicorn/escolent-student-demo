@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
 import { ShellExitLink } from "@/components/shell-exit-link";
+import { EscolentLogoIcon } from "@/components/escolent-logo";
 import { hapticTap } from "@/lib/haptics";
 
 const NAV_ITEMS: {
@@ -90,18 +91,7 @@ export function TeacherShell({ children }: { children: React.ReactNode }) {
     <div className="esc-shell-root esc-staff-shell">
       <header className="esc-shell-header">
         <div className="esc-shell-header-brand">
-          <span
-            aria-hidden
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 3,
-              background: "var(--color-staff-interactive)",
-              boxShadow:
-                "0 0 0 4px color-mix(in oklch, var(--color-staff-interactive) 22%, transparent)",
-              flexShrink: 0,
-            }}
-          />
+          <EscolentLogoIcon size={22} />
           <span
             style={{
               fontFamily: "var(--font-display)",

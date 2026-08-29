@@ -18,6 +18,7 @@ import { PracticeHelpDrawer } from "@/components/practice-help-drawer";
 import { PracticeRemediationModal } from "@/components/practice-remediation-modal";
 import { PracticeVictoryModal } from "@/components/practice-victory-modal";
 import { SessionEndActions } from "@/components/session-end-actions";
+import { EscolentLogoIcon } from "@/components/escolent-logo";
 import { Button, Card, CardBody, CardTitle, InsetPanel } from "@/components/ui";
 import {
   completeVictoryLoop,
@@ -1219,15 +1220,7 @@ function PracticeSessionInner() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-              <div
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: 5,
-                  background: "var(--color-accent)",
-                  flexShrink: 0,
-                }}
-              />
+              <EscolentLogoIcon size={18} />
               <div style={{ fontSize: 13, fontWeight: 600, flex: 1 }}>Escolent</div>
               <div style={{ fontSize: 12, color: "var(--color-content-muted)" }}>now</div>
             </div>

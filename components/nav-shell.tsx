@@ -14,6 +14,7 @@ import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
 import { ShellExitLink } from "@/components/shell-exit-link";
 import { useIsEmbed } from "@/lib/embed";
+import { EscolentLogoIcon } from "@/components/escolent-logo";
 
 const NAV_ITEMS: {
   label: string;
@@ -216,17 +217,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
     <div className="esc-shell-root">
       <header className="esc-shell-header" style={{ borderBottom: headerBorder }}>
         <div className="esc-shell-header-brand">
-          <span
-            aria-hidden
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 3,
-              background: tone.solid,
-              boxShadow: `0 0 0 4px color-mix(in oklch, ${tone.solid} 22%, transparent)`,
-              flexShrink: 0,
-            }}
-          />
+          <EscolentLogoIcon size={22} />
           <span
             style={{
               fontFamily: "var(--font-display)",

@@ -1,3 +1,5 @@
+import { EscolentLogoIcon } from "@/components/escolent-logo";
+
 export const metadata = { title: "Escolent" };
 
 export default async function GatePage({
@@ -30,13 +32,24 @@ export default async function GatePage({
       >
         <div
           style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 700,
-            fontSize: 22,
-            marginBottom: 8,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 12,
           }}
         >
-          Escolent
+          <EscolentLogoIcon size={24} />
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 800,
+              fontSize: 22,
+              letterSpacing: "-0.03em",
+              color: "var(--color-content-primary)",
+            }}
+          >
+            Escolent
+          </span>
         </div>
         <p
           style={{

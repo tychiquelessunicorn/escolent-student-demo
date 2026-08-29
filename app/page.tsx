@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EscolentLogoIcon } from "@/components/escolent-logo";
 
 const SHELLS: {
   label: string;
@@ -40,7 +41,7 @@ export default function HomePage() {
       <div className="esc-landing-inner">
         <header className="esc-landing-header">
           <div className="esc-landing-brand">
-            <span className="esc-landing-mark" aria-hidden />
+            <EscolentLogoIcon size={30} />
             <span className="esc-landing-wordmark">Escolent</span>
           </div>
           <p className="esc-landing-lede">
