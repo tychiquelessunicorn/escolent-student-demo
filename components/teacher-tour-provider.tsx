@@ -20,6 +20,7 @@ import {
   type TeacherTourPosition,
   type TeacherTourStage,
 } from "@/lib/teacher-tour";
+import { isEmbedParam } from "@/lib/embed";
 
 interface TeacherTourValue {
   active: boolean;
@@ -88,8 +89,9 @@ export function TeacherTourProvider({ children }: { children: React.ReactNode })
     let demoFromUrl = false;
     try {
       const params = new URLSearchParams(window.location.search);
+      const embedFromUrl = isEmbedParam(params.get("embed"));
       tourFromUrl = params.get("tour") === "1" || params.get("pitch") === "1";
-      demoFromUrl = params.get("demo") === "1";
+      demoFromUrl = !embedFromUrl && params.get("demo") === "1";
     } catch {
       /* ignore */
     }

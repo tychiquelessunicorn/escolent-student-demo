@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { AdminAskBox } from "@/components/admin-ask-box";
 import { useAdminTour } from "@/components/admin-tour-provider";
 import { getPrimaryAdmin } from "@/lib/demo-data/staff";
+import { isEmbedMode } from "@/lib/embed";
 import type { AdminBriefingItem, AdminBriefing } from "@/lib/admin-briefing-store";
 
 type DemoState =
@@ -70,7 +71,8 @@ function AdminBriefingInner() {
       ? briefingStateParam
       : "auto";
 
-  const showDemo = searchParams.get("demo") === "1";
+  const isEmbed = isEmbedMode(searchParams);
+  const showDemo = !isEmbed && searchParams.get("demo") === "1";
 
   const [data, setData] = useState<AdminBriefing | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -230,7 +232,7 @@ function AdminBriefingInner() {
         </div>
       ) : null}
 
-      {!showDemo ? (
+      {!showDemo && !isEmbed ? (
         <p className="esc-briefing-demo-hint">
           Edge states: add <code className="esc-landing-code">?demo=1</code> to open the harness,
           or set <code className="esc-landing-code">?briefingState=all_clear</code> directly.

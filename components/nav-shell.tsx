@@ -13,6 +13,7 @@ import { STUDENT_PRACTICE_PATH } from "@/lib/routes";
 import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
 import { ShellExitLink } from "@/components/shell-exit-link";
+import { useIsEmbed } from "@/lib/embed";
 
 const NAV_ITEMS: {
   label: string;
@@ -196,6 +197,7 @@ export function NavShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { connectivity, headerNote, demoOffline, toggleDemoOffline } =
     useShellState();
+  const isEmbed = useIsEmbed();
   const area = activeArea(pathname);
   const tone = AREA_ACTIVE[area];
   const headerBorder = `1.5px solid color-mix(in oklch, ${tone.border} 55%, transparent)`;
@@ -247,43 +249,76 @@ export function NavShell({ children }: { children: React.ReactNode }) {
               flexShrink: 0,
             }}
           />
-          <button
-            type="button"
-            className="esc-conn-toggle esc-pressable"
-            data-tour="connectivity"
-            title="Toggle offline demo"
-            onClick={() => {
-              hapticTap();
-              toggleDemoOffline();
-            }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              minWidth: 0,
-              border: "none",
-              background: "transparent",
-              padding: 0,
-              cursor: "pointer",
-              font: "inherit",
-            }}
-          >
-            <ConnectivityGlyph
-              state={connectivity}
-              demoOffline={offlineDisplay && demoOffline}
-            />
-            <span
-              className="esc-shell-connectivity-label"
+          {isEmbed ? (
+            <div
+              className="esc-conn-toggle"
+              data-tour="connectivity"
               style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: connectivityColor,
-                whiteSpace: "nowrap",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                minWidth: 0,
+                border: "none",
+                background: "transparent",
+                padding: 0,
+                font: "inherit",
               }}
             >
-              {connectivityLabel}
-            </span>
-          </button>
+              <ConnectivityGlyph
+                state={connectivity}
+                demoOffline={offlineDisplay && demoOffline}
+              />
+              <span
+                className="esc-shell-connectivity-label"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: connectivityColor,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {connectivityLabel}
+              </span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="esc-conn-toggle esc-pressable"
+              data-tour="connectivity"
+              title="Toggle offline demo"
+              onClick={() => {
+                hapticTap();
+                toggleDemoOffline();
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                minWidth: 0,
+                border: "none",
+                background: "transparent",
+                padding: 0,
+                cursor: "pointer",
+                font: "inherit",
+              }}
+            >
+              <ConnectivityGlyph
+                state={connectivity}
+                demoOffline={offlineDisplay && demoOffline}
+              />
+              <span
+                className="esc-shell-connectivity-label"
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: connectivityColor,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {connectivityLabel}
+              </span>
+            </button>
+          )}
         </div>
 
         <div className="esc-shell-header-actions">

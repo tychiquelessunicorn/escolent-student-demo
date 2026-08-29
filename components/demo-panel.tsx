@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useShellState } from "@/components/shell-context";
+import { isEmbedMode } from "@/lib/embed";
 import { SKILLS } from "@/lib/demo-data";
 
 /**
@@ -109,17 +110,20 @@ export function DemoPanel() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
+  const embed = isEmbedMode(params);
   const { enableDemoControls, applyDemoSeed } = useShellState();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    if (embed) return;
     if (params.get("demo") === "1") {
       setOpen(true);
       enableDemoControls();
     }
-  }, [params, enableDemoControls]);
+  }, [params, enableDemoControls, embed]);
 
   useEffect(() => {
+    if (embed) return;
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       const typing =
@@ -139,9 +143,9 @@ export function DemoPanel() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [enableDemoControls]);
+  }, [enableDemoControls, embed]);
 
-  if (!open) return null;
+  if (embed || !open) return null;
 
   const update = (param: string, value: string) => {
     const next = new URLSearchParams(params.toString());

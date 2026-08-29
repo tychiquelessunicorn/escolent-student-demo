@@ -10,6 +10,7 @@ import type {
   AdminUserRoleChangeDraft,
 } from "@/lib/admin-user-command";
 import { useAdminTour } from "@/components/admin-tour-provider";
+import { isEmbedMode } from "@/lib/embed";
 import type { AdminUserPublic, AdminUsersPayload, UserManagementAuditEntry } from "@/lib/admin-users-store";
 import type { StaffRole } from "@/lib/demo-data/staff";
 
@@ -66,7 +67,8 @@ function AdminUsersInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { stage } = useAdminTour();
-  const demoMode = searchParams.get("demo") === "1";
+  const isEmbed = isEmbedMode(searchParams);
+  const demoMode = !isEmbed && searchParams.get("demo") === "1";
   const focusedId = searchParams.get("user") ?? null;
 
   const tourDeletionIntent = stage?.showDeletionIntentDemo ?? false;

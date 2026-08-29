@@ -2,12 +2,17 @@
 
 import Link from "next/link";
 import { hapticTap } from "@/lib/haptics";
+import { useIsEmbed } from "@/lib/embed";
 
 /**
  * Returns to the demo shell picker at `/` (demo.escolent.com on production).
  * Shared by Student and Teacher headers — same row as other chrome actions.
+ * In embed mode (?embed=1), this is omitted to keep the embedded frame self-contained.
  */
 export function ShellExitLink({ variant = "student" }: { variant?: "student" | "staff" }) {
+  const isEmbed = useIsEmbed();
+  if (isEmbed) return null;
+
   return (
     <Link
       href="/"

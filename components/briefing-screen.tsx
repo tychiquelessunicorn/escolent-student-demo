@@ -6,6 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { TeacherAskBox } from "@/components/teacher-ask-box";
 import { useTeacherTour } from "@/components/teacher-tour-provider";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
+import { isEmbedMode } from "@/lib/embed";
 import type { BriefingItem, TeacherBriefing } from "@/lib/briefing-store";
 
 type SpaceFilter = string; // "all" or a managed Space id
@@ -144,7 +145,8 @@ function BriefingInner() {
       ? briefingStateParam
       : "auto";
 
-  const showDemo = searchParams.get("demo") === "1";
+  const isEmbed = isEmbedMode(searchParams);
+  const showDemo = !isEmbed && searchParams.get("demo") === "1";
 
   const [data, setData] = useState<TeacherBriefing | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
@@ -375,7 +377,7 @@ function BriefingInner() {
         </div>
       ) : null}
 
-      {!showDemo ? (
+      {!showDemo && !isEmbed ? (
         <p className="esc-briefing-demo-hint">
           Edge states: add <code className="esc-landing-code">?demo=1</code> to open the
           harness, or set{" "}

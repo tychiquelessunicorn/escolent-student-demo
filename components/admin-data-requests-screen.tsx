@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getPrimaryAdmin } from "@/lib/demo-data/staff";
+import { isEmbedMode } from "@/lib/embed";
 import { useAdminTour } from "@/components/admin-tour-provider";
 import { parseDeletionIntent } from "@/lib/deletion-intent";
 import type { DataDeletionRequest } from "@/lib/student-data-store";
@@ -79,7 +80,8 @@ function AdminDataRequestsInner() {
   const admin = getPrimaryAdmin();
   const { stage } = useAdminTour();
   const tourDeletionDemo = Boolean(stage?.showDeletionConfirmDemo);
-  const demoMode = searchParams.get("demo") === "1";
+  const isEmbed = isEmbedMode(searchParams);
+  const demoMode = !isEmbed && searchParams.get("demo") === "1";
   const selectedId = searchParams.get("request") ?? null;
 
   const [payload, setPayload] = useState<DataRequestsPayload | null>(null);

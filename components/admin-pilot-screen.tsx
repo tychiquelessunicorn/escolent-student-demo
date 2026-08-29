@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { isEmbedMode } from "@/lib/embed";
 import type {
   AdminPilotPayload,
   PilotSpaceAccess,
@@ -114,7 +115,8 @@ function Day21Panel({ payload }: { payload: AdminPilotPayload }) {
 
 function AdminPilotInner() {
   const searchParams = useSearchParams();
-  const demoMode = searchParams.get("demo") === "1";
+  const isEmbed = isEmbedMode(searchParams);
+  const demoMode = !isEmbed && searchParams.get("demo") === "1";
 
   const [payload, setPayload] = useState<AdminPilotPayload | null>(null);
   const [loading, setLoading] = useState(true);

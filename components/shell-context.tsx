@@ -28,6 +28,7 @@ import {
   writeTourMode,
   type DemoSeed,
 } from "@/lib/demo-persistence";
+import { isEmbedMode, isEmbedParam } from "@/lib/embed";
 
 interface ShellStateValue {
   connectivity: SyncFreshness;
@@ -69,11 +70,13 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     let fromUrl = false;
     let tourFromUrl = false;
+    let embedFromUrl = false;
     let seed: string | null = null;
     let spaceParam: string | null = null;
     try {
       const params = new URLSearchParams(window.location.search);
-      fromUrl = params.get("demo") === "1";
+      embedFromUrl = isEmbedParam(params.get("embed"));
+      fromUrl = !embedFromUrl && params.get("demo") === "1";
       // tour=1 is canonical; pitch=1 kept as alias for old links.
       tourFromUrl = params.get("tour") === "1" || params.get("pitch") === "1";
       seed = params.get("seed");
@@ -83,6 +86,11 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
     }
 
     purgeLegacyGamificationKeys();
+
+    if (embedFromUrl) {
+      writeDemoControlsEnabled(false);
+      setDemoControls(false);
+    }
 
     // The tour narrates a clean run from a known state, and it must never be
     // competing with the harness panel for the same query params.
@@ -111,7 +119,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
         setTourMode(readTourMode());
       }
 
-      const enabled = fromUrl || readDemoControlsEnabled();
+      const enabled = !embedFromUrl && (fromUrl || readDemoControlsEnabled());
       setDemoControls(enabled);
       if (fromUrl) writeDemoControlsEnabled(true);
 
@@ -130,6 +138,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const toggleDemoOffline = useCallback(() => {
+    if (isEmbedMode()) return;
     setDemoOffline((current) => {
       const next = !current;
       writeDemoOffline(next);
@@ -139,6 +148,7 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const enableDemoControls = useCallback(() => {
+    if (isEmbedMode()) return;
     writeDemoControlsEnabled(true);
     setDemoControls(true);
   }, []);
