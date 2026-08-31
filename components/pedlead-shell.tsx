@@ -96,79 +96,153 @@ export function PedleadShell({ children }: { children: React.ReactNode }) {
             minHeight: "100vh",
             boxSizing: "border-box",
           }}
-          className="esc-staff-rail"
-          aria-label="Pedagogical Lead navigation"
         >
-          <div style={{ marginBottom: 12, padding: "0 8px" }}>
-            <div
-              style={{
-                fontSize: 11,
-                fontWeight: 700,
-                letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                color: "var(--color-staff-muted)",
-              }}
-            >
-              Curriculum & Mastery
-            </div>
-          </div>
-
           {NAV_ITEMS.map((item) => {
             const active = isActive(pathname, item.match);
             if (item.soon || !item.href) {
               return (
                 <div
                   key={item.label}
-                  className="esc-staff-nav-item esc-staff-nav-item-soon"
+                  className="esc-teacher-nav-disabled"
+                  aria-disabled="true"
                   title="Coming soon"
                 >
-                  <span className="esc-staff-nav-label">{item.label}</span>
-                  <span className="esc-badge-soon">Soon</span>
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 3,
+                      background: "var(--color-border)",
+                      flexShrink: 0,
+                    }}
+                  />
+                  {item.label}
+                  <span className="esc-teacher-nav-badge">Soon</span>
                 </div>
               );
             }
-
             return (
               <Link
-                key={item.label}
+                key={item.href}
                 href={item.href}
-                className={[
-                  "esc-staff-nav-item",
-                  "esc-pressable",
-                  active ? "esc-staff-nav-item-active" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                aria-current={active ? "page" : undefined}
+                className="esc-pressable"
                 onClick={() => hapticTap()}
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: 15,
+                  fontWeight: active ? 800 : 600,
+                  letterSpacing: active ? "-0.02em" : "0",
+                  padding: "12px 16px",
+                  borderRadius: "var(--radius-staff-control)",
+                  textDecoration: "none",
+                  background: active
+                    ? "var(--color-staff-interactive-subtle)"
+                    : "transparent",
+                  color: active
+                    ? "var(--color-staff-interactive)"
+                    : "var(--color-staff-content-secondary)",
+                  border: active
+                    ? "1.5px solid var(--color-staff-interactive-border)"
+                    : "1.5px solid transparent",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                }}
               >
-                <span className="esc-staff-nav-label">{item.label}</span>
-                {active ? <span className="esc-staff-nav-active-dot" aria-hidden /> : null}
+                <span
+                  aria-hidden
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 3,
+                    background: active
+                      ? "var(--color-staff-interactive)"
+                      : "var(--color-staff-border)",
+                    flexShrink: 0,
+                  }}
+                />
+                {item.label}
               </Link>
             );
           })}
-
-          <div
-            style={{
-              marginTop: "auto",
-              padding: "16px 8px 8px 8px",
-              borderTop: "1px solid var(--color-staff-border)",
-            }}
-          >
-            <div
-              style={{
-                fontSize: 11,
-                color: "var(--color-staff-muted)",
-                lineHeight: 1.4,
-              }}
-            >
-              Cross-tenant skill & misconception authoring. Isolated from student mastery records.
-            </div>
-          </div>
         </nav>
 
-        <main className="esc-shell-main esc-staff-main">{children}</main>
+        <div className="esc-shell-main">{children}</div>
       </div>
+
+      <nav
+        id="app-bottomnav"
+        aria-label="Pedagogical Lead navigation"
+        style={{
+          position: "fixed",
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background:
+            "color-mix(in oklch, var(--color-staff-surface-raised) 92%, transparent)",
+          backdropFilter: "blur(10px)",
+          borderTop: "1.5px solid var(--color-staff-border)",
+          zIndex: 10,
+          paddingBottom: "env(safe-area-inset-bottom, 0)",
+        }}
+      >
+        {NAV_ITEMS.map((item) => {
+          if (item.soon || !item.href) {
+            return (
+              <div
+                key={item.label}
+                className="esc-teacher-bottomnav-disabled"
+                aria-disabled="true"
+                title="Coming soon"
+              >
+                <span aria-hidden className="esc-teacher-bottomnav-dot" />
+                {item.label}
+              </div>
+            );
+          }
+          const active = isActive(pathname, item.match);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="esc-pressable"
+              onClick={() => hapticTap()}
+              style={{
+                flex: 1,
+                height: 56,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 4,
+                textDecoration: "none",
+                fontFamily: "var(--font-display)",
+                fontSize: 11,
+                fontWeight: active ? 800 : 600,
+                letterSpacing: "-0.01em",
+                color: active
+                  ? "var(--color-staff-interactive)"
+                  : "var(--color-staff-content-muted)",
+                background: active
+                  ? "var(--color-staff-interactive-subtle)"
+                  : "transparent",
+              }}
+            >
+              <span
+                aria-hidden
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 2,
+                  background: active ? "var(--color-staff-interactive)" : "transparent",
+                }}
+              />
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }
