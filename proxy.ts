@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { GATE_COOKIE, gateToken } from "@/lib/gate";
+import { isEmbedParam } from "@/lib/embed";
 import {
   isStudentShellApiPath,
   isStudentShellPagePath,
@@ -44,6 +45,12 @@ export async function proxy(request: NextRequest) {
   }
 
   const { pathname } = request.nextUrl;
+  if (isEmbedParam(request.nextUrl.searchParams.get("embed"))) {
+    const studentAccessResponse = await enforceStudentShellAccess(request);
+    if (studentAccessResponse) return studentAccessResponse;
+    return NextResponse.next();
+  }
+
   if (PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
     return NextResponse.next();
   }
