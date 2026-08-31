@@ -35,8 +35,8 @@ export interface SkillCoverageReport {
   coverageLevel: CoverageLevel;
   coverageReason: string;
   priorityRank: number; // 1 = Highest (Gap), 2 = Medium (Thin), 3 = Complete (Rich)
-  actionRoute: string;
-  actionLabel: string;
+  actionRoute?: string | null;
+  actionLabel?: string | null;
 }
 
 export interface UnitCoverageSummary {
@@ -190,8 +190,8 @@ function buildMathAlgebraCoverage(): {
       coverageLevel: calc.coverageLevel,
       coverageReason: calc.coverageReason,
       priorityRank: calc.priorityRank,
-      actionRoute: `/pedlead/authoring?unitId=unit_ecosystems_energy_flow`,
-      actionLabel: "Inspect in Studio",
+      actionRoute: null,
+      actionLabel: null,
     };
   });
 

@@ -679,28 +679,30 @@ export function PedleadCoverageScreen() {
                     </div>
                   </div>
 
-                  {/* Direct Action Link to Authoring Flow */}
-                  <div style={{ alignSelf: "center", flexShrink: 0 }}>
-                    <Link
-                      href={skill.actionRoute}
-                      className="esc-staff-btn esc-staff-btn-secondary"
-                      style={{
-                        fontSize: 12,
-                        padding: "6px 14px",
-                        textDecoration: "none",
-                        fontWeight: 600,
-                        whiteSpace: "nowrap",
-                        color:
-                          skill.coverageLevel === "gap"
-                            ? "oklch(45% 0.18 25)"
-                            : skill.coverageLevel === "thin"
-                              ? "oklch(45% 0.15 80)"
-                              : "var(--color-staff-interactive)",
-                      }}
-                    >
-                      {skill.actionLabel}
-                    </Link>
-                  </div>
+                  {/* Direct Action Link to Authoring Flow (for authorable units) */}
+                  {skill.actionRoute && skill.actionLabel ? (
+                    <div style={{ alignSelf: "center", flexShrink: 0 }}>
+                      <Link
+                        href={skill.actionRoute}
+                        className="esc-staff-btn esc-staff-btn-secondary"
+                        style={{
+                          fontSize: 12,
+                          padding: "6px 14px",
+                          textDecoration: "none",
+                          fontWeight: 600,
+                          whiteSpace: "nowrap",
+                          color:
+                            skill.coverageLevel === "gap"
+                              ? "oklch(45% 0.18 25)"
+                              : skill.coverageLevel === "thin"
+                                ? "oklch(45% 0.15 80)"
+                                : "var(--color-staff-interactive)",
+                        }}
+                      >
+                        {skill.actionLabel}
+                      </Link>
+                    </div>
+                  ) : null}
                 </div>
               );
             })}
