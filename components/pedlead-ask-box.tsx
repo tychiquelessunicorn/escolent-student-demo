@@ -7,18 +7,25 @@ export function PedleadAskBox({
   placeholder,
   loadingLabel,
   label,
+  scripted,
 }: {
   tenantFilter?: string | null;
   placeholder: string;
   loadingLabel: string;
   label: string;
+  scripted?: { question: string; answer: string };
 }) {
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const shownQuestion = scripted ? scripted.question : question;
+  const shownAnswer = scripted ? scripted.answer : answer;
+  const shownLoading = scripted ? false : loading;
+
   const submit = async () => {
+    if (scripted) return;
     const trimmed = question.trim();
     if (!trimmed || loading) return;
     setLoading(true);
@@ -54,38 +61,38 @@ export function PedleadAskBox({
           type="text"
           className="esc-mastery-ask-input"
           placeholder={placeholder}
-          value={question}
+          value={shownQuestion}
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") void submit();
           }}
-          disabled={loading}
+          disabled={shownLoading || Boolean(scripted)}
           aria-label={label}
         />
         <button
           type="button"
           className="esc-mastery-ask-submit esc-pressable"
           onClick={() => void submit()}
-          disabled={loading || !question.trim()}
+          disabled={shownLoading || !shownQuestion.trim() || Boolean(scripted)}
           aria-label="Ask AI about content synthesis"
         >
           Ask
         </button>
       </div>
-      {loading ? (
+      {shownLoading ? (
         <p className="esc-mastery-ask-status" aria-live="polite">
           {loadingLabel}
         </p>
       ) : null}
       {error ? (
-        <p className="esc-mastery-ask-status esc-mastery-ask-error" role="alert">
+        <p className="esc-mastery-ask-error" role="alert">
           {error}
         </p>
       ) : null}
-      {answer ? (
-        <div className="esc-mastery-ask-answer" aria-live="polite">
-          <p className="esc-mastery-ask-answer-text">{answer}</p>
-        </div>
+      {shownAnswer ? (
+        <p className="esc-mastery-ask-answer" aria-live="polite">
+          {shownAnswer}
+        </p>
       ) : null}
     </div>
   );

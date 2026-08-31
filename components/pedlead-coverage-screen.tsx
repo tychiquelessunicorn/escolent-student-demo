@@ -236,6 +236,7 @@ export function PedleadCoverageScreen() {
         <>
           {/* Top Metric Cards */}
           <div
+            data-tour="pedlead-coverage-overview"
             style={{
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
@@ -431,6 +432,7 @@ export function PedleadCoverageScreen() {
 
           {/* Filter Tabs for the Skill List */}
           <div
+            data-tour="pedlead-coverage-queue"
             style={{
               display: "flex",
               alignItems: "center",

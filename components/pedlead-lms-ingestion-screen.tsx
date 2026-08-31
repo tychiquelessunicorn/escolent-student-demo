@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import type { LmsCourseItem } from "@/lib/pedlead-lms-store";
 import { hapticTap } from "@/lib/haptics";
+import { usePedleadTour } from "@/components/pedlead-tour-provider";
 
 interface LmsIngestionPayload {
   isConnected: boolean;
@@ -35,6 +36,7 @@ interface IngestDraftResult {
 
 export function PedleadLmsIngestionScreen() {
   const router = useRouter();
+  const { stage } = usePedleadTour();
   const [data, setData] = useState<LmsIngestionPayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,93 @@ export function PedleadLmsIngestionScreen() {
   useEffect(() => {
     void loadStatus();
   }, [loadStatus]);
+
+  // Handle tour stage triggers (Req ?tour=1)
+  useEffect(() => {
+    if (!stage || !data) return;
+    if (stage.selectedLmsItem) {
+      const match = data.materials.find((m) => m.id === stage.selectedLmsItem);
+      if (match) setActiveItem(match);
+    }
+    if (stage.showLmsTextDemo) {
+      setIngestResult({
+        sparse: false,
+        unitName: "Community Symbiosis & Co-Evolutionary Niches",
+        subject: "Life Science (Grade 7)",
+        description: "Mutualism, commensalism, and parasitism interactions in ecological communities.",
+        skills: [
+          {
+            id: "eco_symbiosis_classification",
+            slug: "symbiosis-interaction-types",
+            name: "Classifying Symbiotic Interactions (+/+, +/0, +/-)",
+            description: "Differentiate mutualism, commensalism, and parasitism based on net fitness outcomes for both participating species.",
+            evaluationStrategy: "exact_match",
+          },
+          {
+            id: "eco_parasitism_vs_predation",
+            slug: "parasitism-vs-predation-mechanics",
+            name: "Parasitism vs Predation Dynamics",
+            description: "Explain why parasites depend on sustained host survival rather than immediate lethality.",
+            evaluationStrategy: "rubric",
+          },
+        ],
+        misconceptions: [
+          {
+            id: "misc_parasite_predator_conflation",
+            name: "Parasite-Predator Equivalence Fallacy",
+            description: "Students assume any organism that causes harm is a predator that immediately kills its victim.",
+            sampleIncorrectAnswer: "A tick is just a tiny predator that hunts deer to eat them until they die.",
+          },
+        ],
+      });
+    }
+    if (stage.showLmsVisionDemo) {
+      setIngestResult({
+        visualDescription: "Recognized a 4-tier ecological trophic pyramid diagram depicting thermodynamic 10% transfer rules and 90% metabolic heat loss at each consumer tier.",
+        ocrLabelsDetected: [
+          "Tertiary Consumers · 10 J (0.1% Energy)",
+          "Secondary Consumers · 100 J (1% Energy)",
+          "Primary Consumers · 1,000 J (10% Energy)",
+          "Primary Producers · 10,000 J",
+          "Decomposers (Fungi, Bacteria)",
+        ],
+        unitName: "Trophic Pyramids & Thermodynamic Energy Loss",
+        subject: "Life Science (Grade 7)",
+        description: "Synthesized from Canvas LMS diagram asset: 10% transfer rule, biomass pyramid calculations, and decomposer recycling.",
+        skills: [
+          {
+            id: "eco_pyramid_joules_calculation",
+            slug: "trophic-joules-pyramid-math",
+            name: "10% Energy Transfer Computation Across Tiers",
+            description: "Calculate available Joules across successive producer, herbivore, carnivore, and apex predator tiers.",
+            evaluationStrategy: "exact_match",
+          },
+          {
+            id: "eco_heat_dissipation_rubric",
+            slug: "metabolic-heat-loss-explanation",
+            name: "Thermodynamic Heat Loss in Food Chains",
+            description: "Explain why total biomass and energy decrease at higher trophic tiers due to metabolic heat dissipation.",
+            evaluationStrategy: "rubric",
+          },
+        ],
+        misconceptions: [
+          {
+            id: "misc_pyramid_energy_recycling",
+            name: "Decomposer Energy Recycling Fallacy",
+            description: "Belief that decomposers recycle energy back into producers in a closed loop, confusing matter conservation with one-way energy flow.",
+            sampleIncorrectAnswer: "Decomposers turn all the energy back into sunlight and soil for grass in a circle.",
+          },
+        ],
+      });
+    }
+    if (stage.showLmsSparseDemo) {
+      setIngestResult({
+        sparse: true,
+        reason: "Course material is a short bulleted stub (<25 words) without sufficient learning outcomes or conceptual depth.",
+        suggestedTopic: "Tundra & Desert Biome Climate Adaptations",
+      });
+    }
+  }, [stage, data]);
 
   const handleIngest = async (item: LmsCourseItem) => {
     setIngesting(true);
@@ -340,10 +429,20 @@ export function PedleadLmsIngestionScreen() {
 
             {data.materials.map((item) => {
               const isSelected = activeItem?.id === item.id;
+              const dataTour =
+                item.id === "lms_eco_doc_symbiosis"
+                  ? "pedlead-lms-text"
+                  : item.id === "lms_eco_img_trophic_pyramid"
+                    ? "pedlead-lms-vision"
+                    : item.id === "lms_eco_sparse_stub"
+                      ? "pedlead-lms-sparse"
+                      : undefined;
+
               return (
                 <button
                   key={item.id}
                   type="button"
+                  data-tour={dataTour}
                   onClick={() => {
                     setActiveItem(item);
                     setIngestResult(null);

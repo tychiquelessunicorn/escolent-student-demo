@@ -7,6 +7,7 @@ import { PedleadAskBox } from "@/components/pedlead-ask-box";
 import { getPrimaryPedLead } from "@/lib/demo-data/staff";
 import { isEmbedMode } from "@/lib/embed";
 import { hapticTap } from "@/lib/haptics";
+import { usePedleadTour } from "@/components/pedlead-tour-provider";
 import type {
   PedleadBriefing,
   PedleadBriefingItem,
@@ -19,7 +20,13 @@ const CATEGORY_LABEL: Record<PedleadBriefingItem["category"], string> = {
   cross_tenant_pattern: "Cross-School Pattern",
 };
 
-function PedleadBriefingItemCard({ item }: { item: PedleadBriefingItem }) {
+function PedleadBriefingItemCard({
+  item,
+  dataTour,
+}: {
+  item: PedleadBriefingItem;
+  dataTour?: string;
+}) {
   const isUrgent = item.urgency === "attention";
   const isCrossTenant = item.category === "cross_tenant_pattern";
 
@@ -27,6 +34,7 @@ function PedleadBriefingItemCard({ item }: { item: PedleadBriefingItem }) {
     <Link
       href={item.actionRoute}
       onClick={() => hapticTap()}
+      data-tour={dataTour}
       className={[
         "esc-briefing-item",
         "esc-briefing-item-link",
@@ -106,6 +114,7 @@ function PedleadBriefingInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const pedLead = getPrimaryPedLead();
+  const { stage } = usePedleadTour();
 
   const isEmbed = isEmbedMode(searchParams);
   const showDemo = !isEmbed && searchParams.get("demo") === "1";
@@ -293,17 +302,21 @@ function PedleadBriefingInner() {
 
       {/* AI Ask box grounded only in content briefing items */}
       {data && !initialLoading && !error && (
-        <PedleadAskBox
-          tenantFilter={tenantParam}
-          label="Ask about this briefing"
-          placeholder='Ask about pending items… e.g. "which misconceptions span multiple schools" or "what needs review"'
-          loadingLabel="Analyzing curriculum briefing synthesis…"
-        />
+        <div data-tour="pedlead-briefing-ask">
+          <PedleadAskBox
+            tenantFilter={tenantParam}
+            label="Ask about this briefing"
+            placeholder='Ask about pending items… e.g. "which misconceptions span multiple schools" or "what needs review"'
+            loadingLabel="Analyzing curriculum briefing synthesis…"
+            scripted={stage?.scriptedAsk}
+          />
+        </div>
       )}
 
       {/* Briefing Items or Edge States */}
       {data && !initialLoading && !error && (
         <div
+          data-tour="pedlead-briefing-list"
           className={[
             "esc-briefing-body",
             refreshing ? "esc-briefing-body-refreshing" : "",
@@ -345,8 +358,12 @@ function PedleadBriefingInner() {
 
           {data.state === "populated" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {data.items.map((item) => (
-                <PedleadBriefingItemCard key={item.id} item={item} />
+              {data.items.map((item, idx) => (
+                <PedleadBriefingItemCard
+                  key={item.id}
+                  item={item}
+                  dataTour={idx === 0 ? "pedlead-briefing-item-primary" : undefined}
+                />
               ))}
             </div>
           )}

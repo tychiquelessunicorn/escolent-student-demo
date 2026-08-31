@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { useIsEmbed } from "@/lib/embed";
 import { hapticTap } from "@/lib/haptics";
+import { usePedleadTour } from "@/components/pedlead-tour-provider";
 import type {
   AuthoringMisconception,
   AuthoringSkill,
@@ -34,6 +35,7 @@ const EXAMPLE_PROMPTS = [
 export function PedleadContentAuthoringScreen() {
   const isEmbed = useIsEmbed();
   const searchParams = useSearchParams();
+  const { stage } = usePedleadTour();
 
   const [units, setUnits] = useState<AuthoringUnit[]>([]);
   const [selectedUnitId, setSelectedUnitId] = useState<string>("");
@@ -102,13 +104,27 @@ export function PedleadContentAuthoringScreen() {
     void refreshUnits();
   }, [refreshUnits]);
 
-  // Handle seedPrompt query param from LMS sparse-content fallback (Req 33.5)
+  // Handle tour stage triggers (Req ?tour=1)
   useEffect(() => {
-    const seed = searchParams.get("seedPrompt");
-    if (seed) {
-      setAiPrompt(seed);
+    if (!stage) return;
+    if (stage.draftPromptText) {
+      setAiPrompt(stage.draftPromptText);
     }
-  }, [searchParams]);
+    if (stage.openRejectModalDemo) {
+      setRejectFeedback("Please attach a 4-level rubric task with model exemplar to the Nutrient Cycling skill before resubmission.");
+      setShowRejectModal(true);
+      setEditingSkill(null);
+    }
+    if (stage.openSkillEditDemo && activeUnit && activeUnit.skills.length > 0) {
+      setShowRejectModal(false);
+      setEditingSkill(JSON.parse(JSON.stringify(activeUnit.skills[0])));
+      setIsNewSkill(false);
+    }
+    if (stage.showLiveEditDemo) {
+      setShowRejectModal(false);
+      setEditingSkill(null);
+    }
+  }, [stage, activeUnit]);
 
   // Handle deep-link query params (editSkill, addMiscForSkill)
   useEffect(() => {
@@ -834,6 +850,7 @@ export function PedleadContentAuthoringScreen() {
 
       {/* Top Authoring Generator Card (Req 31.4) */}
       <section
+        data-tour="pedlead-authoring-draft"
         style={{
           background: "var(--color-surface-elevated, #fff)",
           border: "1px solid var(--color-staff-border)",
@@ -930,6 +947,7 @@ export function PedleadContentAuthoringScreen() {
       {/* Unit Selection & Lifecycle Card */}
       {activeUnit && (
         <section
+          data-tour="pedlead-authoring-lifecycle"
           style={{
             background: "var(--color-surface-elevated, #fff)",
             border: "1.5px solid var(--color-staff-border)",
@@ -1059,6 +1077,7 @@ export function PedleadContentAuthoringScreen() {
           {/* Validated notice / Stage edit protection (Req 31.8b) */}
           {activeUnit.status === "validated" && (
             <div
+              data-tour="pedlead-authoring-live-edit"
               style={{
                 marginTop: 18,
                 padding: "12px 16px",
@@ -1079,7 +1098,7 @@ export function PedleadContentAuthoringScreen() {
 
       {/* SKILL GRAPH SECTION (Req 31.1, 31.9, 31.10) */}
       {activeUnit && (
-        <section style={{ marginBottom: 36 }}>
+        <section data-tour="pedlead-authoring-skills" style={{ marginBottom: 36 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <div>
               <h2 style={{ fontSize: 18, fontWeight: 800, margin: 0, color: "var(--color-content-primary)" }}>

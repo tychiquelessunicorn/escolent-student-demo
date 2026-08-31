@@ -30,6 +30,7 @@ const SHELLS: {
     label: "Pedagogical Lead",
     description: "Curriculum synthesis, skill validation, and cross-school misconception intelligence.",
     href: "/pedlead/briefing",
+    tourHref: "/pedlead/briefing?tour=1",
   },
 ];
 
