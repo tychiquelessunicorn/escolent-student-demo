@@ -14,9 +14,14 @@ const NAV_ITEMS: {
   soon?: boolean;
 }[] = [
   {
+    label: "Briefing",
+    href: "/pedlead/briefing",
+    match: ["/pedlead/briefing"],
+  },
+  {
     label: "Content Authoring",
     href: "/pedlead/authoring",
-    match: ["/pedlead/authoring", "/pedlead/content", "/pedlead"],
+    match: ["/pedlead/authoring", "/pedlead/content"],
   },
 ];
 

@@ -83,8 +83,10 @@ export function PedleadContentAuthoringScreen() {
       const data = (await res.json()) as { units: AuthoringUnit[] };
       setUnits(data.units);
       if (data.units.length > 0) {
-        if (preferredUnitId && data.units.some((u) => u.id === preferredUnitId)) {
-          setSelectedUnitId(preferredUnitId);
+        const queryUnitId = searchParams.get("unitId");
+        const targetId = preferredUnitId || queryUnitId;
+        if (targetId && data.units.some((u) => u.id === targetId)) {
+          setSelectedUnitId(targetId);
         } else if (!selectedUnitId || !data.units.some((u) => u.id === selectedUnitId)) {
           setSelectedUnitId(data.units[0].id);
         }
@@ -94,11 +96,41 @@ export function PedleadContentAuthoringScreen() {
     } finally {
       setLoading(false);
     }
-  }, [selectedUnitId]);
+  }, [selectedUnitId, searchParams]);
 
   useEffect(() => {
     void refreshUnits();
   }, [refreshUnits]);
+
+  // Handle deep-link query params (editSkill, addMiscForSkill)
+  useEffect(() => {
+    if (!activeUnit) return;
+    const editSkillId = searchParams.get("editSkill");
+    if (editSkillId) {
+      const skillToEdit = activeUnit.skills.find((s) => s.id === editSkillId);
+      if (skillToEdit) {
+        setEditingSkill(JSON.parse(JSON.stringify(skillToEdit)));
+        setIsNewSkill(false);
+      }
+    }
+
+    const addMiscForSkill = searchParams.get("addMiscForSkill");
+    if (addMiscForSkill) {
+      setIsNewMisconception(true);
+      setEditingMisconception({
+        id: `misc_${Date.now().toString(36)}`,
+        name: "",
+        unitId: activeUnit.id,
+        targetSkillIds: [addMiscForSkill],
+        description: "",
+        sampleIncorrectAnswer: "",
+        remediationGuidance: "",
+        status: activeUnit.status === "validated" ? "draft" : activeUnit.status,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+  }, [searchParams, activeUnit?.id]);
 
   // Track record view (Req 31.8c) & fetch viewers
   useEffect(() => {
@@ -763,6 +795,32 @@ export function PedleadContentAuthoringScreen() {
             </div>
           </div>
           <span style={{ fontSize: 11, color: "var(--color-staff-muted)" }}>Req 31.8c Concurrency</span>
+        </div>
+      )}
+
+      {/* Unit Selector tabs (if multiple units available) */}
+      {units.length > 1 && (
+        <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+          {units.map((u) => {
+            const isSelected = u.id === activeUnit?.id;
+            return (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => {
+                  setSelectedUnitId(u.id);
+                  hapticTap();
+                }}
+                className={[
+                  "esc-staff-btn",
+                  isSelected ? "esc-staff-btn-primary" : "esc-staff-btn-secondary",
+                ].join(" ")}
+                style={{ fontSize: 12.5, padding: "6px 14px" }}
+              >
+                {u.name} {u.tenantOrigin ? `(${u.tenantOrigin === "teneo" ? "Teneo" : "Oakridge"})` : ""}
+              </button>
+            );
+          })}
         </div>
       )}
 

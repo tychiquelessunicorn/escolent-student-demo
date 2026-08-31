@@ -20,6 +20,7 @@ import {
   adminBillingAskPrompt,
   adminBriefingAskPrompt,
   adminTodayAskPrompt,
+  pedleadBriefingAskPrompt,
   teacherBriefingAskPrompt,
   teacherTodayAskPrompt,
   todayAskPrompt,
@@ -472,6 +473,20 @@ export async function POST(request: Request) {
             : task === "learn_ask"
               ? learnAskPrompt(question, spaceId)
               : progressAskPrompt(question, spaceId);
+        const text = await complete({
+          model: MODEL_DEFAULT,
+          system: ASK_LOOKUP_SYSTEM,
+          prompt,
+          maxTokens: 400,
+        });
+        return NextResponse.json({ text: sanitizeAiText(text) });
+      }
+
+      case "pedlead_briefing_ask": {
+        const question = readQuestion(body);
+        if (!question) return badRequest("Invalid question");
+        const tenantFilter = typeof body.tenantFilter === "string" ? body.tenantFilter : null;
+        const prompt = await pedleadBriefingAskPrompt(question, tenantFilter);
         const text = await complete({
           model: MODEL_DEFAULT,
           system: ASK_LOOKUP_SYSTEM,

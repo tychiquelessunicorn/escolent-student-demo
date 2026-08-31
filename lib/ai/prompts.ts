@@ -39,6 +39,10 @@ import {
   weeklyDigestGroundingLines,
 } from "@/lib/digest-store";
 import {
+  buildPedleadBriefing,
+  pedleadBriefingAskGroundingLines,
+} from "@/lib/pedlead-briefing-store";
+import {
   buildTeacherTodaySchedule,
   teacherTodayAskGroundingLines,
 } from "@/lib/teacher-today-store";
@@ -270,6 +274,31 @@ export async function adminTodayAskPrompt(
       : `Today is ${schedule.todayShortLabel}.`;
 
   return `You are answering an Admin's question about the school-wide backlog (${view} view), using ONLY this real backlog data. Do not invent compliance deadlines, billing events, or curation counts absent from the data.\n\nScope: ${schedule.scopeLabel}\n${viewNote}\n\nBacklog items:\n${dataLines || "- none listed"}\n\nTheir question: "${question}"\n\nAnswer directly and briefly (1-4 sentences), grounded only in the data above. If nothing matches, say so plainly rather than inventing anything. Respond with ONLY the plain sentence(s) — no markdown, no labels, no emojis.`;
+}
+
+export async function pedleadBriefingAskPrompt(
+  question: string,
+  tenantFilter: string | null,
+): Promise<string> {
+  const briefing = await buildPedleadBriefing({ tenantFilter, demoState: "auto" });
+  const dataLines = pedleadBriefingAskGroundingLines(briefing).join("\n");
+
+  return `You are answering a Pedagogical Lead's question about the synthesized Content Briefing (Requirement 31a). This role has cross-tenant read/write access to Skill Graphs and Misconception Taxonomies only (Requirement 21.5). Zero access to individual student, teacher, or operational roster data.
+
+Scope: ${briefing.scopeLabel}
+Briefing state: ${briefing.state}
+Review aging policy target: ${briefing.agingThresholdBusinessDays} business days
+
+Briefing items:
+${dataLines || "- none listed"}
+
+Their question: "${question}"
+
+Rules:
+1. Answer directly and concisely (1-4 sentences), grounded ONLY in the content items above.
+2. Never invent school rankings, teacher names, or student data.
+3. For cross-tenant patterns, reference the count of affected schools and the misconception name, never individual school comparisons.
+4. Respond with ONLY the plain sentence(s) — no markdown headers, no labels, no emojis.`;
 }
 
 /**

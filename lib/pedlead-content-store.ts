@@ -1,7 +1,7 @@
 /**
  * Pedagogical Lead Content Authoring & Curriculum Validation Store.
  *
- * Requirements: 21.5, 31.1, 31.4-31.10
+ * Requirements: 21.5, 31.1, 31.4-31.10, 31a.1-31a.7
  *
  * ARCHITECTURAL CONSTRAINT (Req 21.5):
  * The Pedagogical Lead role has cross-tenant read/write access to Skill and
@@ -47,6 +47,8 @@ export interface AuthoringSkill {
   difficulty: number; // 1 to 5
   status: ContentStatus;
   rejectionFeedback?: string | null;
+  /** Illustrative tenant origin tag (Req 31a.1 / 31a.7) - content context only */
+  tenantOrigin?: string;
   /** Req 31.8b: staged edits for already-validated content */
   pendingEdit?: Partial<Omit<AuthoringSkill, "id" | "status" | "pendingEdit">> | null;
   authorId?: string;
@@ -66,6 +68,8 @@ export interface AuthoringMisconception {
   remediationGuidance: string;
   status: ContentStatus;
   rejectionFeedback?: string | null;
+  /** Illustrative tenant origin tag (Req 31a.1 / 31a.7) - content context only */
+  tenantOrigin?: string;
   /** Req 31.8b: staged edits for already-validated content */
   pendingEdit?: Partial<Omit<AuthoringMisconception, "id" | "status" | "pendingEdit">> | null;
   createdAt: string;
@@ -80,6 +84,8 @@ export interface AuthoringUnit {
   description: string;
   status: ContentStatus;
   rejectionFeedback?: string | null;
+  /** Illustrative tenant origin tag (Req 31a.1 / 31a.7) - content context only */
+  tenantOrigin?: string;
   skills: AuthoringSkill[];
   misconceptions: AuthoringMisconception[];
   createdAt: string;
@@ -90,7 +96,9 @@ export interface AuthoringUnit {
 
 const REDIS_UNITS_KEY = "escolent:pedlead:content-units";
 
-const SEED_TIMESTAMP = "2026-08-28T14:30:00.000Z";
+// Realistic dates representing review aging (pending > 5 business days ago, e.g., 7 days old)
+const SEED_TIMESTAMP_TENEO = "2026-08-20T10:00:00.000Z";
+const SEED_TIMESTAMP_OAKRIDGE = "2026-08-21T14:30:00.000Z";
 
 export const SEED_SCIENCE_UNIT: AuthoringUnit = {
   id: "unit_ecosystems_energy_flow",
@@ -100,8 +108,9 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
     "Grade 7 NGSS-aligned unit covering trophic levels, the 10% energy transfer rule, food webs, and trophic cascades caused by keystone species.",
   status: "pending_approval",
   rejectionFeedback: null,
-  createdAt: SEED_TIMESTAMP,
-  updatedAt: SEED_TIMESTAMP,
+  tenantOrigin: "teneo",
+  createdAt: SEED_TIMESTAMP_TENEO,
+  updatedAt: SEED_TIMESTAMP_TENEO,
   validatedAt: null,
   validatorId: null,
   skills: [
@@ -133,8 +142,9 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
       status: "validated",
       validatedAt: "2026-08-20T10:00:00.000Z",
       validatorId: DEMO_PEDLEAD_STAFF_ID,
-      createdAt: SEED_TIMESTAMP,
-      updatedAt: SEED_TIMESTAMP,
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
     },
     {
       id: "eco_energy_transfer_rule",
@@ -153,8 +163,9 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
       prerequisiteSkillIds: ["eco_trophic_levels"],
       difficulty: 3,
       status: "pending_approval",
-      createdAt: SEED_TIMESTAMP,
-      updatedAt: SEED_TIMESTAMP,
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
     },
     {
       id: "eco_trophic_cascades",
@@ -202,8 +213,9 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
       prerequisiteSkillIds: ["eco_trophic_levels", "eco_energy_transfer_rule"],
       difficulty: 4,
       status: "pending_approval",
-      createdAt: SEED_TIMESTAMP,
-      updatedAt: SEED_TIMESTAMP,
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
     },
     {
       id: "eco_nutrient_cycling",
@@ -219,8 +231,7 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
         title: "Matter Conservation vs. Energy Flow",
         prompt:
           "Explain why nutrients like carbon can be recycled indefinitely in a closed ecosystem, but sunlight energy must be constantly replenished.",
-        sampleExemplar:
-          "Nutrients are made of atoms that decomposers break down from organic matter and return to the soil and atmosphere to be reused by producers. Energy, however, is continuously converted to heat at each trophic step (second law of thermodynamics) and radiates into space, so an ecosystem requires continuous solar input to sustain life.",
+        sampleExemplar: "", // Thin coverage demonstration: rubric missing exemplar (Req 31a.1)
         levels: [
           {
             score: 3,
@@ -251,8 +262,30 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
       prerequisiteSkillIds: ["eco_energy_transfer_rule"],
       difficulty: 3,
       status: "pending_approval",
-      createdAt: SEED_TIMESTAMP,
-      updatedAt: SEED_TIMESTAMP,
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
+    },
+    {
+      id: "eco_bioaccumulation_pesticides",
+      slug: "bioaccumulation-biomagnification",
+      name: "Biomagnification in Aquatic Food Chains",
+      subject: "Life Science (Grade 7)",
+      unitId: "unit_ecosystems_energy_flow",
+      unitName: "Ecosystems & Energy Flow",
+      description:
+        "Track concentration increases of non-biodegradable toxins across apex predator trophic levels.",
+      evaluationStrategy: "exact_match",
+      exactMatchSpec: {
+        canonicalAnswers: ["biomagnification", "bioaccumulation"],
+        acceptedVariations: ["magnification", "toxic buildup"],
+      },
+      prerequisiteSkillIds: ["eco_trophic_levels"],
+      difficulty: 3,
+      status: "draft",
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
     },
   ],
   misconceptions: [
@@ -268,8 +301,9 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
       remediationGuidance:
         "Highlight the 10% rule: 90% of energy is dissipated as metabolic heat at every transfer. Producers contain the highest total available energy.",
       status: "pending_approval",
-      createdAt: SEED_TIMESTAMP,
-      updatedAt: SEED_TIMESTAMP,
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
     },
     {
       id: "misc_direct_prey_only",
@@ -283,8 +317,9 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
       remediationGuidance:
         "Prompt the student to trace the second order effect: more sea urchins will overgraze the kelp forests, destroying fish nurseries and crashing the whole reef.",
       status: "pending_approval",
-      createdAt: SEED_TIMESTAMP,
-      updatedAt: SEED_TIMESTAMP,
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
     },
     {
       id: "misc_herbivore_energy_creation",
@@ -299,13 +334,125 @@ export const SEED_SCIENCE_UNIT: AuthoringUnit = {
         "Clarify that animals cannot synthesize energy; only photosynthetic autotrophs (producers) convert radiant solar energy into stored glucose.",
       status: "validated",
       validatedAt: "2026-08-20T10:00:00.000Z",
-      createdAt: SEED_TIMESTAMP,
-      updatedAt: SEED_TIMESTAMP,
+      tenantOrigin: "teneo",
+      createdAt: SEED_TIMESTAMP_TENEO,
+      updatedAt: SEED_TIMESTAMP_TENEO,
     },
   ],
 };
 
-let inMemoryUnits: AuthoringUnit[] = [JSON.parse(JSON.stringify(SEED_SCIENCE_UNIT))];
+/**
+ * Second illustrative tenant: Oakridge Academy (Req 31a.1, 31a.7).
+ * Exists purely as a content-authoring context (which unit/skill content is attached to which tenant),
+ * never as operational student/teacher data. Demonstrates cross-tenant misconception patterns.
+ */
+export const SEED_OAKRIDGE_SCIENCE_UNIT: AuthoringUnit = {
+  id: "unit_oakridge_marine_trophic_dynamics",
+  name: "Marine Trophic Dynamics & Estuary Networks",
+  subject: "Life Science (Grade 7)",
+  description:
+    "Coastal and estuary food web interactions, kelp forest keystone dynamics, and marine trophic pyramids.",
+  status: "pending_approval",
+  rejectionFeedback: null,
+  tenantOrigin: "oakridge",
+  createdAt: SEED_TIMESTAMP_OAKRIDGE,
+  updatedAt: SEED_TIMESTAMP_OAKRIDGE,
+  validatedAt: null,
+  validatorId: null,
+  skills: [
+    {
+      id: "oak_marine_producers",
+      slug: "phytoplankton-primary-producers",
+      name: "Phytoplankton & Marine Primary Production",
+      subject: "Life Science (Grade 7)",
+      unitId: "unit_oakridge_marine_trophic_dynamics",
+      unitName: "Marine Trophic Dynamics & Estuary Networks",
+      description:
+        "Quantify marine primary production from phytoplankton and kelp beds as the energetic foundation of pelagic food chains.",
+      evaluationStrategy: "exact_match",
+      exactMatchSpec: {
+        canonicalAnswers: ["phytoplankton", "kelp", "algae"],
+        acceptedVariations: ["marine phytoplankton", "microalgae", "producers"],
+      },
+      prerequisiteSkillIds: [],
+      difficulty: 2,
+      status: "validated",
+      validatedAt: "2026-08-22T09:00:00.000Z",
+      tenantOrigin: "oakridge",
+      createdAt: SEED_TIMESTAMP_OAKRIDGE,
+      updatedAt: SEED_TIMESTAMP_OAKRIDGE,
+    },
+    {
+      id: "oak_keystone_predator_balance",
+      slug: "keystone-sea-otter-dynamics",
+      name: "Keystone Predator Equilibrium in Marine Canopies",
+      subject: "Life Science (Grade 7)",
+      unitId: "unit_oakridge_marine_trophic_dynamics",
+      unitName: "Marine Trophic Dynamics & Estuary Networks",
+      description:
+        "Model the population stability of kelp holdfasts when sea otter apex predation controls herbivorous sea urchin density.",
+      evaluationStrategy: "rubric",
+      rubric: {
+        title: "Kelp Forest Keystone Equilibrium",
+        prompt:
+          "Explain why sea otters are classified as keystone species in kelp forest communities even when their total biomass is relatively small.",
+        sampleExemplar:
+          "Sea otters eat sea urchins, preventing urchins from overgrazing the kelp holdfasts. Without otters, urchin barrens form, collapsing the entire 3D habitat that hundreds of fish and invertebrate species rely upon.",
+        levels: [
+          { score: 3, label: "Proficient (3 pts)", description: "Explains disproportionate community impact via sea urchin herbivory control." },
+          { score: 2, label: "Approaching (2 pts)", description: "Mentions urchins eating kelp, but does not explain the broader community collapse." },
+          { score: 1, label: "Developing (1 pt)", description: "States only that otters are important predators." },
+          { score: 0, label: "Incorrect (0 pts)", description: "Claims otters eat kelp directly or have no ecological impact." },
+        ],
+      },
+      prerequisiteSkillIds: ["oak_marine_producers"],
+      difficulty: 4,
+      status: "pending_approval",
+      tenantOrigin: "oakridge",
+      createdAt: SEED_TIMESTAMP_OAKRIDGE,
+      updatedAt: SEED_TIMESTAMP_OAKRIDGE,
+    },
+  ],
+  misconceptions: [
+    {
+      id: "misc_oakridge_direct_prey",
+      name: "Direct Prey Only Blindspot",
+      unitId: "unit_oakridge_marine_trophic_dynamics",
+      targetSkillIds: ["oak_keystone_predator_balance"],
+      description:
+        "Student assumes removing an apex predator only affects the single species it directly eats, ignoring indirect cascades across other populations.",
+      sampleIncorrectAnswer:
+        "If otters leave the bay, only urchins will be affected because otters do not feed on kelp or rockfish.",
+      remediationGuidance:
+        "Prompt the student to trace the secondary cascade: more urchins will overgraze the kelp holdfasts, destroying fish nurseries and crashing the whole reef.",
+      status: "pending_approval",
+      tenantOrigin: "oakridge",
+      createdAt: SEED_TIMESTAMP_OAKRIDGE,
+      updatedAt: SEED_TIMESTAMP_OAKRIDGE,
+    },
+    {
+      id: "misc_oakridge_energy_accumulation",
+      name: "Energy Accumulation Fallacy",
+      unitId: "unit_oakridge_marine_trophic_dynamics",
+      targetSkillIds: ["oak_keystone_predator_balance"],
+      description:
+        "Student believes energy accumulates as it moves up trophic levels because apex predators are 'stronger' or require more total energy.",
+      sampleIncorrectAnswer:
+        "Great white sharks have more energy than all the phytoplankton because they are at the top of the ocean.",
+      remediationGuidance:
+        "Reiterate the 10% ecological transfer rule: 90% of energy is lost as metabolic heat at every tier. Phytoplankton contain the largest pool of total energy.",
+      status: "pending_approval",
+      tenantOrigin: "oakridge",
+      createdAt: SEED_TIMESTAMP_OAKRIDGE,
+      updatedAt: SEED_TIMESTAMP_OAKRIDGE,
+    },
+  ],
+};
+
+let inMemoryUnits: AuthoringUnit[] = [
+  JSON.parse(JSON.stringify(SEED_SCIENCE_UNIT)),
+  JSON.parse(JSON.stringify(SEED_OAKRIDGE_SCIENCE_UNIT)),
+];
 
 export async function getContentUnits(): Promise<AuthoringUnit[]> {
   const redis = getRedis();
@@ -316,7 +463,7 @@ export async function getContentUnits(): Promise<AuthoringUnit[]> {
   try {
     const raw = await redis.get<string | AuthoringUnit[]>(REDIS_UNITS_KEY);
     if (!raw) {
-      // Seed default
+      // Seed defaults
       await redis.set(REDIS_UNITS_KEY, JSON.stringify(inMemoryUnits));
       return inMemoryUnits;
     }
@@ -874,7 +1021,10 @@ export async function deleteMisconception(
  * Reset content store back to initial seed data.
  */
 export async function resetContentStore(): Promise<AuthoringUnit[]> {
-  const fresh: AuthoringUnit[] = [JSON.parse(JSON.stringify(SEED_SCIENCE_UNIT))];
+  const fresh: AuthoringUnit[] = [
+    JSON.parse(JSON.stringify(SEED_SCIENCE_UNIT)),
+    JSON.parse(JSON.stringify(SEED_OAKRIDGE_SCIENCE_UNIT)),
+  ];
   await persistUnits(fresh);
   return fresh;
 }
