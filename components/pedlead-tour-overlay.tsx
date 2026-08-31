@@ -34,6 +34,8 @@ function readRect(target: string | null): SpotRect | null {
   );
   if (!element) return null;
   const box = element.getBoundingClientRect();
+  // A collapsed dimension means the target is not laid out yet; an even dim is
+  // better than a ring with no area.
   if (box.width < 1 || box.height < 1) return null;
   return {
     top: box.top,
@@ -163,7 +165,7 @@ function PedleadDemoCard({ kind }: { kind: PedleadTourDemoCardKind }) {
           <div className="esc-tour-demo-thread">
             <div className="esc-tour-demo-said">Source: Canvas File · trophic-energy-pyramid.png</div>
             <div className="esc-tour-demo-answer">
-              Vision AI OCR detected 7 tier labels & Joules calculations. Synthesized &ldquo;10% Energy Transfer Computation&rdquo; & &ldquo;Thermodynamic Heat Loss&rdquo;.
+              Vision AI OCR detected 7 tier labels & Joules calculations. Synthesized “10% Energy Transfer Computation” & “Thermodynamic Heat Loss”.
             </div>
           </div>
           <div className="esc-tour-demo-notice">
@@ -199,257 +201,359 @@ export function PedleadTourOverlay() {
   const {
     active,
     position,
+    chapterCount,
     index,
-    total,
-    isLast,
     isFirst,
+    isLast,
     autoPlay,
     toggleAutoPlay,
     next,
     back,
+    restart,
     exit,
   } = usePedleadTour();
 
-  const [rect, setRect] = useState<SpotRect | null>(null);
-  const [viewport, setViewport] = useState({ width: 0, height: 0 });
-  const [progress, setProgress] = useState(0);
+  const step = position?.step ?? null;
+  const target = step?.target ?? null;
 
-  const autoPlayRef = useRef(autoPlay);
-  autoPlayRef.current = autoPlay;
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  /** Last measured spotlight — kept across step changes so the ring can animate. */
+  const [displayRect, setDisplayRect] = useState<SpotRect | null>(null);
+  /** Caption updates only after the new target is painted and measured. */
+  const [contentIndex, setContentIndex] = useState(index);
+  const [viewport, setViewport] = useState({ width: 1024, height: 768 });
+  const calloutRef = useRef<HTMLDivElement | null>(null);
 
-  const measure = useCallback(() => {
-    if (!position) {
-      setRect(null);
-      return;
+  const contentPosition = tourPositionAt(contentIndex);
+  const contentStep = contentPosition.step;
+  const {
+    chapter: contentChapter,
+    chapterNumber: contentChapterNumber,
+    stepNumber: contentStepNumber,
+    stepCount: contentStepCount,
+  } = contentPosition;
+
+  useEffect(() => {
+    if (!active) {
+      setDisplayRect(null);
+      setContentIndex(0);
     }
-    const target = position.step.target;
-    const r = readRect(target);
-    setRect((prev) => (sameRect(prev, r) ? prev : r));
-    setViewport({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-  }, [position]);
+  }, [active]);
 
-  useLayoutEffect(() => {
-    if (!active) return;
-    measure();
-  }, [active, position, measure]);
+  useEffect(() => {
+    const onResize = () =>
+      setViewport({ width: window.innerWidth, height: window.innerHeight });
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
+  // Targets appear asynchronously (route change, expanded cards settling). Keep
+  // the previous rect until the new one is found so the spotlight never flashes
+  // to full-screen dim between steps.
   useEffect(() => {
     if (!active) return;
-    const handleResize = () => measure();
-    window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", handleResize, true);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", handleResize, true);
-    };
-  }, [active, measure]);
-
-  // Scroll spotlight target into view if needed
-  useEffect(() => {
-    if (!active || !position?.step.target) return;
-    const element = document.querySelector<HTMLElement>(
-      `[data-tour="${position.step.target}"]`,
-    );
-    if (element && !elementInViewport(element)) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(measure, 300);
-    }
-  }, [active, position, measure]);
-
-  // Auto-play progress timer
-  useEffect(() => {
-    if (!active || !autoPlay || !position) {
-      setProgress(0);
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
-    }
-
-    const duration = position.step.ms || 14000;
-    const interval = 50;
-    let elapsed = 0;
-    setProgress(0);
-
-    intervalRef.current = setInterval(() => {
-      elapsed += interval;
-      setProgress(Math.min(100, (elapsed / duration) * 100));
-    }, interval);
-
-    timerRef.current = setTimeout(() => {
-      if (!isLast) {
-        hapticTap();
-        next();
-      } else {
-        exit();
+    let frame = 0;
+    let last = 0;
+    const tick = (now: number) => {
+      if (now - last > 120) {
+        last = now;
+        const found = readRect(target);
+        if (found) {
+          setDisplayRect((current) => (sameRect(current, found) ? current : found));
+        }
       }
-    }, duration);
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      frame = requestAnimationFrame(tick);
     };
-  }, [active, autoPlay, position, isLast, next, exit]);
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [active, target]);
 
-  if (!active || !position) return null;
+  // Steps with no anchor ease to full dim once the ring has finished moving.
+  useEffect(() => {
+    if (!active || target) return;
+    const timer = window.setTimeout(() => setDisplayRect(null), 320);
+    return () => window.clearTimeout(timer);
+  }, [active, index, target]);
 
-  const { step, chapter, chapterNumber, stepNumber, stepCount } = position;
-  const lit = rect ? litFromRect(rect, viewport) : null;
+  // Defer caption updates until the new target exists — prevents the callout
+  // from describing step N+1 while the spotlight is still on step N.
+  useEffect(() => {
+    if (!active) return;
+    if (index === contentIndex) return;
+
+    if (!target) {
+      const timer = window.setTimeout(() => setContentIndex(index), 320);
+      return () => window.clearTimeout(timer);
+    }
+
+    let cancelled = false;
+    let attempts = 0;
+    const settle = () => {
+      if (cancelled) return;
+      const found = readRect(target);
+      if (found) {
+        setDisplayRect((current) => (sameRect(current, found) ? current : found));
+        requestAnimationFrame(() => {
+          if (!cancelled) setContentIndex(index);
+        });
+        return;
+      }
+      attempts += 1;
+      if (attempts < 48) {
+        requestAnimationFrame(settle);
+      } else {
+        setContentIndex(index);
+      }
+    };
+    requestAnimationFrame(settle);
+    return () => {
+      cancelled = true;
+    };
+  }, [active, contentIndex, index, target]);
+
+  // Same-route steps often have the target already painted — measure immediately.
+  useLayoutEffect(() => {
+    if (!active || !target) return;
+    const found = readRect(target);
+    if (found) {
+      setDisplayRect((current) => (sameRect(current, found) ? current : found));
+    }
+  }, [active, index, target]);
+
+  // Scroll only when the target is off-screen — mid-page jumps fight the overlay.
+  useEffect(() => {
+    if (!active || !target) return;
+    const timer = window.setTimeout(() => {
+      const element = document.querySelector<HTMLElement>(`[data-tour="${target}"]`);
+      if (element && !elementInViewport(element)) {
+        element.scrollIntoView({ block: "center", behavior: "smooth" });
+      }
+    }, 280);
+    return () => window.clearTimeout(timer);
+  }, [active, index, target]);
+
+  const advance = useCallback(() => {
+    hapticTap();
+    if (isLast) exit();
+    else next();
+  }, [exit, isLast, next]);
+
+  const goBack = useCallback(() => {
+    if (isFirst) return;
+    hapticTap();
+    back();
+  }, [back, isFirst]);
+
+  useEffect(() => {
+    if (!active) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        exit();
+        return;
+      }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        advance();
+        return;
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goBack();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [active, advance, exit, goBack]);
+
+  if (!active || !step || !position) return null;
+
+  const { chapterNumber, stepNumber, stepCount } = position;
+  const showRing = Boolean(displayRect && target);
+  const lit = displayRect
+    ? litFromRect(displayRect, viewport)
+    : {
+        top: 0,
+        left: 0,
+        bottom: viewport.height,
+        right: viewport.width,
+      };
 
   return (
-    <div className="esc-tour-overlay" aria-live="polite">
-      {/* Spotlight cutout mask */}
-      {lit ? (
+    <>
+      <div className="esc-tour-block" aria-hidden />
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{ top: 0, left: 0, right: 0, height: lit.top }}
+      />
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{ top: lit.bottom, left: 0, right: 0, bottom: 0 }}
+      />
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{
+          top: lit.top,
+          height: lit.bottom - lit.top,
+          left: 0,
+          width: lit.left,
+        }}
+      />
+      <div
+        className="esc-tour-shade"
+        aria-hidden
+        style={{
+          top: lit.top,
+          height: lit.bottom - lit.top,
+          left: lit.right,
+          right: 0,
+        }}
+      />
+      {showRing ? (
         <div
-          className="esc-tour-spotlight"
+          className="esc-tour-ring"
+          aria-hidden
           style={{
             top: lit.top,
             left: lit.left,
             width: lit.right - lit.left,
             height: lit.bottom - lit.top,
-            borderRadius: rect?.radius ?? "16px",
+            borderRadius: `calc(${displayRect?.radius ?? "16px"} + ${SPOT_PAD}px)`,
           }}
         />
       ) : (
-        <div className="esc-tour-dimmer" />
+        <div
+          className="esc-tour-ring esc-tour-ring-hidden"
+          aria-hidden
+          style={{
+            top: lit.top,
+            left: lit.left,
+            width: Math.max(0, lit.right - lit.left),
+            height: Math.max(0, lit.bottom - lit.top),
+            borderRadius: `calc(${displayRect?.radius ?? "16px"} + ${SPOT_PAD}px)`,
+          }}
+        />
       )}
 
-      {/* Floating Tour Card */}
-      <aside
-        className="esc-tour-card"
-        style={{
-          position: "fixed",
-          bottom: 24,
-          right: 24,
-          maxWidth: 440,
-          zIndex: 9999,
-        }}
+      <div
+        ref={calloutRef}
+        className="esc-tour-callout esc-tour-callout-docked"
+        role="region"
+        aria-label="Guided tour"
       >
-        {/* Auto-play progress bar */}
-        {autoPlay ? (
-          <div
-            className="esc-tour-progress-bar"
-            style={{ width: `${progress}%` }}
-          />
-        ) : null}
-
-        {/* Header: Chapter & Screen badge */}
-        <div className="esc-tour-card-header">
-          <div className="esc-tour-card-chapter">
-            Chapter {chapterNumber} of {TOUR_CHAPTERS.length} · {chapter.title}
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              hapticTap();
-              exit();
-            }}
-            className="esc-tour-close"
-            aria-label="Exit tour"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Title & Caption */}
-        <h2 className="esc-tour-card-title">{step.title}</h2>
-        <p className="esc-tour-card-caption">{step.caption}</p>
-
-        {/* Simulated Demo Card if needed */}
-        {step.demoCard ? <PedleadDemoCard kind={step.demoCard} /> : null}
-
-        {/* Step dots */}
-        <div className="esc-tour-dots" aria-hidden>
-          {TOUR_CHAPTERS.map((ch, chIdx) => {
-            const isCurrentChapter = chIdx + 1 === chapterNumber;
-            const isPastChapter = chIdx + 1 < chapterNumber;
+        <div className="esc-tour-chapters" aria-hidden>
+          {TOUR_CHAPTERS.map((entry, entryIndex) => {
+            const number = entryIndex + 1;
+            const fill =
+              number < chapterNumber
+                ? 1
+                : number > chapterNumber
+                  ? 0
+                  : stepNumber / stepCount;
             return (
-              <div
-                key={ch.id}
-                className={[
-                  "esc-tour-chapter-group",
-                  isCurrentChapter ? "esc-tour-chapter-group-active" : "",
-                ].join(" ")}
+              <span
+                key={entry.id}
+                className="esc-tour-chapter-seg"
+                title={`${number}. ${entry.title}`}
               >
-                {ch.steps.map((st, stIdx) => {
-                  const absoluteIdx = tourPositionAt(
-                    TOUR_CHAPTERS.slice(0, chIdx).reduce(
-                      (acc, c) => acc + c.steps.length,
-                      0,
-                    ) + stIdx,
-                  );
-                  const isCurrentStep = isCurrentChapter && stIdx + 1 === stepNumber;
-                  const isPastStep =
-                    isPastChapter || (isCurrentChapter && stIdx + 1 < stepNumber);
-
-                  return (
-                    <span
-                      key={st.id}
-                      className={[
-                        "esc-tour-dot",
-                        isCurrentStep ? "esc-tour-dot-active" : "",
-                        isPastStep ? "esc-tour-dot-past" : "",
-                      ].join(" ")}
-                      title={`${ch.title} (${stIdx + 1}/${ch.steps.length})`}
-                    />
-                  );
-                })}
-              </div>
+                <span
+                  className="esc-tour-chapter-seg-fill"
+                  style={{ width: `${fill * 100}%` }}
+                />
+              </span>
             );
           })}
         </div>
 
-        {/* Footer controls */}
-        <div className="esc-tour-card-footer">
-          <div className="esc-tour-nav-left">
-            <button
-              type="button"
-              onClick={() => {
-                hapticTap();
-                toggleAutoPlay();
-              }}
-              className={[
-                "esc-tour-btn",
-                "esc-tour-btn-ghost",
-                autoPlay ? "esc-tour-btn-active" : "",
-              ].join(" ")}
-            >
-              {autoPlay ? "Pause auto-play" : "Auto-play"}
-            </button>
+        <div className="esc-tour-body" aria-live="polite">
+          <div className="esc-tour-meta">
+            <span className="esc-tour-badge">
+              Chapter {contentChapterNumber} of {chapterCount}
+            </span>
+            <span className="esc-tour-chapter-name">{contentChapter.title}</span>
+            <span className="esc-tour-screen">
+              {contentStep.screen ?? contentChapter.screen}
+            </span>
+            <span className="esc-tour-substep">
+              Step {contentStepNumber} of {contentStepCount}
+            </span>
           </div>
 
-          <div className="esc-tour-nav-right">
-            {!isFirst && (
+          <h2 className="esc-tour-title">{contentStep.title}</h2>
+          <p className="esc-tour-caption">{contentStep.caption}</p>
+
+          {contentStep.demoCard ? (
+            <PedleadDemoCard kind={contentStep.demoCard} />
+          ) : null}
+        </div>
+
+        {autoPlay && !isLast ? (
+          <div className="esc-tour-timer" aria-hidden>
+            <span
+              key={index}
+              className="esc-tour-timer-fill"
+              style={{ animationDuration: `${step.ms}ms` }}
+            />
+          </div>
+        ) : null}
+
+        <div className="esc-tour-actions">
+          <button
+            type="button"
+            className="esc-tour-back esc-pressable"
+            onClick={goBack}
+            disabled={isFirst}
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            className="esc-tour-next esc-pressable"
+            onClick={advance}
+          >
+            {isLast ? "Finish tour" : "Next"}
+          </button>
+          <button
+            type="button"
+            className="esc-tour-toggle esc-pressable"
+            aria-pressed={autoPlay}
+            onClick={() => {
+              hapticTap();
+              toggleAutoPlay();
+            }}
+            disabled={isLast}
+          >
+            {autoPlay ? "Pause auto-play" : "Auto-play"}
+          </button>
+          <div className="esc-tour-actions-end">
+            {isLast ? (
               <button
                 type="button"
+                className="esc-tour-quiet esc-pressable"
                 onClick={() => {
                   hapticTap();
-                  back();
+                  restart();
                 }}
-                className="esc-tour-btn esc-tour-btn-secondary"
               >
-                Back
+                Start over
               </button>
-            )}
-
+            ) : null}
             <button
               type="button"
+              className="esc-tour-quiet esc-pressable"
               onClick={() => {
                 hapticTap();
-                if (isLast) exit();
-                else next();
+                exit();
               }}
-              className="esc-tour-btn esc-tour-btn-primary"
             >
-              {isLast ? "Done" : "Next ›"}
+              Exit tour
             </button>
           </div>
         </div>
-      </aside>
-    </div>
+      </div>
+    </>
   );
 }

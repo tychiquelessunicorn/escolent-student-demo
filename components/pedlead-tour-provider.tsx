@@ -151,6 +151,12 @@ export function PedleadTourProvider({ children }: { children: React.ReactNode })
     setIndex((current) => Math.max(current - 1, 0));
   }, []);
 
+  useEffect(() => {
+    if (!active || !autoPlay || isLast || !step) return;
+    const timer = window.setTimeout(next, step.ms);
+    return () => window.clearTimeout(timer);
+  }, [active, autoPlay, index, isLast, next, step]);
+
   const restart = useCallback(() => {
     navigatedFor.current = null;
     setIndex(0);
