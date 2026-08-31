@@ -14,8 +14,6 @@
  * `overrideMode=...`, etc.) continue to seed the exact real state requested.
  */
 
-import { useEffect, useState } from "react";
-
 export function isEmbedParam(value: string | null | undefined): boolean {
   if (!value) return false;
   const normalized = value.trim().toLowerCase();
@@ -37,32 +35,4 @@ export function isEmbedMode(
     }
   }
   return false;
-}
-
-/**
- * React hook to reactively check if the current page is running in embed mode.
- */
-export function useIsEmbed(): boolean {
-  const [isEmbed, setIsEmbed] = useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        return isEmbedParam(params.get("embed"));
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  });
-
-  useEffect(() => {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      setIsEmbed(isEmbedParam(params.get("embed")));
-    } catch {
-      setIsEmbed(false);
-    }
-  }, []);
-
-  return isEmbed;
 }

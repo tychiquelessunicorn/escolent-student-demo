@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { useIsEmbed } from "@/lib/embed";
+import { useIsEmbed } from "@/lib/use-is-embed";
 import { hapticTap } from "@/lib/haptics";
 import { usePedleadTour } from "@/components/pedlead-tour-provider";
 import type {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { hapticTap } from "@/lib/haptics";
-import { useIsEmbed } from "@/lib/embed";
+import { useIsEmbed } from "@/lib/use-is-embed";
 
 /**
  * Returns to the demo shell picker at `/` (demo.escolent.com on production).

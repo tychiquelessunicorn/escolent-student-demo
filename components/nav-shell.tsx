@@ -13,7 +13,7 @@ import { STUDENT_PRACTICE_PATH } from "@/lib/routes";
 import { hapticTap } from "@/lib/haptics";
 import type { AreaTone } from "@/components/ui";
 import { ShellExitLink } from "@/components/shell-exit-link";
-import { useIsEmbed } from "@/lib/embed";
+import { useIsEmbed } from "@/lib/use-is-embed";
 import { EscolentLogoIcon } from "@/components/escolent-logo";
 
 const NAV_ITEMS: {
