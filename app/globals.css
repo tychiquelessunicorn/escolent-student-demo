@@ -1676,16 +1676,62 @@
 .esc-landing {
   min-height: 100vh;
   background: var(--color-surface);
-  padding: 48px 24px 64px;
+  position: relative;
+  overflow-x: hidden;
+  padding: 60px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.esc-landing-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(ellipse 70% 50% at 50% -10%, color-mix(in oklch, var(--color-accent) 12%, transparent), transparent 70%),
+    radial-gradient(circle at 15% 45%, color-mix(in oklch, var(--color-area-progress) 7%, transparent), transparent 45%),
+    radial-gradient(circle at 85% 65%, color-mix(in oklch, var(--color-accent) 8%, transparent), transparent 50%),
+    radial-gradient(var(--color-border) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 24px 24px;
+  opacity: 0.85;
 }
 
 .esc-landing-inner {
-  max-width: 720px;
+  max-width: 820px;
+  width: 100%;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .esc-landing-header {
-  margin-bottom: 36px;
+  margin-bottom: 40px;
+  animation: esc-rise var(--duration-med) var(--ease-snap) both;
+}
+
+.esc-landing-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  background: color-mix(in oklch, var(--color-accent) 8%, var(--color-surface-raised));
+  border: 1px solid color-mix(in oklch, var(--color-accent) 24%, var(--color-border));
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-accent-strong);
+  margin-bottom: 18px;
+}
+
+.esc-landing-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 25%, transparent);
+  animation: esc-pulse 2s infinite ease-in-out;
 }
 
 .esc-landing-brand {
@@ -1706,16 +1752,17 @@
 .esc-landing-wordmark {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 28px;
+  font-size: 32px;
   letter-spacing: -0.04em;
   color: var(--color-content-primary);
+  line-height: 1;
 }
 
 .esc-landing-lede {
-  font-size: 15px;
-  line-height: 1.55;
+  font-size: 16px;
+  line-height: 1.6;
   color: var(--color-content-secondary);
-  max-width: 540px;
+  max-width: 620px;
   margin: 0;
 }
 
@@ -1730,22 +1777,47 @@
 
 .esc-landing-grid {
   display: grid;
-  gap: 12px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .esc-landing-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .esc-landing-card {
-  display: block;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   text-decoration: none;
   color: inherit;
   background: var(--color-surface-raised);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-shell);
-  padding: 18px 20px;
-  transition: border-color var(--duration-fast) var(--ease-snap);
+  padding: 22px 24px;
+  box-shadow: 0 2px 8px -2px color-mix(in oklch, var(--color-content-primary) 4%, transparent);
+  transition:
+    transform var(--duration-fast) var(--ease-snap),
+    border-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease,
+    background-color var(--duration-fast) ease;
+  animation: esc-rise var(--duration-med) var(--ease-snap) both;
 }
 
+.esc-landing-card:nth-child(1) { animation-delay: 60ms; }
+.esc-landing-card:nth-child(2) { animation-delay: 110ms; }
+.esc-landing-card:nth-child(3) { animation-delay: 160ms; }
+.esc-landing-card:nth-child(4) { animation-delay: 210ms; }
+
 .esc-landing-card:hover {
-  border-color: color-mix(in oklch, var(--color-accent) 35%, var(--color-border));
+  transform: translateY(-2px);
+  border-color: color-mix(in oklch, var(--color-accent) 45%, var(--color-border));
+  box-shadow:
+    0 8px 24px -4px color-mix(in oklch, var(--color-accent) 12%, transparent),
+    0 2px 6px -1px color-mix(in oklch, var(--color-content-primary) 6%, transparent);
 }
 
 .esc-landing-card-disabled {
@@ -1759,85 +1831,96 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .esc-landing-card-title {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   margin: 0;
   color: var(--color-content-primary);
 }
 
+.esc-landing-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--color-surface-sunken);
+  color: var(--color-content-muted);
+  border: 1px solid var(--color-border-subtle);
+}
+
 .esc-landing-card-body {
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.55;
   color: var(--color-content-secondary);
-  margin: 0;
+  margin: 0 0 18px;
+  flex: 1;
 }
 
 .esc-landing-card-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
-  margin-top: 14px;
-}
-
-.esc-landing-enter,
-.esc-landing-tour {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  text-decoration: none;
+  gap: 10px;
 }
 
 .esc-landing-enter {
-  color: var(--color-accent-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: var(--color-accent);
+  padding: 7px 16px;
+  border-radius: var(--radius-staff-control);
+  text-decoration: none;
+  box-shadow: 0 2px 6px -1px color-mix(in oklch, var(--color-accent) 40%, transparent);
+  transition:
+    transform var(--duration-fast) var(--ease-snap),
+    background-color var(--duration-fast) ease,
+    box-shadow var(--duration-fast) ease;
 }
 
 .esc-landing-enter:hover {
-  text-decoration: underline;
-}
-
-.esc-landing-tour {
-  color: var(--color-content-secondary);
-}
-
-.esc-landing-tour:hover {
-  color: var(--color-accent-strong);
-  text-decoration: underline;
-}
-
-.esc-landing-soon {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--color-content-muted);
-}
-
-.esc-landing-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-top: 32px;
-  font-size: 13px;
-  color: var(--color-content-muted);
-}
-
-.esc-landing-footer-link {
-  color: var(--color-accent-strong);
-  font-weight: 600;
+  background: var(--color-accent-hover);
+  box-shadow: 0 4px 12px -2px color-mix(in oklch, var(--color-accent) 55%, transparent);
   text-decoration: none;
 }
 
-.esc-landing-footer-link:hover {
-  text-decoration: underline;
+.esc-landing-tour {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-content-primary);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  padding: 7px 14px;
+  border-radius: var(--radius-staff-control);
+  text-decoration: none;
+  transition:
+    transform var(--duration-fast) var(--ease-snap),
+    background-color var(--duration-fast) ease,
+    border-color var(--duration-fast) ease,
+    color var(--duration-fast) ease;
+}
+
+.esc-landing-tour:hover {
+  background: var(--color-surface-raised);
+  border-color: color-mix(in oklch, var(--color-accent) 40%, var(--color-border));
+  color: var(--color-accent-strong);
+  text-decoration: none;
 }
 
 /* Teacher shell — staff tokens on chrome; escalation red stays semantic. */

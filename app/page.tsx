@@ -39,10 +39,15 @@ export const metadata = { title: "Escolent Demo" };
 export default function HomePage() {
   return (
     <main className="esc-landing">
+      <div className="esc-landing-backdrop" aria-hidden />
       <div className="esc-landing-inner">
         <header className="esc-landing-header">
+          <div className="esc-landing-pill">
+            <span className="esc-landing-pill-dot" />
+            Interactive Demo Environment
+          </div>
           <div className="esc-landing-brand">
-            <EscolentLogoIcon size={30} />
+            <EscolentLogoIcon size={34} />
             <span className="esc-landing-wordmark">Escolent</span>
           </div>
           <p className="esc-landing-lede">
@@ -76,6 +81,7 @@ export default function HomePage() {
                 <div className="esc-landing-card-actions">
                   <Link href={shell.href} className="esc-landing-enter esc-pressable">
                     Enter
+                    <span aria-hidden>→</span>
                   </Link>
                   {shell.tourHref ? (
                     <Link href={shell.tourHref} className="esc-landing-tour esc-pressable">
