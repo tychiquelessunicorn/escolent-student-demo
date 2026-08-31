@@ -87,16 +87,6 @@ export default function HomePage() {
             ),
           )}
         </div>
-
-        <footer className="esc-landing-footer">
-          <Link href="/foundation" className="esc-landing-footer-link">
-            Student visual foundation
-          </Link>
-          <span aria-hidden>·</span>
-          <Link href="/teacher/foundation" className="esc-landing-footer-link">
-            Teacher visual foundation
-          </Link>
-        </footer>
       </div>
     </main>
   );
