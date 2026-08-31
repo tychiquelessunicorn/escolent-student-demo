@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EscolentLogoIcon } from "@/components/escolent-logo";
+import { TourReset } from "@/components/tour-reset";
 
 const SHELLS: {
   label: string;
@@ -39,6 +40,7 @@ export const metadata = { title: "Escolent Demo" };
 export default function HomePage() {
   return (
     <main className="esc-landing">
+      <TourReset />
       <div className="esc-landing-backdrop" aria-hidden />
       <div className="esc-landing-inner">
         <header className="esc-landing-header">

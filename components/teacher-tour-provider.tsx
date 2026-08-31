@@ -100,11 +100,9 @@ export function TeacherTourProvider({ children }: { children: React.ReactNode })
     if (tourFromUrl) {
       writeTeacherTourMode(true);
       setActive(true);
-    } else if (demoFromUrl) {
+    } else {
       writeTeacherTourMode(false);
       setActive(false);
-    } else {
-      setActive(readTeacherTourMode());
     }
     setBooted(true);
   }, []);

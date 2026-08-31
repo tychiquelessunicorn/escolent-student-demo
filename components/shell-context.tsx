@@ -112,12 +112,8 @@ export function ShellStateProvider({ children }: { children: React.ReactNode }) 
       // Opening the harness is an explicit request for the other system. Tour
       // mode outlives a navigation, so without this the two would stack on a
       // ?demo=1 load later in the same session.
-      if (fromUrl) {
-        writeTourMode(false);
-        setTourMode(false);
-      } else {
-        setTourMode(readTourMode());
-      }
+      writeTourMode(false);
+      setTourMode(false);
 
       const enabled = !embedFromUrl && (fromUrl || readDemoControlsEnabled());
       setDemoControls(enabled);

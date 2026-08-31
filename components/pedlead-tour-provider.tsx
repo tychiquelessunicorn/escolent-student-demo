@@ -87,11 +87,9 @@ export function PedleadTourProvider({ children }: { children: React.ReactNode })
     if (tourFromUrl) {
       writePedleadTourMode(true);
       setActive(true);
-    } else if (demoFromUrl) {
+    } else {
       writePedleadTourMode(false);
       setActive(false);
-    } else {
-      setActive(readPedleadTourMode());
     }
     setBooted(true);
   }, []);

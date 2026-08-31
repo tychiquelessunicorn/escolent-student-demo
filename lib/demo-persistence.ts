@@ -188,7 +188,8 @@ export function readTourMode(): boolean {
 export function writeTourMode(value: boolean): void {
   if (typeof window === "undefined") return;
   try {
-    sessionStorage.setItem(TOUR_MODE_KEY, value ? "true" : "false");
+    if (value) sessionStorage.setItem(TOUR_MODE_KEY, "true");
+    else sessionStorage.removeItem(TOUR_MODE_KEY);
     sessionStorage.removeItem(LEGACY_PITCH_MODE_KEY);
   } catch {
     /* ignore */

@@ -87,11 +87,9 @@ export function AdminTourProvider({ children }: { children: React.ReactNode }) {
     if (tourFromUrl) {
       writeAdminTourMode(true);
       setActive(true);
-    } else if (demoFromUrl) {
+    } else {
       writeAdminTourMode(false);
       setActive(false);
-    } else {
-      setActive(readAdminTourMode());
     }
     setBooted(true);
   }, []);

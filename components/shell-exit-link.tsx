@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { hapticTap } from "@/lib/haptics";
 import { useIsEmbed } from "@/lib/use-is-embed";
+import { writeTourMode } from "@/lib/demo-persistence";
+import { writeTeacherTourMode } from "@/lib/teacher-tour";
+import { writeAdminTourMode } from "@/lib/admin-tour";
+import { writePedleadTourMode } from "@/lib/pedlead-tour";
 
 /**
  * Returns to the demo shell picker at `/` (demo.escolent.com on production).
@@ -25,7 +29,13 @@ export function ShellExitLink({ variant = "student" }: { variant?: "student" | "
         .join(" ")}
       aria-label="Exit to demo home"
       title="Exit to demo home"
-      onClick={() => hapticTap()}
+      onClick={() => {
+        hapticTap();
+        writeTourMode(false);
+        writeTeacherTourMode(false);
+        writeAdminTourMode(false);
+        writePedleadTourMode(false);
+      }}
     >
       <svg
         className="esc-shell-exit-icon"
