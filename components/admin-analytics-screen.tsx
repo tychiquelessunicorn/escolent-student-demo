@@ -3,6 +3,7 @@
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAdminTour } from "@/components/admin-tour-provider";
+import { EscolentLoader } from "@/components/escolent-logo";
 import type {
   AdminAnalyticsDateRangePreset,
   AdminAnalyticsPayload,
@@ -187,7 +188,11 @@ function AdminAnalyticsInner() {
         </div>
       </div>
 
-      {loading ? <p className="esc-staff-body">Loading…</p> : null}
+      {loading ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading analytics…" size={22} />
+        </div>
+      ) : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {data && !loading && !error ? (
@@ -295,8 +300,8 @@ export function AdminAnalyticsScreen() {
   return (
     <Suspense
       fallback={
-        <div className="esc-screen">
-          <p className="esc-staff-body">Loading…</p>
+        <div className="esc-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}>
+          <EscolentLoader label="Loading analytics…" size={24} />
         </div>
       }
     >

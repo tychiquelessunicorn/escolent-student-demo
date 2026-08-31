@@ -6,6 +6,7 @@ import { EscalationRow } from "@/components/escalation-row";
 import { PageHeading, SectionLabel } from "@/components/ui";
 import type { EscalationRecord } from "@/lib/distress";
 import { hapticTap } from "@/lib/haptics";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 const POLL_MS = 17_000;
 
@@ -53,7 +54,9 @@ export function EscalationListScreen() {
       </div>
 
       {loading ? (
-        <p style={{ color: "var(--color-content-secondary)", fontSize: 15 }}>Loading…</p>
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading escalations…" size={22} />
+        </div>
       ) : null}
 
       {error ? (

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useTeacherTour } from "@/components/teacher-tour-provider";
+import { EscolentLoader, EscolentLoadingIcon } from "@/components/escolent-logo";
 import { OVERVIEW_SKILL_COLUMNS } from "@/lib/demo-data/overview-skills";
 import { hapticTap } from "@/lib/haptics";
 import type { ManagedTeacherSpace } from "@/lib/space-store";
@@ -277,8 +278,8 @@ export function TeacherSpaceEditor({
 
   if (loading) {
     return (
-      <div className="esc-screen esc-spaces-screen">
-        <p className="esc-staff-body">Loading…</p>
+      <div className="esc-screen esc-spaces-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}>
+        <EscolentLoader label="Loading Space…" size={24} />
       </div>
     );
   }
@@ -343,7 +344,14 @@ export function TeacherSpaceEditor({
                       disabled={!coauthorText.trim() || coauthorLoading}
                       onClick={() => void draftFromPlainLanguage()}
                     >
-                      {coauthorLoading ? "Drafting…" : "Draft skills & difficulty"}
+                      {coauthorLoading ? (
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          <EscolentLoadingIcon size={14} />
+                          Drafting…
+                        </span>
+                      ) : (
+                        "Draft skills & difficulty"
+                      )}
                     </button>
                   </div>
                   {coauthorNote ? <p className="esc-spaces-coauthor-note">{coauthorNote}</p> : null}

@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { LmsCourseItem } from "@/lib/pedlead-lms-store";
 import { hapticTap } from "@/lib/haptics";
 import { usePedleadTour } from "@/components/pedlead-tour-provider";
+import { EscolentLoader, EscolentLoadingIcon } from "@/components/escolent-logo";
 
 interface LmsIngestionPayload {
   isConnected: boolean;
@@ -395,8 +396,8 @@ export function PedleadLmsIngestionScreen() {
       </div>
 
       {loading ? (
-        <div style={{ padding: 40, textAlign: "center", color: "var(--color-staff-content-muted)" }}>
-          Connecting to Canvas LMS course repository…
+        <div style={{ padding: "60px 40px", display: "flex", justifyContent: "center" }}>
+          <EscolentLoader label="Connecting to Canvas LMS course repository…" size={24} />
         </div>
       ) : error ? (
         <div
@@ -575,7 +576,7 @@ export function PedleadLmsIngestionScreen() {
                   >
                     {ingesting ? (
                       <>
-                        <span className="esc-spinner" aria-hidden />
+                        <EscolentLoadingIcon size={14} />
                         {activeItem.sourceType === "diagram_image"
                           ? "Running Vision OCR…"
                           : "Ingesting Course Material…"}

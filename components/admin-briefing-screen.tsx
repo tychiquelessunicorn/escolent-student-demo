@@ -7,6 +7,7 @@ import { AdminAskBox } from "@/components/admin-ask-box";
 import { useAdminTour } from "@/components/admin-tour-provider";
 import { getPrimaryAdmin } from "@/lib/demo-data/staff";
 import { isEmbedMode } from "@/lib/embed";
+import { EscolentLoader } from "@/components/escolent-logo";
 import type { AdminBriefingItem, AdminBriefing } from "@/lib/admin-briefing-store";
 
 type DemoState =
@@ -177,7 +178,11 @@ function AdminBriefingInner() {
         </div>
       ) : null}
 
-      {initialLoading ? <p className="esc-staff-body">Loading…</p> : null}
+      {initialLoading ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading briefing…" size={22} />
+        </div>
+      ) : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {data && !initialLoading && !error ? (
@@ -246,8 +251,8 @@ export function AdminBriefingScreen() {
   return (
     <Suspense
       fallback={
-        <div className="esc-screen">
-          <p className="esc-staff-body">Loading…</p>
+        <div className="esc-screen" style={{ padding: "60px 24px", display: "flex", justifyContent: "center" }}>
+          <EscolentLoader label="Loading briefing…" size={24} />
         </div>
       }
     >

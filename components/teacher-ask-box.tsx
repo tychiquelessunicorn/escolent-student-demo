@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 export type TeacherAskTask = "overview_ask" | "teacher_today_ask" | "teacher_briefing_ask";
 
@@ -78,7 +79,11 @@ export function TeacherAskBox({
           </button>
         ) : null}
       </div>
-      {shownLoading ? <p className="esc-mastery-ask-status">{loadingLabel}</p> : null}
+      {shownLoading ? (
+        <div style={{ marginTop: 10 }}>
+          <EscolentLoader label={loadingLabel} size={16} />
+        </div>
+      ) : null}
       {error && !scripted ? <p className="esc-mastery-ask-error">{error}</p> : null}
       {shownAnswer ? <div className="esc-mastery-ask-answer">{shownAnswer}</div> : null}
     </div>

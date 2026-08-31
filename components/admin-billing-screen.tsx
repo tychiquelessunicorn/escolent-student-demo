@@ -8,6 +8,7 @@ import {
   type AdminBillingSnapshot,
   type BillingPlanTier,
 } from "@/lib/admin-billing-store";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 function formatUsd(amount: number): string {
   return new Intl.NumberFormat(undefined, {
@@ -281,7 +282,11 @@ export function AdminBillingScreen() {
         </p>
       </header>
 
-      {loading ? <p className="esc-staff-body">Loading billing…</p> : null}
+      {loading ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading billing…" size={22} />
+        </div>
+      ) : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {billing ? (

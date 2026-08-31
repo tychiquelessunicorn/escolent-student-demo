@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 export function PedleadAskBox({
   tenantFilter,
@@ -80,9 +81,9 @@ export function PedleadAskBox({
         </button>
       </div>
       {shownLoading ? (
-        <p className="esc-mastery-ask-status" aria-live="polite">
-          {loadingLabel}
-        </p>
+        <div style={{ marginTop: 10 }}>
+          <EscolentLoader label={loadingLabel} size={16} />
+        </div>
       ) : null}
       {error ? (
         <p className="esc-mastery-ask-error" role="alert">

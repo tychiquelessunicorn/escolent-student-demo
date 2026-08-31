@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { AdminAskBox } from "@/components/admin-ask-box";
 import { useAdminTour } from "@/components/admin-tour-provider";
 import { hapticTap } from "@/lib/haptics";
+import { EscolentLoader } from "@/components/escolent-logo";
 import type { AdminTodayItem, AdminTodaySchedule } from "@/lib/admin-today-store";
 import type { LmsIntegrationStatusPayload } from "@/lib/lms-integration-store";
 
@@ -220,7 +221,11 @@ export function AdminTodayWeek({ view }: { view: "today" | "week" }) {
       </div>
 
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
-      {!schedule && !error ? <p className="esc-teacher-today-empty">Loading…</p> : null}
+      {!schedule && !error ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading backlog…" size={22} />
+        </div>
+      ) : null}
 
       {lmsStatus ? (
         <div className="esc-staff-panel esc-admin-lms-strip" style={{ marginBottom: 20 }}>

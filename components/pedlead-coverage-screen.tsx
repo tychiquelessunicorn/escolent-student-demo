@@ -9,6 +9,7 @@ import type {
   UnitCoverageSummary,
 } from "@/lib/pedlead-coverage-store";
 import { hapticTap } from "@/lib/haptics";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 export function PedleadCoverageScreen() {
   const [data, setData] = useState<PedleadCoveragePayload | null>(null);
@@ -217,8 +218,8 @@ export function PedleadCoverageScreen() {
       </div>
 
       {loading ? (
-        <div style={{ padding: 40, textAlign: "center", color: "var(--color-staff-content-muted)" }}>
-          Computing cross-tenant coverage metrics…
+        <div style={{ padding: "60px 40px", display: "flex", justifyContent: "center" }}>
+          <EscolentLoader label="Computing cross-tenant coverage metrics…" size={24} />
         </div>
       ) : error ? (
         <div

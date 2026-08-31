@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useIsEmbed } from "@/lib/use-is-embed";
 import { hapticTap } from "@/lib/haptics";
 import { usePedleadTour } from "@/components/pedlead-tour-provider";
+import { EscolentLoader } from "@/components/escolent-logo";
 import type {
   AuthoringMisconception,
   AuthoringSkill,
@@ -651,8 +652,8 @@ export function PedleadContentAuthoringScreen() {
 
   if (loading) {
     return (
-      <div style={{ padding: "40px", color: "var(--color-staff-muted)" }}>
-        Loading curriculum authoring workspace...
+      <div style={{ padding: "60px 40px", display: "flex", justifyContent: "center" }}>
+        <EscolentLoader label="Loading curriculum authoring workspace…" size={24} />
       </div>
     );
   }

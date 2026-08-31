@@ -1,5 +1,7 @@
 "use client";
 
+import { EscolentLoadingIcon } from "@/components/escolent-logo";
+
 const HELP_OPTIONS = [
   { id: "socratic" as const, label: "Get a Socratic Hint" },
   { id: "steps" as const, label: "Break down the steps" },
@@ -70,7 +72,7 @@ export function PracticeHelpDrawer({
         ))}
         {loading ? (
           <div className="esc-ai-thinking" style={{ marginTop: 8 }}>
-            <div className="esc-ai-spinner" />
+            <EscolentLoadingIcon size={15} />
             AI Thinking…
           </div>
         ) : null}

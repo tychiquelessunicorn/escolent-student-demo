@@ -13,6 +13,7 @@ import { useAdminTour } from "@/components/admin-tour-provider";
 import { isEmbedMode } from "@/lib/embed";
 import type { AdminUserPublic, AdminUsersPayload, UserManagementAuditEntry } from "@/lib/admin-users-store";
 import type { StaffRole } from "@/lib/demo-data/staff";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 interface RecordViewer {
   staffId: string;
@@ -546,7 +547,11 @@ function AdminUsersInner() {
         </section>
       ) : null}
 
-      {loading ? <p className="esc-staff-body">Loading…</p> : null}
+      {loading ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading users…" size={22} />
+        </div>
+      ) : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       <ul className="esc-admin-users-list" data-tour="admin-users-list">
@@ -664,7 +669,7 @@ function AdminUsersInner() {
 
 export function AdminUsersScreen() {
   return (
-    <Suspense fallback={<div className="esc-screen esc-admin-users-screen">Loading…</div>}>
+    <Suspense fallback={<div className="esc-screen esc-admin-users-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}><EscolentLoader label="Loading users…" size={24} /></div>}>
       <AdminUsersInner />
     </Suspense>
   );

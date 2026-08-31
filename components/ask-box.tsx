@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDistress } from "@/components/distress-provider";
 import { AREA_VARS, type AreaTone } from "@/components/ui";
+import { EscolentLoader } from "@/components/escolent-logo";
 import type { DistressSurface } from "@/lib/distress";
 import { hapticSoft, hapticTap } from "@/lib/haptics";
 
@@ -123,15 +124,8 @@ export function AskBox({
       </div>
 
       {shownLoading ? (
-        <div
-          style={{
-            fontSize: 13,
-            color: "var(--color-content-muted)",
-            marginTop: 10,
-            animation: "esc-pulse 1.3s ease-in-out infinite",
-          }}
-        >
-          {loadingLabel}
+        <div style={{ marginTop: 10 }}>
+          <EscolentLoader label={loadingLabel} size={16} />
         </div>
       ) : null}
 

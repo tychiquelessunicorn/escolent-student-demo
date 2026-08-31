@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { hapticTap } from "@/lib/haptics";
+import { EscolentLoader } from "@/components/escolent-logo";
 import {
   DIGEST_WEEKDAY_OPTIONS,
   type DigestSchedule,
@@ -110,8 +111,8 @@ export function TeacherDigestScreen() {
 
   if (loading) {
     return (
-      <div className="esc-screen esc-digest-screen">
-        <p className="esc-staff-body">Loading…</p>
+      <div className="esc-screen esc-digest-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}>
+        <EscolentLoader label="Loading settings…" size={24} />
       </div>
     );
   }

@@ -9,6 +9,7 @@ import { useAdminTour } from "@/components/admin-tour-provider";
 import { parseDeletionIntent } from "@/lib/deletion-intent";
 import type { DataDeletionRequest } from "@/lib/student-data-store";
 import { DELETION_HOLD_MS } from "@/lib/student-data-store";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 type ExportKind = "interactions" | "mastery" | "sessions";
 
@@ -459,7 +460,11 @@ function AdminDataRequestsInner() {
 
         <section className="esc-staff-panel esc-admin-data-section">
           <h2 className="esc-staff-section-title">Deletion requests</h2>
-          {loading ? <p className="esc-staff-body">Loading…</p> : null}
+          {loading ? (
+            <div style={{ padding: "20px 0" }}>
+              <EscolentLoader label="Loading requests…" size={20} />
+            </div>
+          ) : null}
           {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
           {!loading && !error && (payload?.requests.length ?? 0) === 0 ? (
             <p className="esc-staff-body">No deletion requests yet.</p>
@@ -568,7 +573,7 @@ function AdminDataRequestsInner() {
 
 export function AdminDataRequestsScreen() {
   return (
-    <Suspense fallback={<div className="esc-screen esc-admin-data-screen">Loading…</div>}>
+    <Suspense fallback={<div className="esc-screen esc-admin-data-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}><EscolentLoader label="Loading data requests…" size={24} /></div>}>
       <AdminDataRequestsInner />
     </Suspense>
   );

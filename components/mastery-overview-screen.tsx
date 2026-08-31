@@ -7,6 +7,7 @@ import { TeacherAskBox } from "@/components/teacher-ask-box";
 import type { MasteryOverviewPayload, MasteryOverviewStudent } from "@/lib/mastery-overview-store";
 import { formatFreshnessLabel } from "@/lib/mastery-overview-labels";
 import { FRESHNESS_LABELS } from "@/lib/demo-data/schedule";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 const POLL_MS = 17_000;
 
@@ -205,7 +206,11 @@ function MasteryOverviewInner() {
         ) : null}
       </div>
 
-      {loading ? <p className="esc-staff-body">Loading…</p> : null}
+      {loading ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading mastery overview…" size={22} />
+        </div>
+      ) : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {data && !error ? (
@@ -329,7 +334,7 @@ function MasteryOverviewInner() {
 
 export function MasteryOverviewScreen() {
   return (
-    <Suspense fallback={<div className="esc-screen"><p className="esc-staff-body">Loading…</p></div>}>
+    <Suspense fallback={<div className="esc-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}><EscolentLoader label="Loading mastery overview…" size={24} /></div>}>
       <MasteryOverviewInner />
     </Suspense>
   );

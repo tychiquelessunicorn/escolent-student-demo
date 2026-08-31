@@ -18,7 +18,7 @@ import { PracticeHelpDrawer } from "@/components/practice-help-drawer";
 import { PracticeRemediationModal } from "@/components/practice-remediation-modal";
 import { PracticeVictoryModal } from "@/components/practice-victory-modal";
 import { SessionEndActions } from "@/components/session-end-actions";
-import { EscolentLogoIcon } from "@/components/escolent-logo";
+import { EscolentLogoIcon, EscolentLoadingIcon } from "@/components/escolent-logo";
 import { Button, Card, CardBody, CardTitle, InsetPanel } from "@/components/ui";
 import {
   completeVictoryLoop,
@@ -2015,7 +2015,7 @@ function PracticeSessionInner() {
               ) : null}
               {state.helpDrawerLoading ? (
                 <div className="esc-ai-thinking" style={{ marginTop: 12 }}>
-                  <div className="esc-ai-spinner" />
+                  <EscolentLoadingIcon size={15} />
                   AI Thinking…
                 </div>
               ) : null}
@@ -2026,7 +2026,7 @@ function PracticeSessionInner() {
               ))}
               {state.socraticHintLoading ? (
                 <div className="esc-ai-thinking">
-                  <div className="esc-ai-spinner" />
+                  <EscolentLoadingIcon size={15} />
                   AI Thinking…
                 </div>
               ) : null}

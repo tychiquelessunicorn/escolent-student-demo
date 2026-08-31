@@ -827,6 +827,80 @@
   color: oklch(52% 0.14 18);
 }
 
+@keyframes esc-logo-pulse {
+  0%, 100% {
+    transform: scale(0.9);
+    opacity: 0.82;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+    filter: drop-shadow(0 0 8px color-mix(in oklch, var(--color-accent) 65%, transparent));
+  }
+}
+
+@keyframes esc-logo-aura {
+  0%, 100% {
+    transform: scale(0.85);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.8;
+  }
+}
+
+.esc-logo-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.esc-logo-loader-glow {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklch, var(--color-accent) 40%, transparent) 0%, transparent 72%);
+  animation: esc-logo-aura 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.esc-logo-loader-icon {
+  animation: esc-logo-pulse 1.6s ease-in-out infinite;
+}
+
+.esc-loader-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-content-secondary);
+  font-size: 14px;
+}
+
+.esc-loader-vertical {
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+
+.esc-loader-label {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.esc-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid color-mix(in oklch, var(--color-content-primary) 20%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: esc-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
 .esc-ai-thinking {
   display: flex;
   align-items: center;

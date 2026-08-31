@@ -8,6 +8,7 @@ import { getPrimaryPedLead } from "@/lib/demo-data/staff";
 import { isEmbedMode } from "@/lib/embed";
 import { hapticTap } from "@/lib/haptics";
 import { usePedleadTour } from "@/components/pedlead-tour-provider";
+import { EscolentLoader } from "@/components/escolent-logo";
 import type {
   PedleadBriefing,
   PedleadBriefingItem,
@@ -297,7 +298,11 @@ function PedleadBriefingInner() {
         </div>
       )}
 
-      {initialLoading && <p className="esc-staff-body">Synthesizing cross-tenant curriculum intelligence…</p>}
+      {initialLoading && (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Synthesizing cross-tenant curriculum intelligence…" size={22} />
+        </div>
+      )}
       {error && <p className="esc-mastery-ask-error">{error}</p>}
 
       {/* AI Ask box grounded only in content briefing items */}
@@ -375,7 +380,7 @@ function PedleadBriefingInner() {
 
 export function PedleadBriefingScreen() {
   return (
-    <Suspense fallback={<div className="esc-screen"><p className="esc-staff-body">Loading briefing…</p></div>}>
+    <Suspense fallback={<div className="esc-screen"><EscolentLoader label="Loading briefing…" size={22} /></div>}>
       <PedleadBriefingInner />
     </Suspense>
   );

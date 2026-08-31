@@ -75,3 +75,65 @@ export function EscolentLogo({
     </div>
   );
 }
+
+interface EscolentLoadingIconProps {
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export function EscolentLoadingIcon({
+  size = 22,
+  className,
+  style,
+}: EscolentLoadingIconProps) {
+  return (
+    <div
+      className={["esc-logo-loader", className].filter(Boolean).join(" ")}
+      style={{
+        position: "relative",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: size,
+        height: size,
+        flexShrink: 0,
+        ...style,
+      }}
+      aria-hidden="true"
+    >
+      <div className="esc-logo-loader-glow" />
+      <EscolentLogoIcon size={size} className="esc-logo-loader-icon" />
+    </div>
+  );
+}
+
+interface EscolentLoaderProps {
+  label?: string;
+  size?: number;
+  className?: string;
+  style?: React.CSSProperties;
+  vertical?: boolean;
+}
+
+export function EscolentLoader({
+  label = "Loading…",
+  size = 22,
+  className,
+  style,
+  vertical = false,
+}: EscolentLoaderProps) {
+  return (
+    <div
+      className={["esc-loader-container", vertical ? "esc-loader-vertical" : "", className]
+        .filter(Boolean)
+        .join(" ")}
+      style={style}
+      role="status"
+      aria-live="polite"
+    >
+      <EscolentLoadingIcon size={size} />
+      {label ? <span className="esc-loader-label">{label}</span> : null}
+    </div>
+  );
+}

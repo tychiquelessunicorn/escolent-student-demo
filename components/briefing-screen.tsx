@@ -7,6 +7,7 @@ import { TeacherAskBox } from "@/components/teacher-ask-box";
 import { useTeacherTour } from "@/components/teacher-tour-provider";
 import { getPrimaryTeacher } from "@/lib/demo-data/staff";
 import { isEmbedMode } from "@/lib/embed";
+import { EscolentLoader } from "@/components/escolent-logo";
 import type { BriefingItem, TeacherBriefing } from "@/lib/briefing-store";
 
 type SpaceFilter = string; // "all" or a managed Space id
@@ -297,7 +298,11 @@ function BriefingInner() {
         </div>
       ) : null}
 
-      {initialLoading ? <p className="esc-staff-body">Loading…</p> : null}
+      {initialLoading ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading briefing…" size={22} />
+        </div>
+      ) : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {data && !initialLoading && !error ? (
@@ -392,8 +397,8 @@ export function BriefingScreen() {
   return (
     <Suspense
       fallback={
-        <div className="esc-screen">
-          <p className="esc-staff-body">Loading…</p>
+        <div className="esc-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}>
+          <EscolentLoader label="Loading briefing…" size={24} />
         </div>
       }
     >

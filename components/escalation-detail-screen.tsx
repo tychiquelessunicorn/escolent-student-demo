@@ -18,6 +18,7 @@ import {
 } from "@/lib/distress-labels";
 import type { EscalationRecord } from "@/lib/distress";
 import { hapticTap } from "@/lib/haptics";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -90,8 +91,8 @@ export function EscalationDetailScreen({ escalationId }: { escalationId: string 
 
   if (loading) {
     return (
-      <div className="esc-screen">
-        <p style={{ color: "var(--color-content-secondary)", fontSize: 15 }}>Loading…</p>
+      <div className="esc-screen" style={{ padding: "60px 0", display: "flex", justifyContent: "center" }}>
+        <EscolentLoader label="Loading escalation…" size={24} />
       </div>
     );
   }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { EscolentLoader } from "@/components/escolent-logo";
 
 type SpaceCard = {
   id: string;
@@ -50,7 +51,11 @@ export function TeacherSpacesScreen() {
         </Link>
       </div>
 
-      {loading ? <p className="esc-staff-body">Loading…</p> : null}
+      {loading ? (
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading Spaces…" size={22} />
+        </div>
+      ) : null}
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {!loading && !error ? (

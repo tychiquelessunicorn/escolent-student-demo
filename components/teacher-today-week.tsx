@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ConnectivityGlyph } from "@/components/connectivity-indicator";
 import { TeacherAskBox } from "@/components/teacher-ask-box";
 import { useTeacherTour } from "@/components/teacher-tour-provider";
+import { EscolentLoader } from "@/components/escolent-logo";
 import { hapticTap } from "@/lib/haptics";
 import type {
   TeacherTodayItem,
@@ -373,7 +374,9 @@ export function TeacherTodayWeek({ view }: { view: "today" | "week" }) {
       {error ? <p className="esc-mastery-ask-error">{error}</p> : null}
 
       {!schedule && !error ? (
-        <p className="esc-teacher-today-empty">Loading…</p>
+        <div style={{ padding: "40px 0" }}>
+          <EscolentLoader label="Loading your Spaces…" size={22} />
+        </div>
       ) : null}
 
       {schedule && view === "today" ? (
