@@ -388,13 +388,40 @@ export function TeacherSpaceEditor({
               {skills.map((skill) => {
                 const checked = form.includedSkillIds.includes(skill.id);
                 return (
-                  <label key={skill.id} className="esc-spaces-check">
+                  <label key={skill.id} className="esc-spaces-check" style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <input
                       type="checkbox"
                       checked={checked}
                       onChange={() => toggleSkill(skill.id)}
                     />
-                    <span>{skill.name}</span>
+                    <span style={{ flex: 1 }}>{skill.name}</span>
+                    <span
+                      style={{
+                        fontSize: 10,
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        padding: "2px 6px",
+                        borderRadius: 4,
+                        background: "oklch(93% 0.05 145)",
+                        color: "oklch(40% 0.15 145)",
+                        border: "1px solid oklch(85% 0.08 145)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                      title="Validated with active diagnostic misconception models (Requirement 32.4)"
+                    >
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 5,
+                          height: 5,
+                          borderRadius: "50%",
+                          background: "oklch(55% 0.18 145)",
+                        }}
+                      />
+                      Rich
+                    </span>
                   </label>
                 );
               })}

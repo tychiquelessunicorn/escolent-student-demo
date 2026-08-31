@@ -19,6 +19,11 @@ const NAV_ITEMS: {
     match: ["/pedlead/briefing"],
   },
   {
+    label: "Coverage",
+    href: "/pedlead/coverage",
+    match: ["/pedlead/coverage"],
+  },
+  {
     label: "Content Authoring",
     href: "/pedlead/authoring",
     match: ["/pedlead/authoring", "/pedlead/content"],

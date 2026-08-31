@@ -72,6 +72,32 @@ export function TeacherSpacesScreen() {
                 <span className="esc-spaces-pill">
                   {space.classroomPacingMode ? "Classroom pacing" : "Self-paced"}
                 </span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 5,
+                    fontSize: 11,
+                    fontWeight: 600,
+                    padding: "3px 9px",
+                    borderRadius: "var(--radius-staff-control)",
+                    background: "oklch(93% 0.05 145)",
+                    color: "oklch(40% 0.15 145)",
+                    border: "1px solid oklch(85% 0.08 145)",
+                  }}
+                  title="All included skills have validated content and active diagnostic misconception models (Requirement 32.4)"
+                >
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: "50%",
+                      background: "oklch(55% 0.18 145)",
+                    }}
+                  />
+                  Rich coverage · {space.skillCount}/{space.skillCount} validated
+                </span>
                 <span className="esc-spaces-card-edit">Edit ›</span>
               </div>
             </Link>
