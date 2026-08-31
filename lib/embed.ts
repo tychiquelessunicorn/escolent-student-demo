@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Public-safe embed mode for marketing / landing page embeds (e.g. escolent.com).
  *
