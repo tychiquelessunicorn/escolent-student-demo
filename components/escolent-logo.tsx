@@ -88,7 +88,7 @@ export function EscolentLoadingIcon({
   style,
 }: EscolentLoadingIconProps) {
   return (
-    <div
+    <span
       className={["esc-logo-loader", className].filter(Boolean).join(" ")}
       style={{
         position: "relative",
@@ -102,9 +102,21 @@ export function EscolentLoadingIcon({
       }}
       aria-hidden="true"
     >
-      <div className="esc-logo-loader-glow" />
-      <EscolentLogoIcon size={size} className="esc-logo-loader-icon" />
-    </div>
+      <video
+        src="/loading-icon.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "contain",
+          display: "block",
+          pointerEvents: "none",
+        }}
+      />
+    </span>
   );
 }
 
