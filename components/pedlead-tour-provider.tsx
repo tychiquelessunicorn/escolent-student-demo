@@ -98,6 +98,14 @@ export function PedleadTourProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (!booted) return;
+    if (active) return;
+    setIndex(0);
+    setAutoPlay(false);
+    navigatedFor.current = null;
+  }, [active, booted]);
+
+  useEffect(() => {
+    if (!booted) return;
     try {
       const params = new URLSearchParams(window.location.search);
       const embedFromUrl = isEmbedParam(params.get("embed"));
@@ -134,14 +142,17 @@ export function PedleadTourProvider({ children }: { children: React.ReactNode })
   }, [active, index, step, pathname, router, autoPlay]);
 
   const next = useCallback(() => {
+    navigatedFor.current = null;
     setIndex((current) => Math.min(current + 1, TOUR_STEP_COUNT - 1));
   }, []);
 
   const back = useCallback(() => {
+    navigatedFor.current = null;
     setIndex((current) => Math.max(current - 1, 0));
   }, []);
 
   const restart = useCallback(() => {
+    navigatedFor.current = null;
     setIndex(0);
   }, []);
 
