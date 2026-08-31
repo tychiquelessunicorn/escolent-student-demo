@@ -369,7 +369,7 @@ export async function buildAdminPilotPayload(): Promise<AdminPilotPayload> {
     day21,
     notes: {
       req145Deferred:
-        "Subject activation by validated curriculum (Req 14.5) waits on Pedagogical Lead content validation — not built in this demo.",
+        "Subject activation by validated curriculum (Req 14.5) is deferred — Admin's Pilot Scope doesn't yet consume Pedagogical Lead's validated-content status to gate rollout.",
       req146Satisfied:
         "Req 14.6 is already satisfied: Admin has no Skill or Misconception authoring screens — only rollout scope controls here.",
     },

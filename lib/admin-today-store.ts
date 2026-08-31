@@ -118,7 +118,7 @@ function buildCurationBacklogItem(): AdminTodayItem | null {
     scopeLabel: "School-wide",
     title: `${entries.length} unmatched errors awaiting curation`,
     detail:
-      "Read-only awareness aggregated across every Space. Promoting unmatched errors into named misconceptions is a Pedagogical Lead capability — not built in this demo.",
+      "Read-only awareness aggregated across every Space. Promoting a specific unmatched error directly into Pedagogical Lead's authoring queue isn't wired up in this demo — Pedagogical Lead can still author misconceptions independently from a plain-language description.",
     dueMeta: "Standing backlog",
     actionRoute: null,
     unmatchedCount: entries.length,

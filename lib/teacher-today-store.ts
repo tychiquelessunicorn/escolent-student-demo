@@ -121,7 +121,7 @@ function curationItem(spaceFilter: string | null): TeacherTodayItem | null {
     spaceLabel,
     title: `${entries.length} unmatched errors awaiting curation`,
     detail:
-      "Read-only awareness from your classes this week. Promoting unmatched errors into named misconceptions is a Pedagogical Lead capability — not built in this demo.",
+      "Read-only awareness from your classes this week. Promoting a specific unmatched error directly into Pedagogical Lead's authoring queue isn't wired up in this demo — Pedagogical Lead can still author misconceptions independently from a plain-language description.",
     dueMeta: "This week",
     actionRoute: null,
     unmatchedCount: entries.length,
