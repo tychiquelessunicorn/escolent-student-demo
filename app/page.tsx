@@ -28,8 +28,8 @@ const SHELLS: {
   },
   {
     label: "Pedagogical Lead",
-    description: "Curriculum lens, skill graph, and instructional quality.",
-    soon: true,
+    description: "Curriculum authoring, skill graph validation, and misconception taxonomies.",
+    href: "/pedlead/authoring",
   },
 ];
 

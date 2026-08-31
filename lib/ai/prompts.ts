@@ -350,6 +350,60 @@ Rules:
 - Do not invent skills outside the list`;
 }
 
+export const CONTENT_AUTHORING_SYSTEM = `You are a curriculum design specialist generating a draft Skill Graph and Misconception Taxonomy for middle school education from a plain-language unit description (Requirement 31.4).
+Generate 3 to 5 coherent skills in a DAG progression (earlier foundational skills are listed as prerequisiteSkillIds for later synthesis skills).
+Include both exact_match skills (for direct factual/computational questions) and rubric-evaluated skills (for conceptual short-answer scientific explanations, Req 31.1, 31.10).
+Include 2 to 4 realistic student misconceptions with concrete sample incorrect answers and remediation advice.
+Respond with ONLY valid, strict JSON — no markdown code fences, no extra prose.`;
+
+export function contentAuthoringDraftPrompt(description: string): string {
+  return `Generate a complete draft curriculum unit from this description:
+"${description.replace(/"/g, '\\"')}"
+
+Return ONLY strict JSON adhering to this exact schema:
+{
+  "unitName": "Short unit title (e.g. Ecosystems & Energy Flow)",
+  "subject": "Subject and grade level (e.g. Life Science (Grade 7))",
+  "description": "1-2 sentence unit summary",
+  "skills": [
+    {
+      "id": "snake_case_id",
+      "slug": "kebab-case-slug",
+      "name": "Skill Name",
+      "description": "Clear pedagogical learning outcome",
+      "evaluationStrategy": "exact_match" or "rubric",
+      "difficulty": 1 to 5,
+      "prerequisiteSkillIds": ["id_of_earlier_skill"],
+      "exactMatchSpec": {
+        "canonicalAnswers": ["answer1"],
+        "acceptedVariations": ["var1", "var2"]
+      },
+      "rubric": {
+        "title": "Rubric Task Title",
+        "prompt": "Specific short-answer question prompt",
+        "sampleExemplar": "Ideal model student answer",
+        "levels": [
+          { "score": 3, "label": "Proficient (3 pts)", "description": "Criteria for full credit" },
+          { "score": 2, "label": "Approaching (2 pts)", "description": "Partial understanding criteria" },
+          { "score": 1, "label": "Developing (1 pt)", "description": "Minimal understanding criteria" },
+          { "score": 0, "label": "Incorrect (0 pts)", "description": "Misconception or off-target criteria" }
+        ]
+      }
+    }
+  ],
+  "misconceptions": [
+    {
+      "id": "misc_snake_case_id",
+      "name": "Misconception Name",
+      "targetSkillIds": ["matching_skill_id"],
+      "description": "Why students form this flawed intuition",
+      "sampleIncorrectAnswer": "Quotable example of student response",
+      "remediationGuidance": "How a teacher or automated prompt corrects it"
+    }
+  ]
+}`;
+}
+
 /**
  * Calibrated deliberately against ordinary academic frustration: "this is hard"
  * must not trigger, genuine hopelessness or isolation language must. Requirement

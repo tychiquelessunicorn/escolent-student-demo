@@ -1,6 +1,6 @@
 /** Staff roster for the investor demo — Teneo pilot. */
 
-export type StaffRole = "teacher" | "admin";
+export type StaffRole = "teacher" | "admin" | "pedagogical_lead";
 
 export interface StaffMember {
   id: string;
@@ -15,6 +15,11 @@ export const DEMO_SESSION_STAFF_ID = "sarah_mokoena";
 /** Harness-only peer admin for data-rights concurrency demos (Req 17.5). */
 export const DEMO_PEER_ADMIN_ID = "demo_peer_admin";
 
+/** Harness-only peer pedagogical lead for content review concurrency demos (Req 31.8c). */
+export const DEMO_PEER_PEDLEAD_ID = "demo_peer_pedlead";
+
+export const DEMO_PEDLEAD_STAFF_ID = "elena_vance";
+
 export const STAFF: StaffMember[] = [
   {
     id: "sarah_mokoena",
@@ -27,6 +32,12 @@ export const STAFF: StaffMember[] = [
     fullName: "David Chen",
     shortName: "Mr. Chen",
     role: "admin",
+  },
+  {
+    id: "elena_vance",
+    fullName: "Dr. Elena Vance",
+    shortName: "Dr. Vance",
+    role: "pedagogical_lead",
   },
 ];
 
@@ -42,6 +53,7 @@ export function formatStaffName(
   style: "short" | "full" = "short",
 ): string {
   if (staffId === DEMO_PEER_ADMIN_ID) return "Another administrator";
+  if (staffId === DEMO_PEER_PEDLEAD_ID) return "Another Pedagogical Lead";
   const member = getStaffMember(staffId);
   if (!member) return "Unknown staff member";
   return style === "full" ? member.fullName : member.shortName;
@@ -53,4 +65,8 @@ export function getPrimaryTeacher(): StaffMember {
 
 export function getPrimaryAdmin(): StaffMember {
   return STAFF.find((member) => member.role === "admin") ?? STAFF[1];
+}
+
+export function getPrimaryPedLead(): StaffMember {
+  return STAFF.find((member) => member.role === "pedagogical_lead") ?? STAFF[2];
 }

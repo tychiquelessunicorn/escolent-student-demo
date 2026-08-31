@@ -23,6 +23,7 @@ interface RecordViewer {
 const ROLE_LABEL: Record<StaffRole, string> = {
   teacher: "Teacher",
   admin: "Admin",
+  pedagogical_lead: "Pedagogical Lead",
 };
 
 function resultClassName(kind: AdminUserCommandResult["kind"]): string {

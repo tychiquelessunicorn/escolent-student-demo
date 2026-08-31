@@ -82,6 +82,7 @@ const BASELINE_EMAILS: Record<string, string> = {
 const ROLE_LABEL: Record<StaffRole, string> = {
   teacher: "Teacher",
   admin: "Admin",
+  pedagogical_lead: "Pedagogical Lead",
 };
 
 const STATUS_LABEL: Record<StaffAccountStatus, string> = {

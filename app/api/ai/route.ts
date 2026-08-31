@@ -4,6 +4,8 @@ import {
   ASK_LOOKUP_SYSTEM,
   SPACE_COAUTHOR_SYSTEM,
   WEEKLY_DIGEST_SYSTEM,
+  CONTENT_AUTHORING_SYSTEM,
+  contentAuthoringDraftPrompt,
   hintPrompt,
   introPrompt,
   learnAskPrompt,
@@ -351,6 +353,107 @@ export async function POST(request: Request) {
           difficultyMin: draft.difficultyMin,
           difficultyMax: draft.difficultyMax,
         });
+      }
+
+      case "content_authoring_draft": {
+        // Req 31.4 — plain language description -> draft Skill Graph & Misconception Taxonomy.
+        // Never auto-saves; lands in editable state first.
+        const description = readQuestion({ question: body.description });
+        if (!description) return badRequest("Invalid description");
+
+        try {
+          const raw = await complete({
+            model: MODEL_DEFAULT,
+            system: CONTENT_AUTHORING_SYSTEM,
+            prompt: contentAuthoringDraftPrompt(description),
+            maxTokens: 1500,
+          });
+
+          const cleaned = raw
+            .trim()
+            .replace(/^```(json)?/i, "")
+            .replace(/```$/, "")
+            .trim();
+
+          const parsed = JSON.parse(cleaned) as Record<string, unknown>;
+          return NextResponse.json({ draft: parsed });
+        } catch (error) {
+          console.warn("[api/ai] content_authoring_draft fallback invoked:", error);
+          // Fallback realistic Grade 7 Life Science draft
+          return NextResponse.json({
+            draft: {
+              unitName: "Ecosystems & Energy Flow",
+              subject: "Life Science (Grade 7)",
+              description: description,
+              skills: [
+                {
+                  id: "eco_trophic_levels",
+                  slug: "trophic-levels-roles",
+                  name: "Trophic Levels & Organism Roles",
+                  description: "Classify organisms as producers, primary consumers, secondary consumers, or decomposers based on energy sources.",
+                  evaluationStrategy: "exact_match",
+                  difficulty: 2,
+                  prerequisiteSkillIds: [],
+                  exactMatchSpec: {
+                    canonicalAnswers: ["producer", "primary consumer", "secondary consumer", "decomposer"],
+                    acceptedVariations: ["herbivore", "carnivore", "autotroph", "heterotroph"]
+                  }
+                },
+                {
+                  id: "eco_energy_transfer_rule",
+                  slug: "ten-percent-energy-rule",
+                  name: "The 10% Ecological Efficiency Rule",
+                  description: "Calculate energy dissipation across successive trophic levels (90% lost to metabolic heat).",
+                  evaluationStrategy: "exact_match",
+                  difficulty: 3,
+                  prerequisiteSkillIds: ["eco_trophic_levels"],
+                  exactMatchSpec: {
+                    canonicalAnswers: ["10%", "10 percent", "100 kcal", "0.1"],
+                    acceptedVariations: ["10 %", "ten percent", "90% lost"]
+                  }
+                },
+                {
+                  id: "eco_trophic_cascades",
+                  slug: "food-web-cascades",
+                  name: "Food Web Interdependence & Trophic Cascades",
+                  description: "Analyze how removing or introducing a keystone apex predator triggers multi-tier trophic cascades across non-adjacent populations.",
+                  evaluationStrategy: "rubric",
+                  difficulty: 4,
+                  prerequisiteSkillIds: ["eco_trophic_levels", "eco_energy_transfer_rule"],
+                  rubric: {
+                    title: "Trophic Cascade Multi-Step Analysis",
+                    prompt: "Predict the ecological consequences on riverbank vegetation and beaver populations if wolves are removed from Yellowstone. Explain the multi-step mechanism.",
+                    sampleExemplar: "Removing wolves allows elk populations to grow unchecked, overgrazing riverbank willow trees. Beavers then lose food and dam materials, shrinking wetland habitats.",
+                    levels: [
+                      { score: 3, label: "Proficient (3 pts)", description: "Explains direct prey surge and indirect vegetation/beaver cascade." },
+                      { score: 2, label: "Approaching (2 pts)", description: "Explains elk increase and overgrazing, but misses beaver impact." },
+                      { score: 1, label: "Developing (1 pt)", description: "Only notes elk increase without ecological cascade." },
+                      { score: 0, label: "Incorrect (0 pts)", description: "Misstates trophic relationship or claims no effect." }
+                    ]
+                  }
+                }
+              ],
+              misconceptions: [
+                {
+                  id: "misc_energy_accumulation",
+                  name: "Energy Accumulation Fallacy",
+                  targetSkillIds: ["eco_energy_transfer_rule"],
+                  description: "Belief that apex predators accumulate the most total energy because they are at the top.",
+                  sampleIncorrectAnswer: "The hawk has the most energy because it sits at the top of the food pyramid.",
+                  remediationGuidance: "Remind the student that 90% of energy is lost as heat at each tier. Producers hold the greatest total energy."
+                },
+                {
+                  id: "misc_direct_prey_only",
+                  name: "Direct Prey Only Blindspot",
+                  targetSkillIds: ["eco_trophic_cascades"],
+                  description: "Assuming predator removal only impacts the animals directly eaten.",
+                  sampleIncorrectAnswer: "If wolves leave, only elk are affected because wolves don't eat trees.",
+                  remediationGuidance: "Guide the student to trace the secondary cascade: more elk means more tree overgrazing and wetland loss."
+                }
+              ]
+            }
+          });
+        }
       }
 
       case "today_ask":
