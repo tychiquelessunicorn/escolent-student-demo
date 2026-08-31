@@ -102,6 +102,14 @@ export function PedleadContentAuthoringScreen() {
     void refreshUnits();
   }, [refreshUnits]);
 
+  // Handle seedPrompt query param from LMS sparse-content fallback (Req 33.5)
+  useEffect(() => {
+    const seed = searchParams.get("seedPrompt");
+    if (seed) {
+      setAiPrompt(seed);
+    }
+  }, [searchParams]);
+
   // Handle deep-link query params (editSkill, addMiscForSkill)
   useEffect(() => {
     if (!activeUnit) return;
@@ -941,6 +949,24 @@ export function PedleadContentAuthoringScreen() {
               <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: "var(--color-content-primary)" }}>
                 {activeUnit.name}
               </h2>
+              {activeUnit.sourceLocationRef && (
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    fontSize: 11.5,
+                    color: "var(--color-staff-interactive)",
+                    background: "var(--color-staff-interactive-subtle)",
+                    padding: "3px 8px",
+                    borderRadius: 4,
+                    marginTop: 6,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  📍 Ingested from: {activeUnit.sourceLocationRef}
+                </div>
+              )}
               <p style={{ fontSize: 13.5, color: "var(--color-content-secondary)", margin: "6px 0 0 0", maxWidth: 680 }}>
                 {activeUnit.description}
               </p>

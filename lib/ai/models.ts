@@ -55,3 +55,48 @@ export async function complete(options: {
     .join("")
     .trim();
 }
+
+export async function completeVision(options: {
+  model: string;
+  prompt: string;
+  imageBase64: string;
+  mediaType: "image/png" | "image/jpeg" | "image/webp" | "image/gif";
+  maxTokens: number;
+  timeoutMs?: number;
+  system?: string;
+}): Promise<string> {
+  const anthropic = getAnthropic();
+  const message = await anthropic.messages.create(
+    {
+      model: options.model,
+      max_tokens: options.maxTokens,
+      ...(options.system ? { system: options.system } : {}),
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: options.mediaType,
+                data: options.imageBase64,
+              },
+            },
+            {
+              type: "text",
+              text: options.prompt,
+            },
+          ],
+        },
+      ],
+    },
+    { timeout: options.timeoutMs ?? 30_000 },
+  );
+
+  return message.content
+    .filter((block): block is Anthropic.TextBlock => block.type === "text")
+    .map((block) => block.text)
+    .join("")
+    .trim();
+}

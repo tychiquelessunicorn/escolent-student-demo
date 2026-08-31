@@ -49,6 +49,9 @@ export interface AuthoringSkill {
   rejectionFeedback?: string | null;
   /** Illustrative tenant origin tag (Req 31a.1 / 31a.7) - content context only */
   tenantOrigin?: string;
+  /** Traceable source provenance reference (Req 33.3) */
+  sourceLocationRef?: string;
+  sourceUrl?: string;
   /** Req 31.8b: staged edits for already-validated content */
   pendingEdit?: Partial<Omit<AuthoringSkill, "id" | "status" | "pendingEdit">> | null;
   authorId?: string;
@@ -86,6 +89,9 @@ export interface AuthoringUnit {
   rejectionFeedback?: string | null;
   /** Illustrative tenant origin tag (Req 31a.1 / 31a.7) - content context only */
   tenantOrigin?: string;
+  /** Traceable source provenance reference (Req 33.3) */
+  sourceLocationRef?: string;
+  sourceUrl?: string;
   skills: AuthoringSkill[];
   misconceptions: AuthoringMisconception[];
   createdAt: string;

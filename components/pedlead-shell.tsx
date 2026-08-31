@@ -24,6 +24,11 @@ const NAV_ITEMS: {
     match: ["/pedlead/coverage"],
   },
   {
+    label: "LMS Ingestion",
+    href: "/pedlead/lms",
+    match: ["/pedlead/lms"],
+  },
+  {
     label: "Content Authoring",
     href: "/pedlead/authoring",
     match: ["/pedlead/authoring", "/pedlead/content"],

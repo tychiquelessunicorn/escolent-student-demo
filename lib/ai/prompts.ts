@@ -385,6 +385,127 @@ Include both exact_match skills (for direct factual/computational questions) and
 Include 2 to 4 realistic student misconceptions with concrete sample incorrect answers and remediation advice.
 Respond with ONLY valid, strict JSON — no markdown code fences, no extra prose.`;
 
+export const LMS_INGESTION_TEXT_SYSTEM = `You are a curriculum design specialist ingesting LMS course material (Requirement 33.1).
+Analyze the provided course material text. If the text has substantive pedagogical substance (at least 2 distinct concepts or learning outcomes), extract a draft skill graph and misconception taxonomy.
+If the text is too sparse, vague, or contains almost no usable curriculum content (less than 40 words or trivial placeholder text), you MUST return a sparse payload with { "sparse": true, "reason": "brief explanation", "suggestedTopic": "suggested topic phrase" }.
+Respond with ONLY valid, strict JSON — no markdown code fences, no extra prose.`;
+
+export function lmsIngestionTextPrompt(sourceTitle: string, sourceText: string): string {
+  return `Ingest this LMS course material document:
+Title: "${sourceTitle.replace(/"/g, '\\"')}"
+
+Content:
+"""
+${sourceText.replace(/"/g, '\\"')}
+"""
+
+If this material is too sparse to construct a coherent multi-node graph (Requirement 33.5), return ONLY:
+{
+  "sparse": true,
+  "reason": "Document contains insufficient curriculum substance for automated parsing.",
+  "suggestedTopic": "Suggested topic based on whatever fragment exists"
+}
+
+Otherwise, return ONLY valid JSON:
+{
+  "sparse": false,
+  "unitName": "Unit title derived from material",
+  "subject": "Subject and Grade (e.g. Life Science (Grade 7))",
+  "description": "Summary of ingested scope",
+  "skills": [
+    {
+      "id": "snake_case_id",
+      "slug": "kebab-case-slug",
+      "name": "Skill Name",
+      "description": "Learning objective from text",
+      "evaluationStrategy": "exact_match" or "rubric",
+      "difficulty": 1 to 5,
+      "prerequisiteSkillIds": [],
+      "exactMatchSpec": {
+        "canonicalAnswers": ["answer"],
+        "acceptedVariations": ["alt"]
+      },
+      "rubric": {
+        "title": "Rubric Task Title",
+        "prompt": "Prompt",
+        "sampleExemplar": "Exemplar model answer",
+        "levels": [
+          { "score": 3, "label": "Proficient (3 pts)", "description": "Criteria" },
+          { "score": 2, "label": "Approaching (2 pts)", "description": "Criteria" },
+          { "score": 1, "label": "Developing (1 pt)", "description": "Criteria" },
+          { "score": 0, "label": "Incorrect (0 pts)", "description": "Criteria" }
+        ]
+      }
+    }
+  ],
+  "misconceptions": [
+    {
+      "id": "misc_id",
+      "name": "Misconception Name",
+      "targetSkillIds": ["skill_id"],
+      "description": "Why students stumble on this concept",
+      "sampleIncorrectAnswer": "Sample student misconception",
+      "remediationGuidance": "Remediation guidance"
+    }
+  ]
+}`;
+}
+
+export const LMS_INGESTION_VISION_SYSTEM = `You are a curriculum specialist performing OCR and visual analysis on an educational diagram or chart from an LMS course repository (Requirement 33.2).
+Perform comprehensive visual description and OCR of all labels, numeric values, trophic tiers, arrows, and thermodynamic percentages.
+Extract a structured draft skill graph and diagnostic misconception taxonomy directly grounded in what the image illustrates.
+Respond with ONLY valid, strict JSON — no markdown code fences, no extra prose.`;
+
+export function lmsIngestionVisionPrompt(sourceTitle: string): string {
+  return `Analyze this educational image/diagram from LMS source: "${sourceTitle.replace(/"/g, '\\"')}".
+Perform visual extraction and OCR, and synthesize a structured curriculum unit proposal.
+
+Return ONLY valid JSON with this schema:
+{
+  "visualDescription": "1-3 sentences describing what was recognized in the diagram via OCR & visual analysis",
+  "ocrLabelsDetected": ["Label 1", "Label 2", "10,000 J", "10% Rule", ...],
+  "unitName": "Unit title (e.g. Trophic Pyramids & Thermodynamic Energy Flow)",
+  "subject": "Life Science (Grade 7)",
+  "description": "Curriculum scope synthesized from diagram analysis",
+  "skills": [
+    {
+      "id": "snake_case_id",
+      "slug": "kebab-case-slug",
+      "name": "Skill Name",
+      "description": "Specific learning outcome evidenced in the diagram",
+      "evaluationStrategy": "exact_match" or "rubric",
+      "difficulty": 1 to 5,
+      "prerequisiteSkillIds": [],
+      "exactMatchSpec": {
+        "canonicalAnswers": ["answer"],
+        "acceptedVariations": ["alt"]
+      },
+      "rubric": {
+        "title": "Rubric Task Title",
+        "prompt": "Specific short-answer question prompt",
+        "sampleExemplar": "Ideal model student answer",
+        "levels": [
+          { "score": 3, "label": "Proficient (3 pts)", "description": "Full criteria" },
+          { "score": 2, "label": "Approaching (2 pts)", "description": "Approaching criteria" },
+          { "score": 1, "label": "Developing (1 pt)", "description": "Developing criteria" },
+          { "score": 0, "label": "Incorrect (0 pts)", "description": "Incorrect criteria" }
+        ]
+      }
+    }
+  ],
+  "misconceptions": [
+    {
+      "id": "misc_id",
+      "name": "Misconception Name",
+      "targetSkillIds": ["skill_id"],
+      "description": "Misunderstanding illustrated by this visual relationship",
+      "sampleIncorrectAnswer": "Sample student answer",
+      "remediationGuidance": "How to remediate"
+    }
+  ]
+}`;
+}
+
 export function contentAuthoringDraftPrompt(description: string): string {
   return `Generate a complete draft curriculum unit from this description:
 "${description.replace(/"/g, '\\"')}"
