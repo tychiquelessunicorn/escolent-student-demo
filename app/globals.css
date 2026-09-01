@@ -245,7 +245,12 @@
   gap: 10px 14px;
   padding: var(--shell-header-y) var(--shell-header-x);
   padding-top: calc(var(--shell-header-y) + env(safe-area-inset-top, 0px));
-  background: transparent;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in oklch, var(--color-surface) 94%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   box-sizing: border-box;
 }
 
@@ -2006,6 +2011,7 @@
 .esc-staff-shell .esc-shell-header {
   border-bottom: 1.5px solid var(--color-staff-border);
   flex-wrap: nowrap;
+  background: color-mix(in oklch, var(--color-staff-surface) 94%, transparent);
 }
 
 .esc-staff-shell #app-rail {
